@@ -62,6 +62,15 @@ export class MobileTabBar {
       closeBtn.addEventListener('click', closeBtn._mobileHandler);
     }
 
+    // Feedback button in drawer header opens the feedback modal.
+    const feedbackBtn = document.getElementById('mobile-feedback-btn');
+    if (feedbackBtn) {
+      feedbackBtn._mobileHandler = () => {
+        document.getElementById('feedback-open-btn')?.click();
+      };
+      feedbackBtn.addEventListener('click', feedbackBtn._mobileHandler);
+    }
+
     // Settings button in drawer header opens the settings modal.
     const settingsBtn = document.getElementById('mobile-settings-btn');
     if (settingsBtn) {
@@ -105,6 +114,12 @@ export class MobileTabBar {
     if (closeBtn?._mobileHandler) {
       closeBtn.removeEventListener('click', closeBtn._mobileHandler);
       delete closeBtn._mobileHandler;
+    }
+
+    const feedbackBtn = document.getElementById('mobile-feedback-btn');
+    if (feedbackBtn?._mobileHandler) {
+      feedbackBtn.removeEventListener('click', feedbackBtn._mobileHandler);
+      delete feedbackBtn._mobileHandler;
     }
 
     const settingsBtn = document.getElementById('mobile-settings-btn');
