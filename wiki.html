@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aeons: The Grand Unfolding — Game Wiki</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-panel: #12121a;
+      --bg-panel-alt: #1a1a2e;
+      --accent: #a0c4ff;
+      --accent2: #ffffff;
+      --text: #e0e0e8;
+      --text-dim: #8888a0;
+      --text-bright: #ffffff;
+      --border: #2a2a3e;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --font-mono: 'Courier New', Courier, monospace;
+      --font-main: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-main);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; color: var(--accent2); }
+
+    /* ── Layout ── */
+    .page-wrapper {
+      display: flex;
+      min-height: 100vh;
+    }
+    nav#sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--border);
+      padding: 24px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    nav#sidebar .nav-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    nav#sidebar ul { list-style: none; }
+    nav#sidebar > ul { padding-left: 0; }
+    nav#sidebar ul li { margin: 3px 0; }
+    nav#sidebar ul li a {
+      display: block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-size: 13px;
+      transition: color 0.15s, background 0.15s;
+    }
+    nav#sidebar ul li a:hover { color: var(--text); background: var(--bg-panel-alt); text-decoration: none; }
+    nav#sidebar ul li.indent a { padding-left: 20px; font-size: 12px; }
+    nav#sidebar .nav-back {
+      margin-bottom: 16px;
+    }
+    nav#sidebar .nav-back a {
+      font-size: 13px;
+      color: var(--accent);
+    }
+
+    main {
+      flex: 1;
+      max-width: 860px;
+      padding: 40px 48px;
+      min-width: 0;
+    }
+
+    /* ── Headings ── */
+    h1 {
+      font-size: 2rem;
+      color: var(--accent2);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 12px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin: 36px 0 16px;
+    }
+    h3 {
+      font-size: 1.15rem;
+      color: var(--text-bright);
+      margin: 24px 0 10px;
+    }
+    h4 {
+      font-size: 1rem;
+      color: var(--accent);
+      margin: 20px 0 8px;
+    }
+    h5, h6 {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin: 16px 0 6px;
+    }
+
+    /* ── Paragraphs & text ── */
+    p { margin: 10px 0; }
+    strong { color: var(--text-bright); }
+    em { color: var(--text-dim); font-style: italic; }
+
+    /* ── Horizontal rule ── */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 24px 0;
+    }
+
+    /* ── Code ── */
+    code {
+      background: var(--bg-panel-alt);
+      color: var(--accent);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 0.88em;
+    }
+    pre {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--accent2);
+      font-size: 0.85em;
+    }
+
+    /* ── Tables ── */
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.9em;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+      text-align: left;
+    }
+    th {
+      background: var(--bg-panel-alt);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    /* ── Lists ── */
+    ul, ol {
+      margin: 10px 0 10px 24px;
+    }
+    li { margin: 4px 0; }
+
+    /* ── Blockquotes ── */
+    blockquote {
+      border-left: 3px solid var(--accent);
+      background: var(--bg-panel);
+      padding: 12px 16px;
+      margin: 12px 0;
+      border-radius: 0 4px 4px 0;
+      color: var(--text-dim);
+    }
+    blockquote strong { color: var(--accent2); }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      nav#sidebar { display: none; }
+      main { padding: 20px 16px; }
+      h1 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+  <nav id="sidebar">
+    <div class="nav-back"><a href="./index.html">← Back to Game</a></div>
+    <div class="nav-title">Aeons Wiki</div>
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#resources">Resources</a></li>
+      <li><a href="#core-mechanics">Core Mechanics</a></li>
+      <li class="indent"><a href="#mote-absorption-energy-generation">Mote Absorption</a></li>
+      <li class="indent"><a href="#clicking">Clicking</a></li>
+      <li class="indent"><a href="#gravity-system">Gravity System</a></li>
+      <li class="indent"><a href="#energy--mass-conversion">Energy → Mass</a></li>
+      <li class="indent"><a href="#dark-matter-node-system">Dark Matter Nodes</a></li>
+      <li class="indent"><a href="#star-lifecycle">Star Lifecycle</a></li>
+      <li><a href="#upgrades">Upgrades</a></li>
+      <li class="indent"><a href="#tier-1-upgrades">Tier 1</a></li>
+      <li class="indent"><a href="#mote-upgrades">Mote Upgrades</a></li>
+      <li class="indent"><a href="#tier-2-upgrades">Tier 2</a></li>
+      <li class="indent"><a href="#tier-3-upgrades">Tier 3</a></li>
+      <li><a href="#milestones">Milestones</a></li>
+      <li><a href="#formulas-reference">Formulas</a></li>
+    </ul>
+  </nav>
+  <main>
+    <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
+<blockquote>
+<p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
+Last updated with commit <code>e52f092</code>.</p>
+</blockquote>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#resources">Resources</a></li>
+<li><a href="#core-mechanics">Core Mechanics</a></li>
+<li><a href="#mote-absorption-energy-generation">Mote Absorption (Energy Generation)</a></li>
+<li><a href="#clicking">Clicking</a></li>
+<li><a href="#gravity-system">Gravity System</a></li>
+<li><a href="#proton-synthesis-energy--hydrogen">Proton Synthesis (Energy → Hydrogen)</a></li>
+<li><a href="#mote-spawning">Mote Spawning</a></li>
+<li><a href="#movement">Movement</a></li>
+<li><a href="#dark-matter-node-system">Dark Matter Node System</a></li>
+<li><a href="#space-dust-background">Space Dust Background</a></li>
+<li><a href="#star-lifecycle">Star Lifecycle</a></li>
+<li><a href="#elemental-fusion-system">Elemental Fusion System</a></li>
+<li><a href="#molecule-synthesis">Molecule Synthesis</a></li>
+<li><a href="#physical-mass-display">Physical Mass Display</a></li>
+<li><a href="#prestige-system">Prestige System</a></li>
+<li><a href="#fusion-lab-panel">Fusion Lab Panel</a></li>
+<li><a href="#upgrades">Upgrades</a></li>
+<li><a href="#cost-formula">Cost Formula</a></li>
+<li><a href="#effect-scaling-rules">Effect Scaling Rules</a></li>
+<li><a href="#group-a--discovery">Group A — Discovery</a></li>
+<li><a href="#group-b--synthesis">Group B — Synthesis</a></li>
+<li><a href="#group-c--fusion-lab">Group C — Fusion Lab</a></li>
+<li><a href="#group-d--stellar-path">Group D — Stellar Path</a></li>
+<li><a href="#group-e--planetary-forge">Group E — Planetary Forge</a></li>
+<li><a href="#goal-widget">Goal Widget</a></li>
+<li><a href="#milestones">Milestones</a></li>
+<li><a href="#visual-thresholds">Visual Thresholds</a></li>
+<li><a href="#mobile-ux">Mobile UX</a></li>
+<li><a href="#residual-bonus-epoch-completion">Residual Bonus (Epoch Completion)</a></li>
+<li><a href="#formulas-reference">Formulas Reference</a></li>
+</ul>
+<hr>
+<h2 id="overview">Overview</h2>
+<p><strong>Epoch 1: The Primordial Universe</strong> — You begin as a lone particle in an empty void. Through absorbing energy motes, converting energy to hydrogen via proton synthesis, and unlocking gravity, you progress through the formation of atoms, gas clouds, nebulae, stars, and eventually planets.</p>
+<p>Mass is now <strong>fully derived</strong> from the atomic weights of elements you accumulate — it cannot be earned or spent directly. The epoch ends when you reach the <strong>stable, Earth-like planet</strong> milestone.</p>
+<p>A <strong>Prestige</strong> system lets you reset your run mid-game in exchange for banked Dark Matter, which is spent on persistent meta upgrades that make each subsequent run faster and deeper.</p>
+<hr>
+<h2 id="resources">Resources</h2>
+<h3 id="elements-molecules">Elements &amp; Molecules</h3>
+<div class="table-wrapper"><table>
+<thead><tr><th>Resource</th><th>Initial</th><th>Cap</th><th>Visible</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Energy</strong></td><td>0</td><td>500</td><td>✅</td><td>Raw quantum energy — earned by absorbing motes or clicking</td></tr>
+<tr><td><strong>Dark Matter</strong></td><td>0</td><td>None</td><td>❌ (unlocked at ms_firstAtom)</td><td>Invisible scaffolding of the cosmos</td></tr>
+<tr><td><strong>Mass</strong></td><td>0</td><td>None</td><td>✅</td><td><strong>Derived</strong> — Σ(element × atomic weight in amu). Cannot be earned or spent directly.</td></tr>
+<tr><td><strong>Gravity</strong></td><td>0</td><td>None</td><td>✅ (derived)</td><td>Derived from Mass; accelerates ambient collection</td></tr>
+<tr><td><strong>Hydrogen</strong></td><td>0</td><td>None</td><td>❌ (unlocked at ms_firstAtom)</td><td>First and most abundant element — fuel for stellar fusion</td></tr>
+<tr><td><strong>Helium</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first production)</td><td>Forged from hydrogen in stellar cores</td></tr>
+<tr><td><strong>Carbon</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first production)</td><td>Triple-alpha fusion product of red giant stars</td></tr>
+<tr><td><strong>Oxygen</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first production)</td><td>Helium fusion product — most abundant element in rocky planets</td></tr>
+<tr><td><strong>Iron</strong></td><td>0</td><td>None</td><td>❌ (unlocked at ms_supernova)</td><td>End product of stellar nucleosynthesis — forged in supernovae</td></tr>
+<tr><td><strong>Water (H₂O)</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first synthesis)</td><td>Universal solvent</td></tr>
+<tr><td><strong>Carbon Dioxide (CO₂)</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first synthesis)</td><td>Key to planetary atmospheres</td></tr>
+<tr><td><strong>Methane (CH₄)</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first synthesis)</td><td>Found in gas giants and early atmospheres</td></tr>
+<tr><td><strong>Iron Oxide (Fe₂O₃)</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first synthesis)</td><td>Rust — iron reacting with oxygen</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="core-mechanics">Core Mechanics</h2>
+<h3 id="mote-absorption-energy-generation">Mote Absorption (Energy Generation)</h3>
+<p>Energy is <strong>not</strong> generated passively. Every point of energy comes from absorbing a visible mote particle on screen.</p>
+<p><strong>Base energy per mote</strong> depends on quality tier:</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Quality</th><th>Name</th><th>Base Value</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>Common</td><td>1</td></tr>
+<tr><td>1</td><td>Uncommon</td><td>1.5</td></tr>
+<tr><td>2</td><td>Rare</td><td>2.5</td></tr>
+<tr><td>3</td><td>Epic</td><td>5</td></tr>
+<tr><td>4</td><td>Legendary</td><td>10</td></tr>
+</tbody></table></div>
+<p><strong>Absorption multipliers</strong> stack multiplicatively:</p>
+<pre><code>finalEnergy = qualityBase × (quantumFluctuation^level) × (vacuumHarvesting^level)
+            = qualityBase × 1.5^qfLevel × 1.3^vhLevel</code></pre>
+<p>Result is rounded up to a minimum of 1.</p>
+<h3 id="clicking">Clicking</h3>
+<p>Clicking on the game canvas generates energy directly.</p>
+<ul>
+<li><strong>Base click value</strong>: 1 energy (5 in dev mode)</li>
+<li><strong>Click Amplifier</strong> multiplies: <code>base × 2.0^level</code></li>
+</ul>
+<div class="table-wrapper"><table>
+<thead><tr><th>Click Amp Level</th><th>Click Value</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>1</td></tr>
+<tr><td>1</td><td>2</td></tr>
+<tr><td>2</td><td>4</td></tr>
+<tr><td>3</td><td>8</td></tr>
+</tbody></table></div>
+<h3 id="gravity-system">Gravity System</h3>
+<p>Gravity pulls nearby motes toward your particle. It is unlocked by purchasing <strong>Gravitational Pull</strong>.</p>
+<p><strong>Gravity radius by upgrade level:</strong></p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Grav Pull Level</th><th>Base Radius (px)</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>200</td></tr>
+<tr><td>2</td><td>400</td></tr>
+<tr><td>3</td><td>700</td></tr>
+<tr><td>4</td><td>1,000</td></tr>
+<tr><td>5</td><td>1,400</td></tr>
+</tbody></table></div>
+<p><strong>Mass-based radius scaling:</strong></p>
+<pre><code>effectiveRadius = (baseRadius + tractorRange) × (1 + log₁₀(1 + mass) × 0.4)</code></pre>
+<div class="table-wrapper"><table>
+<thead><tr><th>Mass</th><th>Radius Multiplier</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>×1.0</td></tr>
+<tr><td>10</td><td>×1.42</td></tr>
+<tr><td>100</td><td>×1.82</td></tr>
+<tr><td>1,000</td><td>×2.20</td></tr>
+<tr><td>10,000</td><td>×2.60</td></tr>
+<tr><td>100,000</td><td>×3.00</td></tr>
+<tr><td>1,000,000</td><td>×3.40</td></tr>
+</tbody></table></div>
+<p><strong>Speed falloff formula</strong> (cubic):</p>
+<pre><code>t = max(0, 1 - distance / gravRadius)
+speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
+<ul>
+<li>At the edge (t=0): 2 px/s (barely drifting)</li>
+<li>At center (t=1): 180 px/s (strong pull)</li>
+<li>Falloff is cubic (t³), creating a sharp inner zone and gentle outer drift</li>
+</ul>
+<p><strong>Mass-based speed scaling:</strong></p>
+<pre><code>massSpeedMult = 1 + log₁₀(1 + mass) × 0.1</code></pre>
+<div class="table-wrapper"><table>
+<thead><tr><th>Mass</th><th>Speed Multiplier</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>×1.0</td></tr>
+<tr><td>100</td><td>×1.20</td></tr>
+<tr><td>10,000</td><td>×1.40</td></tr>
+<tr><td>1,000,000</td><td>×1.60</td></tr>
+</tbody></table></div>
+<h3 id="proton-synthesis-energy-hydrogen">Proton Synthesis (Energy → Hydrogen)</h3>
+<p>Replaces the old energy → mass conversion. Unlocked by purchasing <strong>Proton Forge</strong>.</p>
+<p>A <strong>rate slider</strong> in the Fusion Lab panel (0–100%) controls how much energy per second flows into hydrogen production.</p>
+<pre><code>H/s = protonForgeRate × sliderFraction × energyAvailable</code></pre>
+<ul>
+<li>Energy is drained continuously; hydrogen accumulates</li>
+<li>Default slider fraction: 0% (player must set manually)</li>
+<li>Upgraded by <strong>Quantum Nucleogenesis</strong> (×1.5 H rate per level) and <strong>Energy Density</strong> (−15% energy cost per level)</li>
+<li>Prestige bonus <strong>Primordial Rate</strong> adds +25% to the base rate</li>
+</ul>
+<h3 id="mote-spawning">Mote Spawning</h3>
+<p>Motes spawn procedurally across the infinite universe. Two systems feed the supply:</p>
+<ol>
+<li><strong><code>spawnParticle()</code></strong> — Random spawns with 60% weighted inside 2× gravity radius (sqrt distribution for uniform area coverage). 40% spawn randomly across the viewport.</li>
+</ol>
+<ol>
+<li><strong><code>_spawnEdgeParticle()</code></strong> — Edge spawns with 50% chance between 0.8× and 2.5× gravity radius.</li>
+</ol>
+<p><strong>Spawn flash</strong>: Each new mote shows a tiny white flash (0.3s fade) at its spawn location.</p>
+<p><strong>Mote Genesis</strong> upgrade increases spawn rate:</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Level</th><th>Spawn Rate Multiplier</th><th>Approx. Spawns/s</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>×1.0</td><td>~5%</td></tr>
+<tr><td>1</td><td>×1.5</td><td>~7.5%</td></tr>
+<tr><td>2</td><td>×2.25</td><td>~11%</td></tr>
+<tr><td>3</td><td>×3.375</td><td>~17%</td></tr>
+<tr><td>4</td><td>×5.06</td><td>~25%</td></tr>
+<tr><td>5</td><td>×7.59</td><td>~38%</td></tr>
+</tbody></table></div>
+<h3 id="movement">Movement</h3>
+<p>Unlocked by <strong>Cosmic Drift</strong> (requires upg_gravitationalPull).</p>
+<p><strong>Desktop:</strong> WASD or arrow keys to navigate. <strong>Mobile / touch:</strong> Touch-drag anywhere on the canvas to move the character toward the drag point. The character follows the touch position smoothly.</p>
+<ul>
+<li><strong>Ion Thrust</strong>: +20 speed per level (max 5 levels)</li>
+<li><strong>Manoeuvring Jets</strong>: +0.8 turn rate per level (max 3 levels)</li>
+</ul>
+<p>Once movement is unlocked, the <strong>Space Dust</strong> parallax layer becomes visible (see below).</p>
+<h3 id="dark-matter-node-system">Dark Matter Node System</h3>
+<blockquote>
+<p>Activated at <strong>ms_gasCloud</strong>. Nodes appear automatically when achievement thresholds are crossed — no upgrade gate required.</p>
+</blockquote>
+<p>Dark matter is collected by navigating to <strong>nodes</strong> that spawn in the void. Each node must be physically reached.</p>
+<p><strong>Node creation — threshold-triggered:</strong></p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Threshold</th><th>First Burst</th><th>Continuous Rate</th></tr></thead>
+<tbody>
+<tr><td>Energy ≥ 1,000</td><td>1 node</td><td>1 node per 5,000 energy</td></tr>
+<tr><td>Energy ≥ 10,000</td><td>2 nodes</td><td>1 node per 2,500 energy</td></tr>
+<tr><td>ms_firstAtom (H reached)</td><td>5 nodes</td><td>1 node per 5,000 H</td></tr>
+<tr><td>ms_heliumAccumulated</td><td>3 nodes</td><td>1 node per 500 He</td></tr>
+<tr><td>ms_carbonForged</td><td>4 nodes</td><td>1 node per 100 C</td></tr>
+<tr><td>ms_firstWater</td><td>2 nodes</td><td>1 node per 100 H₂O</td></tr>
+<tr><td>1st Prestige</td><td>10 nodes</td><td>+5 per prs_dmCapacity level</td></tr>
+</tbody></table></div>
+<p>Each threshold is crossed only once per run (burst on first crossing), then continuous generation begins when the resource is at or above the rate threshold.</p>
+<p><strong>Node value:</strong> Flat <strong>1 DM</strong> per node (compound factor removed). Prestige upgrades <code>prs_darkFlow</code> and <code>prs_dmSiphon</code> increase max nodes and collection radius.</p>
+<p><strong>Node lifecycle:</strong></p>
+<ol>
+<li>Spawns at a random void position (margin ≥ 350 px from region edges).</li>
+<li>Flickers gently at very low opacity (barely visible in the dark void).</li>
+<li>Emits periodic gravity waves (interval 1.25–2.75 s per node) that push nearby energy motes outward.</li>
+<li>Collected when the player moves within the <strong>collection radius</strong> (default 60 px, +40 px from <code>prs_dmSiphon</code>).</li>
+<li>Removed from the field on collection; a <code>darkMatter:collected</code> event fires.</li>
+</ol>
+<p><strong>Gravity wave:</strong> Each pulse emits a circular force wave expanding at 360 px/s. The wave radius is dynamically sized to the current player distance + 200 px, ensuring every pulse just reaches the player. Nearby energy motes are pushed outward. The wave also visibly disrupts the space dust layer (dust displaced up to 18 px vertically at the wave front, snapping back immediately as the wave passes).</p>
+<p><strong>Pulse frequency:</strong> Interval of 1.25–2.75 s between pulses per node.</p>
+<p><strong>Reflected ripple:</strong> When the wave front reaches the player, a cosmic dust wave reflects back toward the dark matter node in a 60° cone (±30°, max 140 px, ~0.7 s duration). The cone is centred on the direction from the player toward the DM node, and dust within it is displaced — evoking a stone-in-pond reflection.</p>
+<hr>
+<h3 id="space-dust-background">Space Dust Background</h3>
+<blockquote>
+<p>Unlocks lazily the first frame after <strong>Cosmic Drift</strong> is active (movement enabled).</p>
+</blockquote>
+<p>350 dust particles are seeded with a deterministic random seed and drawn at ultra-low opacity (0.014–0.056 alpha), providing a subtle spatial reference as the player moves.</p>
+<ul>
+<li><strong>Parallax factor</strong>: 0.07 (dust moves at 7% of camera velocity → near-stationary)</li>
+<li><strong>Colour palette</strong>: 72% cool blue-white (<code>#c8d8f8</code>), 28% warm amber (<code>#ffe8c0</code>)</li>
+<li><strong>Tiling</strong>: normalised coordinates tile seamlessly across the viewport</li>
+</ul>
+<p><strong>Dark matter disruption:</strong> When a dark matter node is active, its vicinity is visually cleared:</p>
+<ul>
+<li>A radial dark halo (radius ~55–95 px) darkens the immediate area around the node</li>
+<li>Dust particles near the node are pushed outward (max 50 px displacement)</li>
+<li>At the expanding wave front, dust is subtly brightened (no size expansion — prevents the ring-of-pixels artefact)</li>
+</ul>
+<hr>
+<h3 id="star-lifecycle">Star Lifecycle</h3>
+<p>Unlocked at <strong>ms_mainSequenceStar</strong> (hydrogen ≥ a defined threshold). Stars cycle through stages:</p>
+<ol>
+<li>Main Sequence → 2. Red Giant → 3. Supernova → 4. Neutron Star → 5. Second Generation</li>
+</ol>
+<p>Each stage triggers milestones and unlocks upgrades. Elemental fusion runs continuously while a star is active (see <a href="#elemental-fusion-system">Elemental Fusion System</a>).</p>
+<hr>
+<h3 id="elemental-fusion-system">Elemental Fusion System</h3>
+<p>Driven by <code>FusionEngine.js</code>. <strong>H → He</strong> requires <strong>Fusion Ignition</strong> upgrade; <strong>He → C/O</strong> requires <strong>Red Giant Catalyst</strong> upgrade.</p>
+<p><strong>Main Sequence (H → He)</strong> — gated by <code>upg_fusionIgnition</code></p>
+<pre><code>Rate: 1.0 He/s × hFusionMult × hToHeThrottle  (consumes 4H per 1He)</code></pre>
+<p><strong>Red Giant (He → C and He → O)</strong> — gated by <code>upg_redGiantCatalyst</code></p>
+<pre><code>Carbon rate:  0.3 C/s × heFusionMult × (1 - cOSplit)  (consumes 3He per 1C)
+Oxygen rate:  0.3 O/s × heFusionMult × cOSplit         (consumes 4He per 1O)</code></pre>
+<p><strong>Supernova (burst)</strong></p>
+<pre><code>On stage entry: +10 × ironYieldMult  Fe (one-time burst)</code></pre>
+<p>Throttle and split controls are adjustable in the <strong>Fusion Lab panel</strong> (see below).</p>
+<p><strong>Hydrogen bootstrap</strong> — On <code>ms_firstAtom</code> reward:</p>
+<pre><code>hydrogen += mass × 0.1,  helium += mass × 0.025</code></pre>
+<pre><code>
+**Fusion multiplier upgrades:**
+
+| Upgrade | Effect Type | Magnitude/level |
+|---------|-------------|-----------------|
+| Hydrogen Fusion | `hFusionMult` | ×1.5 |
+| Helium Ignition | `heFusionMult` | ×1.5 |
+| Extended Main Sequence | `ironYieldMult` | ×1.5 |
+
+Reactions are capped by ingredient availability. If hydrogen is scarce, helium production scales proportionally down.
+
+---
+
+### Molecule Synthesis
+
+Driven by `MoleculeEngine.js`, which runs passively each tick once a molecule's resource is `visible: true`.
+
+**Recipes (rate = molecules/s, limited by ingredient availability):**
+
+| Molecule | Ingredients | Rate/s |
+|----------|-------------|--------|
+| Water (H₂O) | 2H + 1O | 0.010 |
+| Carbon Dioxide (CO₂) | 1C + 2O | 0.010 |
+| Methane (CH₄) | 1C + 4H | 0.010 |
+| Iron Oxide (Fe₂O₃) | 2Fe + 3O | 0.005 |
+
+Molecules become visible when first synthesised; the `molecule:first` event fires and reveals the resource in the UI.
+
+---
+
+### Physical Mass Display
+
+The Resource Panel shows a sub-label under the **Mass** row with the physical mass in SI units, derived from the actual atomic weights of all accumulated elements.
+
+**Formula:**</code></pre>
+<p>physicalMassGrams = Σ(element_amount × atomicWeight_amu) × 1.66054e-24 g/amu</p>
+<pre><code>
+**Atomic weights used:**
+
+| Element | amu |
+|---------|-----|
+| Hydrogen | 1.008 |
+| Helium | 4.003 |
+| Carbon | 12.011 |
+| Oxygen | 15.999 |
+| Iron | 55.845 |
+
+**SI scale (auto-ranging):**
+ag → fg → pg → ng → µg → mg → g → kg → t → kt → Mt
+
+Early game amounts land in the attogram–femtogram range (scientifically correct for atomic-scale matter).
+
+---
+
+## Fusion Lab Panel
+
+The **Fusion Lab** (toolbar button ⚗️, appears after buying Proton Forge) provides interactive controls for the synthesis pipeline:
+
+| Control | Description |
+|---------|-------------|
+| Proton Synthesis slider | 0–100% of energy/s → hydrogen |
+| H→He throttle slider | 0–100% of max H→He rate to run |
+| C/O split slider | % of red-giant He reactions → C vs → O |
+| Molecule on/off toggles | Enable/disable each molecule synthesis recipe |
+
+Sections are only visible once their prerequisite upgrade has been purchased.
+
+---
+
+## Prestige System
+
+The **Prestige** system allows resetting your run mid-game in exchange for Dark Matter, which is then spent on persistent meta upgrades.
+
+### When Prestige Is Available
+
+- `ms_firstAtom` has been triggered (first hydrogen reached)
+- Player has accumulated ≥ 10 Dark Matter this run
+- Access via the **✦** toolbar button (appears once any DM is collected)
+
+### What Happens on Prestige
+
+1. All in-run resources, upgrades, milestones, stars → reset to zero
+2. Dark Matter collected this run is **banked** (added to `darkMatterBanked`)
+3. 10 DM nodes are immediately created in the void (+5 per `prs_dmCapacity` level)
+4. Prestige run bonuses are applied (pre-purchased upgrades, seeded resources)
+5. Epoch 1 reloads fresh
+
+### What Persists
+
+- `darkMatterBanked` — total DM available to spend on meta upgrades
+- Prestige upgrade levels (all `prs_*` upgrades)
+- Prestige count
+
+### Meta Upgrade Tree
+
+Opened via the Prestige panel. Four branches of persistent upgrades:
+
+**Production branch** (yellow) — start each run ahead
+
+| ID | Name | DM | Effect |
+|----|------|----|--------|
+| prs_voidMemory | Void Memory | 10 | Start with 50 H + 10 He |
+| prs_primordalRate | Primordial Rate | 25 | +25% proton synthesis rate |
+| prs_moteStorm | Mote Storm | 50 | Start with Mote Genesis L3 |
+| prs_energySurge | Energy Surge | 75 | +50% starting energy cap |
+| prs_heliumSeed | Helium Seed | 100 | Start with 20 He |
+
+**Discovery branch** (blue) — unlock mechanics earlier
+
+| ID | Name | DM | Effect |
+|----|------|----|--------|
+| prs_fusionKnowledge | Fusion Knowledge | 15 | Start with Fusion Ignition purchased |
+| prs_stellarMemory | Stellar Memory | 30 | Star lifecycle 50% faster |
+| prs_elementalAffinity | Elemental Affinity | 50 | He→C/O unlocked from first red giant |
+| prs_molecularInstinct | Molecular Instinct | 75 | Molecule synthesis starts at 2× rate |
+
+**Dark Force branch** (purple) — improve DM collection
+
+| ID | Name | DM | Effect |
+|----|------|----|--------|
+| prs_darkResonance | Dark Resonance | 10 | +1 DM burst node per energy threshold |
+| prs_voidHarvest | Void Harvest | 25 | ×1.5 DM node creation rate |
+| prs_dmSiphon | DM Siphon | 15 | +40 px DM collection radius |
+| prs_darkFlow | Dark Flow | 30 | +5 max simultaneous DM nodes |
+| prs_dmCapacity | Dark Matter Abundance | 20 | +5 bonus nodes on each prestige (max 5 levels) |
+
+**Inheritance branch** (orange) — carry upgrades forward
+
+| ID | Name | DM | Effect |
+|----|------|----|--------|
+| prs_gravityStart | Gravity Start | 20 | Begin with Gravitational Pull L2 |
+| prs_motorStart | Motor Start | 20 | Begin with Cosmic Drift unlocked |
+| prs_protonStart | Proton Start | 35 | Begin with Proton Forge purchased |
+| prs_forgeMemory | Forge Memory | 50 | +25% proton synthesis rate carry-over |
+| prs_cosmicWeb | Cosmic Web | 60 | DM threshold values halved |
+
+---
+
+## Upgrades
+
+### Cost Formula
+
+For multi-level upgrades:</code></pre>
+<p>cost(level) = baseCost × costScaling^(level - 1)</p>
+<pre><code>
+For single-level upgrades: cost is simply `baseCost`.
+
+Multi-element costs use a `costRecipe` array; all costs must be affordable simultaneously.
+
+### Effect Scaling Rules
+
+| Effect Type | Scaling | Formula at Level N |
+|-------------|---------|-------------------|
+| `rateAdditive` | Linear | `magnitude × N` |
+| `capIncrease` | Linear | `magnitude × N` |
+| `rateMultiplier` | Exponential | `magnitude^N` |
+| `clickMultiplier` | Exponential | `magnitude^N` |
+| `absorptionMultiplier` | Exponential | `magnitude^N` |
+| `unlock` | Binary | Unlocks at level 1 |
+
+---
+
+### Group A — Discovery
+
+Always available. Energy costs.
+
+| ID | Name | Levels | Cost | Effect |
+|----|------|--------|------|--------|
+| upg_gravitationalPull | Gravitational Pull | 5 | 15E × 2.2× | Unlock + grow gravity radius |
+| upg_moteGeneration | Mote Genesis | 15 | 25E × 1.4× | ×1.5 spawn rate/level |
+| upg_quantumFluctuation | Quantum Fluctuation | 10 | 50E × 1.5× | ×1.5 absorption/level |
+| upg_clickAmplifier | Click Amplifier | 3 | 75E × 3× | ×2.0 click energy/level |
+| upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 1.5× | ×1.3 absorption/level |
+| upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: Grav Pull) |
+| upg_ionThrust | Ion Thrust | 5 | 75E × 2× | +20 speed/level |
+| upg_maneuveringJets | Manoeuvring Jets | 3 | 60E × 2× | +0.8 turn rate/level |
+
+---
+
+### Group B — Synthesis
+
+Unlocked after Proton Forge. Energy and hydrogen costs.
+
+| ID | Name | Levels | Cost | Effect | Prereq |
+|----|------|--------|------|--------|--------|
+| upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | — |
+| upg_quantumNucleogenesis | Quantum Nucleogenesis | 5 | 250E × 2× | ×1.5 H production rate | protonForge |
+| upg_energyDensity | Energy Density | 5 | 100H × 2× | −15% energy per H | protonForge |
+| upg_quantumReservoir | Quantum Reservoir | 5 | 200H × 2× | +5,000 energy cap/level | protonForge |
+| upg_particleRefinement | Particle Refinement | 5 | 100H × 2× | Higher mote quality tiers | ms_firstAtom |
+| upg_moteResonance | Mote Resonance | 10 | 500H × 1.6× | ×1.5 absorption/level | particleRefinement |
+| upg_quantumFlood | Quantum Flood | 10 | 300H × 2× | ×2.0 spawn rate/level | ms_firstAtom |
+| upg_eventHorizon | Event Horizon | 5 | 200H × 2× | Tractor beam, +60 px/level | ms_firstAtom |
+
+---
+
+### Group C — Fusion Lab
+
+Shown in the Fusion Lab panel. Hydrogen/helium costs.
+
+| ID | Name | Levels | Cost | Effect | Gate |
+|----|------|--------|------|--------|------|
+| upg_fusionIgnition | Fusion Ignition | 1 | 500H | Unlock H→He reaction | ms_mainSequenceStar |
+| upg_hydrogenFusion | Hydrogen Fusion | 5 | 200H × 2× | ×1.5 H→He rate/level | fusionIgnition |
+| upg_redGiantCatalyst | Red Giant Catalyst | 1 | 200He | Unlock He→C/O | ms_redGiant |
+| upg_heliumIgnition | Helium Ignition | 5 | 100He × 2× | ×1.5 He→C/O rate/level | redGiantCatalyst |
+| upg_molecularCatalyst | Molecular Catalyst | 3 | 50O × 2× | ×2.0 molecule synthesis rate | ms_oxygenRich |
+| upg_supernovaAmplifier | Supernova Amplifier | 3 | 20Fe × 2× | ×2.0 Fe burst/level | ms_ironPeak |
+
+---
+
+### Group D — Stellar Path
+
+Gates star formation and evolution. Hydrogen/helium costs.
+
+| ID | Name | Levels | Cost | Effect | Gate |
+|----|------|--------|------|--------|------|
+| upg_stellarNursery | Stellar Nursery | 3 | 500H × 2× | +5.0 H synthesis rate | ms_protostarIgnites |
+| upg_protostarIgnition | Protostar Ignition | 1 | 2,000H | ×2.0 all fusion rates | ms_protostarIgnites |
+| upg_gravityAmplifier | Gravity Amplifier | 1 | 500He | ×1.5 energy rate | ms_mainSequenceStar |
+| upg_gravityAmplifier2 | Gravity Amplifier II | 1 | 1,000He | +80 DM wave force | ms_mainSequenceStar |
+| upg_starLifeExtension | Extended Main Sequence | 1 | 2,000He | ×1.5 iron yield from supernova | ms_supernova |
+| upg_parallelStars | Twin Stellar Cores | 1 | 5,000He | Unlock 2nd star slot | ms_supernova |
+
+---
+
+### Group E — Planetary Forge
+
+Late game. Iron, carbon, molecule costs.
+
+| ID | Name | Levels | Cost | Effect | Gate |
+|----|------|--------|------|--------|------|
+| upg_rapidCycling | Rapid Cycling | 3 | 10Fe × 2× | ×0.8 star cycle duration | ms_supernova |
+| upg_elementalYield | Elemental Yield | 3 | 50Fe × 2× | ×2.0 iron yield | ms_secondGenStars |
+| upg_voidSaturation | Void Saturation | 5 | 50C × 2.5× | ×3.0 spawn rate/level | ms_carbonForged |
+| upg_planetesimalSweep | Planetesimal Sweep | 1 | 100Fe | ×2.0 H synthesis rate | ms_planetaryDisc |
+| upg_ironCoreDevelopment | Iron Core Development | 1 | 200Fe | +50.0 H synthesis rate | ms_planetesimals |
+| upg_hydrologicalCycle | Hydrological Cycle | 5 | 100H₂O + 50Fe × 2× | +50,000 energy cap | ms_rockyPlanet |
+| upg_cosmicOptimisation | Cosmic Optimisation | 1 | 5Fe₂O₃ + 5CH₄ | ×1.2 all rates | ms_rockyPlanet |
+| upg_deepTimePatience | Deep-Time Patience | 1 | 1,000Fe | ×1.2 cosmic residue | ms_stablePlanet |
+
+---
+
+## Goal Widget
+
+A persistent goal bar is displayed at the top of the Resource panel. It tracks the **next upcoming milestone** and shows live progress.
+
+- **Title**: The milestone name (e.g. "Birth of Hydrogen")
+- **Progress bar**: Fills proportionally from 0 → 100% as the tracked resource approaches its target
+- **Label**: Shows `ResourceName: current / target` (formatted numbers)
+
+For non-resource milestones (star cycle stages), the label shows the required condition; the bar shows 0% since progress cannot be quantified.
+
+The widget auto-refreshes on every `resource:updated` event and immediately on `milestone:triggered`.
+
+---
+
+## Milestones
+
+Milestone rewards are now richer:
+
+| Reward Type | Effect |
+|-------------|--------|
+| `resource_grant` | Immediately adds the specified amount to a resource |
+| `unlock_mechanic` | Activates a game system (DM display, star lifecycle, etc.) |
+| `rate_bonus` | Permanently adds a flat rate bonus to a resource |
+| `particle_storm` | 10-second mote storm (greatly increased gravity for 10 s) |
+| `cosmic_echo` | Visual pulse + brief XP-style flash effect |
+
+| # | ID | Title | Condition | Reward |
+|---|-----|-------|-----------|--------|
+| 1 | ms_subatomicParticle | The First Spark | Game start | — |
+| 2 | ms_firstAtom | Birth of Hydrogen | mass ≥ 50 | Unlocks Dark Matter + Hydrogen display |
+| 3 | ms_firstMolecule | Bonded | mass ≥ 500 | +200 energy + particle storm |
+| 4 | ms_gasCloud | The Cloud Gathers | mass ≥ 5,000 | Unlocks DM node generation |
+| 5 | ms_nebulaCondenses | A Nebula Is Born | darkMatter ≥ 100 | +50 dark matter + cosmic echo |
+| 6 | ms_protostarIgnites | A Spark of Fire | mass ≥ 50,000 | Particle storm |
+| 7 | ms_mainSequenceStar | A Light in the Dark | mass ≥ 500,000 | Unlocks star lifecycle |
+| 8 | ms_redGiant | Growing Old | Star stage: red_giant | +2.0 energy rate + cosmic echo |
+| 9 | ms_supernova | The Great Explosion | 1 star cycle complete | Unlocks Iron display |
+| 10 | ms_neutronStar | Remnant of Fire | Star stage: neutron_star | Cosmic echo |
+| 11 | ms_heliumAccumulated | Forging Helium | helium ≥ 500 | Particle storm |
+| 12 | ms_carbonForged | The Carbon Spark | carbon ≥ 50 | Particle storm + cosmic echo |
+| 13 | ms_oxygenRich | Breath of the Stars | oxygen ≥ 100 | Cosmic echo |
+| 14 | ms_ironPeak | The Iron Peak | iron ≥ 25 | Particle storm + cosmic echo |
+| 15 | ms_firstWater | First Water | mol_h2o ≥ 1 | Cosmic echo |
+| 16 | ms_secondGenStars | New Generations | iron ≥ 25 | Particle storm |
+| 17 | ms_planetaryDisc | The Disc Forms | iron ≥ 100 | Cosmic echo |
+| 18 | ms_planetesimals | Rocks in Space | mass ≥ 10,000,000 | +5.0 mass rate + particle storm |
+| 19 | ms_protoplanet | A World Takes Shape | mass ≥ 100,000,000 | Cosmic echo |
+| 20 | ms_rockyPlanet | Solid Ground | mass ≥ 1,000,000,000 | +3.0 iron rate + cosmic echo |
+| 21 | ms_stablePlanet | A World with Oceans | mass ≥ 10,000,000,000 | **Epoch transition** |
+
+---
+
+## Visual Thresholds
+
+The player's home object evolves visually as mass increases:
+
+- **Shape**: Always a **circle** (not a square/sprite).
+- **Size**: Scales continuously with mass. The character's radius interpolates linearly between each visual threshold band as mass increases, growing smoothly rather than jumping at fixed milestones.
+- Thresholds are defined in the epoch config's `visualThresholds` array and change the particle's appearance (colour, glow strength, base size). The rendering smoothly interpolates between threshold states.
+
+When the home object crosses a visual threshold, a brief **white flash** occurs and a particle boost may trigger.
+
+---
+
+## Mobile UX
+
+The game supports two distinct layouts:
+
+### Responsive Breakpoint
+
+| Viewport Width | Layout |
+|----------------|--------|
+| ≤ 600px | **Mobile** (bottom tab bar + drawer) |
+| &gt; 600px | **Desktop** (sidebar panels) |
+
+This breakpoint correctly handles the **Samsung Galaxy Z Fold 6**:
+- Phone mode (outer screen, ~323px CSS width) → mobile layout ✓
+- Tablet mode (inner screen, ~673px CSS width) → desktop layout ✓
+
+Layout switches live on resize (no page reload) via `window.matchMedia` change listener.
+
+### Mobile Tab Bar
+
+A fixed 56 px tab bar sits at the bottom of the screen on mobile. Five tabs:
+
+| Tab | Panel |
+|-----|-------|
+| 📊 Stats | Stats panel |
+| ⚡ Resources | Resource panel (with Goal widget) |
+| 🔬 Upgrades | Upgrade panel |
+| 📜 Chronicle | Chronicle / log panel |
+| ✨ Legacy | Residual bonus panel |
+
+Tapping a tab slides up a 50vh drawer from the bottom. Tapping again (or the ▼ button) collapses it.
+
+When the drawer is open, the canvas **camera shifts upward** by ~40% of the drawer height so the player character remains centred in the visible viewport.
+
+The tab bar uses `z-index: 200` with `transform: translateZ(0)` to guarantee it stays above the drawer during GPU compositing.
+
+### Touch / Drag Movement
+
+Once **Cosmic Drift** is purchased:
+- **Mobile/touch**: Touch-drag on the canvas to steer. The character moves toward the drag point.
+- **Desktop**: Same drag works with mouse click-and-hold.
+- **Keyboard**: WASD / arrow keys (desktop only).
+
+---
+
+## Residual Bonus (Epoch Completion)
+
+Upon completing Epoch 1 (reaching ms_stablePlanet), a **Cosmic Residue** bonus is calculated:
+</code></pre>
+<p>completionScore = (milestonesTriggered / 16) × 0.5 + (upgradesPurchased / totalUpgrades) × 0.5 bonusValue = 0.05 + completionScore × 0.15</p>
+<pre><code>
+&gt; **Note**: `TOTAL_MILESTONES` and `TOTAL_UPGRADES` in code are legacy constants (16 and 23 respectively). The actual counts have grown to 21 milestones and ~47 upgrades. A future update will recalibrate these constants.
+
+| Completion | Bonus |
+|------------|-------|
+| 0% | +5% all rates |
+| 50% | +12.5% all rates |
+| 100% | +20% all rates |
+
+This bonus carries into future epochs as a permanent meta-progression boost.
+
+---
+
+## Formulas Reference
+
+### Upgrade Cost at Level N</code></pre>
+<p>cost(N) = baseCost × costScaling^(N - 1)</p>
+<pre><code>
+### Absorption Energy Value</code></pre>
+<p>energy = ceil(qualityBase × 1.5^qfLevel × 1.3^vhLevel × 1.5^mrLevel × 2.0^maLevel)</p>
+<pre><code>
+Where:
+- `qfLevel` = Quantum Fluctuation level (max 20)
+- `vhLevel` = Vacuum Harvesting level (max 20)
+- `mrLevel` = Mote Resonance level (max 15)
+- `maLevel` = Mote Amplification level (max 12)
+
+### Mass Conversion Rate</code></pre>
+<p>massPerSec = accretionLevel × sliderRate × 1.4^synthLevel × 1.5^forgeLevel energyDrainPerSec = 10 × accretionLevel × sliderRate pulseInterval = 2.0 × 0.8^rapidLevel × 0.7^singularityLevel   (seconds)</p>
+<pre><code>
+### Gravity Effective Radius</code></pre>
+<p>effectiveRadius = (gravityRadiusByLevel[level] + tractorRange) × (1 + log₁₀(1 + mass) × 0.4)</p>
+<pre><code>
+### Gravity Pull Speed</code></pre>
+<p>t = max(0, 1 - distance / effectiveRadius) speed = (2 + 178 × t³) × tractorSpeedMult × massSpeedMult massSpeedMult = 1 + log₁₀(1 + mass) × 0.1</p>
+<pre><code>
+### Dark Matter Node Value</code></pre>
+<p>compoundFactor = 1.05 + (accelerantLevel × 0.03) + (lensingLevel × 0.05) nodeValue = compoundFactor ^ totalCollected spawnInterval = max(3, 20 − currentsLevel × 2)   (seconds) collectRadius = 60 + siphonLevel × 40   (pixels) maxNodes = 1 + darkFlowLevel waveStrength = 180 + amplifier2Level × 80</p>
+<pre><code>
+### Mote Densification Mass</code></pre>
+<p>massPerMote = 0.1 × qualityMult × 1.5^densLevel</p>
+<pre><code>
+### Residual Bonus</code></pre>
+<p>bonus = 0.05 + ((triggered/16) × 0.5 + (purchased/totalUpgrades) × 0.5) × 0.15</p>
+
+  </main>
+</div>
+</body>
+</html>
