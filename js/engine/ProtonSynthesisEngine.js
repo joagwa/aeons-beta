@@ -8,7 +8,7 @@
  * Energy cost = (1 / costMult) × hydrogenProduced
  */
 export class ProtonSynthesisEngine {
-  /** @param {import('./ResourceManager.js?v=a72fd91').ResourceManager} resourceManager */
+  /** @param {import('./ResourceManager.js?v=62753f8').ResourceManager} resourceManager */
   constructor(resourceManager) {
     this._resourceManager = resourceManager;
     this._sliderFraction = 0;   // 0..1 set by UI slider

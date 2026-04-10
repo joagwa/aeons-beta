@@ -120,6 +120,9 @@ html, body {
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--border);
+  /* Prevent slider from overflowing on mobile browsers (e.g. Firefox Android) */
+  overflow: hidden;
+  min-width: 0;
 }
 
 .conversion-label-row {
@@ -142,7 +145,11 @@ html, body {
 }
 
 .conversion-slider {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
@@ -1197,6 +1204,7 @@ html, body {
     flex-direction: column;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     border-bottom: none;
     max-height: none;
