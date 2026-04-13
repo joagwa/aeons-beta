@@ -1,14 +1,14 @@
 /**
  * ProtonSynthesisEngine
  * Converts energy → hydrogen at a slider-controlled rate, scaled by upgrades.
- * Rate = baseRate × sliderFraction × rateMult × costMult
+ * Rate = baseRate × sliderFraction × rateMult
  *   baseRate:    1 hydrogen per second at 100% slider (before upgrades)
  *   rateMult:    ×1.5 per level of upg_quantumNucleogenesis
  *   costMult:    ×0.85 per level of upg_energyDensity (reduces energy cost per H)
- * Energy cost = (1 / costMult) × hydrogenProduced
+ * Energy cost = costMult × hydrogenProduced
  */
 export class ProtonSynthesisEngine {
-  /** @param {import('./ResourceManager.js?v=62753f8').ResourceManager} resourceManager */
+  /** @param {import('./ResourceManager.js?v=7346077').ResourceManager} resourceManager */
   constructor(resourceManager) {
     this._resourceManager = resourceManager;
     this._sliderFraction = 0;   // 0..1 set by UI slider
@@ -56,8 +56,8 @@ export class ProtonSynthesisEngine {
     const hRate = 1.0 * rateMult * this._sliderFraction; // H/s
     const hProduced = hRate * dt;
 
-    // Energy consumed this tick
-    const energyCostPerH = 1.0 / costMult;
+    // Energy consumed this tick — costMult reduces cost per H each level
+    const energyCostPerH = 1.0 * costMult;
     const energyNeeded = hProduced * energyCostPerH;
 
     const energyState = this._resourceManager.get('energy');
