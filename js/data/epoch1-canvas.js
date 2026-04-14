@@ -23,6 +23,7 @@ export const epoch1CanvasConfig = {
       particleTypes: ['mote', 'shimmer'],
       maxParticles: 500,
       initiallyActive: true,
+      initialParticleCount: 400,
     },
     {
       regionId: 'atomicNursery',
@@ -76,18 +77,18 @@ export const epoch1CanvasConfig = {
 
   // --- Sprite visual definitions keyed by particle type ---
   spriteDefinitions: {
-    mote:    { minSize: 1, maxSize: 3, baseColor: '#5878c0', glowRadius: 0, flickerRate: 0.12 },
+    mote:    { minSize: 2, maxSize: 5, baseColor: '#5878c0', glowRadius: 1.5, flickerRate: 0.12 },
     shimmer: { minSize: 1, maxSize: 2, baseColor: '#90a8d8', glowRadius: 0, flickerRate: 0.5 },
     drift:   { minSize: 2, maxSize: 3, baseColor: '#6888c0', glowRadius: 0, flickerRate: 0.05 },
     starPixel: { minSize: 2, maxSize: 6, baseColor: '#ffffff', glowRadius: 2, flickerRate: 0.1 },
     planetOrb: { minSize: 4, maxSize: 8, baseColor: '#60a080', glowRadius: 1, flickerRate: 0 },
     
     // Mote quality tiers (for procedural generation)
-    mote_base:      { minSize: 1, maxSize: 3, baseColor: '#5878c0', glowRadius: 0, flickerRate: 0.12 },  // blue
-    mote_common:    { minSize: 1, maxSize: 3, baseColor: '#00d4ff', glowRadius: 0.5, flickerRate: 0.15 }, // cyan
-    mote_rare:      { minSize: 1, maxSize: 3, baseColor: '#c850ff', glowRadius: 1, flickerRate: 0.2 },   // purple
-    mote_epic:      { minSize: 2, maxSize: 4, baseColor: '#ffd700', glowRadius: 1.5, flickerRate: 0.25 }, // gold
-    mote_legendary: { minSize: 2, maxSize: 4, baseColor: '#ffffff', glowRadius: 2, flickerRate: 0.3 },   // white
+    mote_base:      { minSize: 2, maxSize: 5, baseColor: '#5878c0', glowRadius: 1.5, flickerRate: 0.12 },  // blue
+    mote_common:    { minSize: 2, maxSize: 5, baseColor: '#00d4ff', glowRadius: 2.5, flickerRate: 0.15 }, // cyan
+    mote_rare:      { minSize: 2, maxSize: 5, baseColor: '#c850ff', glowRadius: 3,   flickerRate: 0.2 },  // purple
+    mote_epic:      { minSize: 3, maxSize: 6, baseColor: '#ffd700', glowRadius: 4,   flickerRate: 0.25 }, // gold
+    mote_legendary: { minSize: 3, maxSize: 6, baseColor: '#ffffff', glowRadius: 5,   flickerRate: 0.3 },  // white
 
     // Dark matter motes — appear as darker-than-void specks once dark matter unlocks
     darkMote: { minSize: 1, maxSize: 3, baseColor: '#1a0830', glowRadius: 0, flickerRate: 0.06 },

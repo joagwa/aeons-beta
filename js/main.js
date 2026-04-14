@@ -4,47 +4,47 @@
  */
 
 // === Core Imports ===
-import { ErrorReporter } from './core/ErrorReporter.js?v=152da54';
-import { LogBuffer } from './core/LogBuffer.js?v=152da54';
-import { EventBus } from './core/EventBus.js?v=152da54';
-import { GameLoop } from './core/GameLoop.js?v=152da54';
-import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=152da54';
-import { SaveSystem } from './core/SaveSystem.js?v=152da54';
-import { UpdateChecker } from './core/UpdateChecker.js?v=152da54';
+import { ErrorReporter } from './core/ErrorReporter.js?v=3860daf';
+import { LogBuffer } from './core/LogBuffer.js?v=3860daf';
+import { EventBus } from './core/EventBus.js?v=3860daf';
+import { GameLoop } from './core/GameLoop.js?v=3860daf';
+import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=3860daf';
+import { SaveSystem } from './core/SaveSystem.js?v=3860daf';
+import { UpdateChecker } from './core/UpdateChecker.js?v=3860daf';
 
 // === Engine Imports ===
-import { ResourceManager } from './engine/ResourceManager.js?v=152da54';
-import { UpgradeSystem } from './engine/UpgradeSystem.js?v=152da54';
-import { MilestoneSystem } from './engine/MilestoneSystem.js?v=152da54';
-import { StarManager } from './engine/StarManager.js?v=152da54';
-import { EpochSystem } from './engine/EpochSystem.js?v=152da54';
-import { MoteController } from './engine/MoteController.js?v=152da54';
-import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=152da54';
-import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=152da54';
-import { AutoBuySystem } from './engine/AutoBuySystem.js?v=152da54';
-import { FusionEngine } from './engine/FusionEngine.js?v=152da54';
-import { MoleculeEngine } from './engine/MoleculeEngine.js?v=152da54';
-import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=152da54';
+import { ResourceManager } from './engine/ResourceManager.js?v=3860daf';
+import { UpgradeSystem } from './engine/UpgradeSystem.js?v=3860daf';
+import { MilestoneSystem } from './engine/MilestoneSystem.js?v=3860daf';
+import { StarManager } from './engine/StarManager.js?v=3860daf';
+import { EpochSystem } from './engine/EpochSystem.js?v=3860daf';
+import { MoteController } from './engine/MoteController.js?v=3860daf';
+import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=3860daf';
+import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=3860daf';
+import { AutoBuySystem } from './engine/AutoBuySystem.js?v=3860daf';
+import { FusionEngine } from './engine/FusionEngine.js?v=3860daf';
+import { MoleculeEngine } from './engine/MoleculeEngine.js?v=3860daf';
+import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=3860daf';
 
 // === Renderer Imports ===
-import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=152da54';
+import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=3860daf';
 
 // === UI Imports ===
-import { ResourcePanel } from './ui/ResourcePanel.js?v=152da54';
-import { UpgradePanel } from './ui/UpgradePanel.js?v=152da54';
-import { MilestoneNotification } from './ui/MilestoneNotification.js?v=152da54';
-import { ChroniclePanel } from './ui/ChroniclePanel.js?v=152da54';
-import { SettingsPanel } from './ui/SettingsPanel.js?v=152da54';
-import { OfflineProgress } from './ui/OfflineProgress.js?v=152da54';
-import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=152da54';
-import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=152da54';
-import { StatsPanel } from './ui/StatsPanel.js?v=152da54';
-import { GoalWidget } from './ui/GoalWidget.js?v=152da54';
-import { MobileTabBar } from './ui/MobileTabBar.js?v=152da54';
-import { FeedbackPanel } from './ui/FeedbackPanel.js?v=152da54';
-import { FusionLabPanel } from './ui/FusionLabPanel.js?v=152da54';
-import { PrestigeSystem } from './engine/PrestigeSystem.js?v=152da54';
-import { PrestigePanel } from './ui/PrestigePanel.js?v=152da54';
+import { ResourcePanel } from './ui/ResourcePanel.js?v=3860daf';
+import { UpgradePanel } from './ui/UpgradePanel.js?v=3860daf';
+import { MilestoneNotification } from './ui/MilestoneNotification.js?v=3860daf';
+import { ChroniclePanel } from './ui/ChroniclePanel.js?v=3860daf';
+import { SettingsPanel } from './ui/SettingsPanel.js?v=3860daf';
+import { OfflineProgress } from './ui/OfflineProgress.js?v=3860daf';
+import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=3860daf';
+import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=3860daf';
+import { StatsPanel } from './ui/StatsPanel.js?v=3860daf';
+import { GoalWidget } from './ui/GoalWidget.js?v=3860daf';
+import { MobileTabBar } from './ui/MobileTabBar.js?v=3860daf';
+import { FeedbackPanel } from './ui/FeedbackPanel.js?v=3860daf';
+import { FusionLabPanel } from './ui/FusionLabPanel.js?v=3860daf';
+import { PrestigeSystem } from './engine/PrestigeSystem.js?v=3860daf';
+import { PrestigePanel } from './ui/PrestigePanel.js?v=3860daf';
 
 // === Game State ===
 let gameState = {
@@ -146,13 +146,6 @@ async function bootstrap() {
 
   // --- Particle Storm state (tracks absorption bonus end time) ---
   let _particleStormEndTime = 0;
-
-  // --- Click handling ---
-  EventBus.on('click:primaryObject', (data) => {
-    const clickValue = resourceManager.getClickValue();
-    resourceManager.addClick('energy', clickValue);
-    canvasRenderer.spawnFloatingNumber(`+${formatNumber(clickValue)}`, data.x, data.y);
-  });
 
   // --- Particle absorption (Gravitational Pull visual mechanic) ---
   EventBus.on('particle:absorbed', (data) => {
@@ -530,8 +523,9 @@ async function bootstrap() {
   // Initialise mote controller with home object position from canvas config
   {
     const ho = canvasRenderer.canvasConfig?.homeObject;
-    const initX = ho?.worldX ?? 2000;
-    const initY = ho?.worldY ?? 2500;
+    // If a save was loaded, preserve the already-restored position (init() would overwrite it)
+    const initX = loaded ? moteController.worldX : (ho?.worldX ?? 2000);
+    const initY = loaded ? moteController.worldY : (ho?.worldY ?? 2500);
     console.log(`[Bootstrap] MoteController init at (${initX}, ${initY})`);
     moteController.init(initX, initY, mainCanvas);
     if (canvasRenderer.canvasConfig) {
@@ -542,6 +536,14 @@ async function bootstrap() {
       // Restrict procedural mote generation to defined regions
       if (typeof proceduralMoteGenerator.setValidRegions === 'function') {
         proceduralMoteGenerator.setValidRegions(canvasRenderer.canvasConfig.regions);
+      }
+      // Source auto-drift bounds from the void region so drift stays in the right area
+      const voidRegion = canvasRenderer.canvasConfig.regions.find(r => r.regionId === 'void');
+      if (voidRegion) {
+        moteController.setDriftBounds(
+          voidRegion.worldBounds.x, voidRegion.worldBounds.y,
+          voidRegion.worldBounds.w, voidRegion.worldBounds.h
+        );
       }
     }
   }

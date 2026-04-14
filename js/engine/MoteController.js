@@ -26,6 +26,16 @@ export class MoteController {
     this._boundsW = 4000;
     this._boundsH = 3000;
 
+    // Auto-drift bounds (sourced from void region config)
+    this._driftBoundsX = 0;
+    this._driftBoundsY = 0;
+    this._driftBoundsW = 4000;
+    this._driftBoundsH = 5000;
+
+    // Auto-drift state (active before cosmicDrift is purchased)
+    this._driftAngle = Math.random() * Math.PI * 2;
+    this._driftChangeTimer = 2 + Math.random() * 3;
+
     // Controls hint timing
     this._hintShowTime = 0;
     this._lastMoveTime = 0;
@@ -86,11 +96,25 @@ export class MoteController {
   }
 
   /**
+   * Set drift bounds from the void region config (auto-drift stays inside this area).
+   */
+  setDriftBounds(x, y, w, h) {
+    this._driftBoundsX = x;
+    this._driftBoundsY = y;
+    this._driftBoundsW = w;
+    this._driftBoundsH = h;
+  }
+
+  /**
    * Game-frame update — called from onFrame at full rAF rate (~60fps) for smooth motion.
    * @param {number} dt — real wall-clock delta in seconds (clamped externally)
    */
   tick(dt) {
-    if (!this._enabled || dt <= 0) return;
+    if (dt <= 0) return;
+    if (!this._enabled) {
+      this._tickAutoDrift(dt);
+      return;
+    }
 
     const accel = this.maxSpeed * 8 * dt;   // reach max speed in ~0.125s
     const friction = Math.pow(0.008, dt);    // aggressive stop — nearly instant when released
@@ -148,6 +172,49 @@ export class MoteController {
       angle: this.angle,
       speed: Math.sqrt(this._vx * this._vx + this._vy * this._vy),
     });
+  }
+
+  /**
+   * Automatic pre-cosmicDrift drift through the void. Meanders slowly so the player
+   * passively collides with motes to earn the first energy.
+   * @param {number} dt
+   */
+  _tickAutoDrift(dt) {
+    const SPEED = 120; // px/sec
+    const MARGIN = 200;
+
+    // Meander: change direction every 2–5 seconds with a ±45° turn
+    this._driftChangeTimer -= dt;
+    if (this._driftChangeTimer <= 0) {
+      this._driftAngle += (Math.random() - 0.5) * Math.PI * 0.5;
+      this._driftChangeTimer = 2 + Math.random() * 3;
+    }
+
+    // Soft-bounce: reflect the relevant axis component when approaching a wall
+    const minX = this._driftBoundsX + MARGIN;
+    const maxX = this._driftBoundsX + this._driftBoundsW - MARGIN;
+    const minY = this._driftBoundsY + MARGIN;
+    const maxY = this._driftBoundsY + this._driftBoundsH - MARGIN;
+
+    if (this.worldX <= minX && Math.cos(this._driftAngle) < 0) {
+      this._driftAngle = Math.atan2(Math.sin(this._driftAngle), Math.abs(Math.cos(this._driftAngle)));
+    } else if (this.worldX >= maxX && Math.cos(this._driftAngle) > 0) {
+      this._driftAngle = Math.atan2(Math.sin(this._driftAngle), -Math.abs(Math.cos(this._driftAngle)));
+    }
+    if (this.worldY <= minY && Math.sin(this._driftAngle) < 0) {
+      this._driftAngle = Math.atan2(Math.abs(Math.sin(this._driftAngle)), Math.cos(this._driftAngle));
+    } else if (this.worldY >= maxY && Math.sin(this._driftAngle) > 0) {
+      this._driftAngle = Math.atan2(-Math.abs(Math.sin(this._driftAngle)), Math.cos(this._driftAngle));
+    }
+
+    this.worldX += Math.cos(this._driftAngle) * SPEED * dt;
+    this.worldY += Math.sin(this._driftAngle) * SPEED * dt;
+
+    // Hard clamp as safety net
+    this.worldX = Math.max(minX, Math.min(maxX, this.worldX));
+    this.worldY = Math.max(minY, Math.min(maxY, this.worldY));
+
+    this.angle = this._driftAngle;
   }
 
   /** Current speed magnitude (for compatibility). */

@@ -3,11 +3,11 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=152da54';
-import { Camera } from './Camera.js?v=152da54';
-import { ParticleSystem } from './ParticleSystem.js?v=152da54';
-import { RegionManager } from './RegionManager.js?v=152da54';
-import { FloatingNumbers } from './FloatingNumbers.js?v=152da54';
+import { SpriteManager } from './SpriteManager.js?v=3860daf';
+import { Camera } from './Camera.js?v=3860daf';
+import { ParticleSystem } from './ParticleSystem.js?v=3860daf';
+import { RegionManager } from './RegionManager.js?v=3860daf';
+import { FloatingNumbers } from './FloatingNumbers.js?v=3860daf';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -70,7 +70,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=152da54').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=3860daf').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -114,6 +114,13 @@ export class CanvasRenderer {
 
     this.camera.attach(mainCanvas);
     this.particleSystem.setGlowCtx(this.glowCtx);
+
+    // Set absorption callback once at init — fires for both contact and gravity absorption.
+    this.particleSystem.setAbsorptionCallback((wx, wy, quality) => {
+      this._homeObjectPulse = 1;
+      const { sx, sy } = this.camera.worldToScreen(wx, wy);
+      this.bus.emit('particle:absorbed', { worldX: wx, worldY: wy, screenX: sx, screenY: sy, quality });
+    });
 
     // Resize on viewport change
     this._resizeObserver = new ResizeObserver(() => this._resizeCanvases());
@@ -208,7 +215,7 @@ export class CanvasRenderer {
     // Spawn particles in initially active regions
     for (const region of config.regions) {
       if (region.initiallyActive) {
-        this.particleSystem.spawnInitialParticles(region.regionId, 250);
+        this.particleSystem.spawnInitialParticles(region.regionId, region.initialParticleCount ?? 250);
       }
     }
 
@@ -280,7 +287,7 @@ export class CanvasRenderer {
       this.canvasConfig.homeObject.worldX = this._moteController.worldX;
       this.canvasConfig.homeObject.worldY = this._moteController.worldY;
       // Update particle attraction target in ALL regions to follow the mote
-      if (this._moteController.enabled) {
+      if (this._gravityBaseRadius > 0) {
         const baseRadius = this._gravityBaseRadius || 100;
         const tractorRange = this._moteController.tractorBeamRange || 0;
         // Mass-based radius expansion: +50% radius per 100 mass, logarithmic scaling
@@ -304,6 +311,12 @@ export class CanvasRenderer {
           }
         }
       }
+    }
+
+    // Contact absorption: active before gravity is purchased; drifting into motes gives energy
+    if (this.particleSystem && this.canvasConfig?.homeObject && this._gravityBaseRadius === 0) {
+      const ho = this.canvasConfig.homeObject;
+      this.particleSystem.checkContactAbsorption(ho.worldX, ho.worldY, 40);
     }
 
     // Update
@@ -903,11 +916,6 @@ export class CanvasRenderer {
         console.log(`[CanvasRenderer] Gravity level ${level}, radius ${radius} at (${ho.worldX}, ${ho.worldY})`);
         this.particleSystem.enableAttractionAll(ho.worldX, ho.worldY, radius);
         this._gravityBaseRadius = radius;
-        this.particleSystem.setAbsorptionCallback((wx, wy, quality) => {
-          this._homeObjectPulse = 1;
-          const { sx, sy } = this.camera.worldToScreen(wx, wy);
-          this.bus.emit('particle:absorbed', { worldX: wx, worldY: wy, screenX: sx, screenY: sy, quality });
-        });
         console.log('[CanvasRenderer] Gravity attraction set up successfully');
       } catch (err) {
         console.error('[CanvasRenderer] Error setting up gravity:', err);
@@ -1172,7 +1180,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=152da54').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=3860daf').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

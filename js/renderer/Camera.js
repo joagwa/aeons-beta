@@ -29,17 +29,9 @@ export class Camera {
     this._onTouchEnd = this._handleTouchEnd.bind(this);
   }
 
-  /** Attach input listeners to a canvas element (click only, no drag). */
+  /** Attach pointer listeners to a canvas element (no click-to-energy). */
   attach(canvas) {
     this._canvas = canvas;
-    // Only attach click detection - no drag navigation
-    // (mote movement is now the primary camera control)
-    canvas.addEventListener('click', (e) => {
-      this.bus.emit('click:primaryObject', {
-        x: e.offsetX,
-        y: e.offsetY,
-      });
-    });
   }
 
   /** Convert world coordinates to screen coordinates. */

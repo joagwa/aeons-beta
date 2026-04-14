@@ -6,6 +6,9 @@
 
 const MAX_PER_REGION = 500;
 
+/** Maps particle type names to quality tier index (used for energy payouts on absorption). */
+const TYPE_QUALITY = { mote: 0, mote_base: 0, mote_common: 1, mote_rare: 2, mote_epic: 3, mote_legendary: 4 };
+
 export class ParticleSystem {
   constructor(spriteManager) {
     this.spriteManager = spriteManager;
@@ -75,6 +78,7 @@ export class ParticleSystem {
       size,
       brightness: 0.4 + Math.random() * 0.5,
       type: actualType,
+      quality: TYPE_QUALITY[actualType] ?? 0,
       sprite,
       attracted: false,
     });
@@ -134,7 +138,7 @@ export class ParticleSystem {
       }
     }
 
-    entry.particles.push({ x, y, vx: 0, vy: 0, size, brightness: 0.4 + Math.random() * 0.4, type: actualType, sprite, attracted: false });
+    entry.particles.push({ x, y, vx: 0, vy: 0, size, brightness: 0.4 + Math.random() * 0.4, type: actualType, quality: TYPE_QUALITY[actualType] ?? 0, sprite, attracted: false });
 
     // Tiny spawn flash
     this._spawnFlashes.push({ x, y, age: 0, maxAge: 0.25 });
@@ -436,6 +440,34 @@ export class ParticleSystem {
    */
   setAbsorptionCallback(fn) {
     this._onAbsorb = fn;
+  }
+
+  /**
+   * Contact absorption: remove particles within `radius` of `(targetX, targetY)`.
+   * Used before gravity is purchased — drifting into motes gives energy.
+   * @param {number} targetX  World X of the player mote
+   * @param {number} targetY  World Y of the player mote
+   * @param {number} radius   Contact radius in world pixels
+   */
+  checkContactAbsorption(targetX, targetY, radius) {
+    const radiusSq = radius * radius;
+    for (const [, entry] of this.regions) {
+      const absorbed = [];
+      for (let i = 0; i < entry.particles.length; i++) {
+        const p = entry.particles[i];
+        const dx = targetX - p.x;
+        const dy = targetY - p.y;
+        if (dx * dx + dy * dy <= radiusSq) absorbed.push(i);
+      }
+      for (let i = absorbed.length - 1; i >= 0; i--) {
+        const particle = entry.particles[absorbed[i]];
+        entry.particles.splice(absorbed[i], 1);
+        this._spawnEdgeParticle(entry);
+        if (this._onAbsorb) {
+          this._onAbsorb(particle.x, particle.y, particle.quality ?? 0);
+        }
+      }
+    }
   }
 
   // ---------------------------------------------------------------

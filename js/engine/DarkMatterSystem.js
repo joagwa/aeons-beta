@@ -7,8 +7,8 @@
 
 export class DarkMatterSystem {
   /**
-   * @param {import('../core/EventBus.js?v=152da54').EventBus} eventBus
-   * @param {import('./UpgradeSystem.js?v=152da54').UpgradeSystem} upgradeSystem
+   * @param {import('../core/EventBus.js?v=3860daf').EventBus} eventBus
+   * @param {import('./UpgradeSystem.js?v=3860daf').UpgradeSystem} upgradeSystem
    */
   constructor(eventBus, upgradeSystem) {
     this.bus = eventBus;
@@ -31,9 +31,9 @@ export class DarkMatterSystem {
     /** @type {Array<{id:string, condition:function, baseNodes:number, rateInterval:number, rateResourceId:string, rateThreshold:number, _progress:number}>} */
     this._spawners = this._buildSpawners();
 
-    /** @type {import('./ResourceManager.js?v=152da54').ResourceManager|null} */
+    /** @type {import('./ResourceManager.js?v=3860daf').ResourceManager|null} */
     this._resourceManager = null;
-    /** @type {import('./MilestoneSystem.js?v=152da54').MilestoneSystem|null} */
+    /** @type {import('./MilestoneSystem.js?v=3860daf').MilestoneSystem|null} */
     this._milestoneSystem = null;
   }
 
