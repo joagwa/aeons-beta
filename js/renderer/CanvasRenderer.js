@@ -3,12 +3,12 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=8563352';
-import { Camera } from './Camera.js?v=8563352';
-import { ParticleSystem } from './ParticleSystem.js?v=8563352';
-import { RegionManager } from './RegionManager.js?v=8563352';
-import { FloatingNumbers } from './FloatingNumbers.js?v=8563352';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=8563352';
+import { SpriteManager } from './SpriteManager.js?v=910bc13';
+import { Camera } from './Camera.js?v=910bc13';
+import { ParticleSystem } from './ParticleSystem.js?v=910bc13';
+import { RegionManager } from './RegionManager.js?v=910bc13';
+import { FloatingNumbers } from './FloatingNumbers.js?v=910bc13';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=910bc13';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -71,7 +71,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=8563352').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=910bc13').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -492,6 +492,9 @@ export class CanvasRenderer {
       ctx.restore();
     }
 
+    // Far-side orbital motes and path ellipses — drawn behind player
+    this._orbitalDisplay.renderBack(ctx, sx, sy);
+
     // Bright core circle
     ctx.fillStyle = color;
     ctx.globalAlpha = 1;
@@ -599,8 +602,8 @@ export class CanvasRenderer {
 
     ctx.globalAlpha = 1;
 
-    // Draw orbiting energy motes around player
-    this._orbitalDisplay.render(ctx, sx, sy);
+    // Near-side orbital motes — drawn in front of player
+    this._orbitalDisplay.renderFront(ctx, sx, sy);
   }
 
   /** Returns screen position of the home object. */
@@ -980,7 +983,7 @@ export class CanvasRenderer {
         this.particleSystem.spawnInitialParticles('void', 25);
 
         // Gravity radius scales with upgrade level — 10 levels
-        const gravityRadiusByLevel = [0, 500, 750, 1050, 1500, 2000, 2600, 3300, 4200, 5200, 6300];
+        const gravityRadiusByLevel = [0, 550, 800, 1100, 1600, 2100, 2700, 3400, 4300, 5300, 6400];
         const level = data.level || 1;
         const radius = gravityRadiusByLevel[Math.min(level, gravityRadiusByLevel.length - 1)];
 
@@ -1251,7 +1254,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=8563352').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=910bc13').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
