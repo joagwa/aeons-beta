@@ -444,9 +444,9 @@ const moteUpgrades = [
     prerequisites: [],
     effectType: 'rateMultiplier',
     effectTarget: 'moteGeneration',
-    effectMagnitude: 4.0,
+    effectMagnitude: 4.5,
     requiresMilestone: null,
-    mechanic: '⚙ ×4.0 mote spawn rate per level (10 levels)',
+    mechanic: '⚙ ×4.5 mote spawn rate per level (10 levels)',
   },
   {
     id: 'upg_moteQuality',

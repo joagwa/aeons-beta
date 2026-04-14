@@ -61,7 +61,7 @@ export class ParticleSystem {
     const gr = attraction?.gravityRadius ?? 0;
     // Early game (small radius ≤ 500px): spawn motes inside the pull zone so they're caught.
     // Later (large radius): spawn at 2× radius for a funnel effect.
-    if (attraction && Math.random() < 0.55) {
+    if (attraction && Math.random() < 0.60) {
       const spawnRadius = gr <= 880 ? gr * 1.3 : gr * 2;
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.sqrt(Math.random()) * spawnRadius; // sqrt for uniform area distribution
@@ -115,7 +115,7 @@ export class ParticleSystem {
     const gr = attraction?.gravityRadius ?? 0;
     // Early game (radius ≤ 500): replace absorbed motes within the pull zone.
     // Later: spawn just outside the pull zone so they drift inward.
-    if (attraction && Math.random() < 0.53) {
+    if (attraction && Math.random() < 0.58) {
       const innerR = gr <= 880 ? gr * 0.4 : gr * 0.8;
       const outerR = gr <= 880 ? gr * 1.5 : gr * 2.5;
       const angle = Math.random() * Math.PI * 2;
