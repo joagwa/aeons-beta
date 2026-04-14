@@ -9,9 +9,9 @@
  */
 
 export class FusionEngine {
-  /** @type {import('../core/EventBus.js?v=bb5bbcc').EventBus} */
+  /** @type {import('../core/EventBus.js?v=6c1e06a').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=bb5bbcc').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=6c1e06a').ResourceManager} */
   #resourceManager;
   /** @type {Map<string, string>} starId → current stage */
   #starStages = new Map();
@@ -23,7 +23,7 @@ export class FusionEngine {
   #ironYieldMult = 1.0;
   /** @type {Set<string>} elements that have been produced at least once */
   #firstProduced = new Set();
-  /** @type {import('./UpgradeSystem.js?v=bb5bbcc').UpgradeSystem|null} */
+  /** @type {import('./UpgradeSystem.js?v=6c1e06a').UpgradeSystem|null} */
   #upgradeSystem = null;
   /** @type {number} 0-1 throttle for H→He reaction */
   #hToHeThrottle = 1.0;
@@ -142,7 +142,7 @@ export class FusionEngine {
 
   /**
    * Re-read all fusion-related upgrade effects and update multipliers.
-   * @param {import('./UpgradeSystem.js?v=bb5bbcc').UpgradeSystem} upgradeSystem
+   * @param {import('./UpgradeSystem.js?v=6c1e06a').UpgradeSystem} upgradeSystem
    */
   recalculateMults(upgradeSystem) {
     let hMult = 1.0;

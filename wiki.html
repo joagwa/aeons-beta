@@ -659,15 +659,13 @@ Opened via the Prestige panel. Four branches of persistent upgrades:
 For multi-level upgrades with exponential scaling:</code></pre>
 <p>cost(level) = baseCost × costScaling^(level - 1)</p>
 <pre><code>
-For multi-level upgrades with **logarithmic scaling** from level 3 (`logScalingThreshold: 2`):
-- Levels 1–2: exponential as above
-- Levels 3+: `costAtThreshold × (1 + log₂(level - threshold + 1) × (costScaling - 1))`
-
-This creates steep early costs that flatten out at higher levels, rewarding sustained investment.
+This pure exponential formula applies to all levels — costs grow steeply with each purchase.
 
 For single-level upgrades: cost is simply `baseCost`.
 
 Multi-element costs use a `costRecipe` array; all costs must be affordable simultaneously.
+
+For **Quantum Capacitor**: cost equals the **current energy cap** at time of purchase. Each level raises the cap, so subsequent levels automatically cost more as the cap grows.
 
 ### Effect Scaling Rules
 
@@ -680,7 +678,7 @@ Multi-element costs use a `costRecipe` array; all costs must be affordable simul
 | `absorptionMultiplier` | Exponential | `magnitude^N` |
 | `unlock` | Binary | Unlocks at level 1 |
 
-**All multi-level upgrades are now 10 levels** with `costScaling: 3×` and `logScalingThreshold: 2` (exponential for L1–2, logarithmic from L3 onward).
+**All multi-level upgrades are 10 levels** with `costScaling: 3×` and pure exponential cost growth across all levels.
 
 **Live upgrade specs**: Each upgrade card shows the current cumulative effect (`Now: ×6.25`) and what the next level will give (`→ ×12.5`). For cost-reduction upgrades (Energy Density), shown as percentage (`Now: 56% cost/H`).
 
@@ -688,7 +686,7 @@ Multi-element costs use a `costRecipe` array; all costs must be affordable simul
 
 ### Group A — Discovery
 
-Always available. Energy costs. All multi-level upgrades: 10 levels, log scaling from L3.
+Always available. Energy costs. All multi-level upgrades: 10 levels, pure exponential cost scaling.
 
 | ID | Name | Levels | Cost | Effect |
 |----|------|--------|------|--------|
@@ -696,17 +694,17 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, log scaling
 | upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×7.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 8× | ×2.0 absorption/level (passive only) — steep cost |
 | upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | ×(1 + level×0.25×E/(E+200)) to mote genesis &amp; attraction (soft-cap 200 energy, up to ×3.5 at L10) |
-| upg_quantumCapacitor | Quantum Capacitor | 10 | 500E × 3× | +400 energy cap/level |
+| upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | +400 energy cap/level — cost equals current cap each time |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
 | upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond) |
 | upg_ionThrust | Ion Thrust | 10 | 75E × 3× | +25 speed/level |
-| upg_maneuveringJets | Manoeuvring Jets | 10 | 60E × 3× | +0.6 turn rate/level |
+| upg_manoeuvringJets | Manoeuvring Jets | 10 | 60E × 3× | +0.6 turn rate/level |
 
 ---
 
 ### Group B — Synthesis
 
-Unlocked after Proton Forge. Energy and hydrogen costs. All multi-level upgrades: 10 levels, log scaling from L3.
+Unlocked after Proton Forge. Energy and hydrogen costs. All multi-level upgrades: 10 levels, pure exponential cost scaling.
 
 | ID | Name | Levels | Cost | Effect | Prereq |
 |----|------|--------|------|--------|--------|
@@ -723,7 +721,7 @@ Unlocked after Proton Forge. Energy and hydrogen costs. All multi-level upgrades
 
 ### Group C — Fusion Lab
 
-Shown in the Fusion Lab panel. Hydrogen/helium costs. All multi-level upgrades: 10 levels, log scaling from L3.
+Shown in the Fusion Lab panel. Hydrogen/helium costs. All multi-level upgrades: 10 levels, pure exponential cost scaling.
 
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|
@@ -753,7 +751,7 @@ Gates star formation and evolution. Hydrogen/helium costs.
 
 ### Group E — Planetary Forge
 
-Late game. Iron, carbon, molecule costs. All multi-level upgrades: 10 levels, log scaling from L3.
+Late game. Iron, carbon, molecule costs. All multi-level upgrades: 10 levels, pure exponential cost scaling.
 
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|

@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=bb5bbcc').EventBus} */
+  /** @type {import('../core/EventBus.js?v=6c1e06a').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=bb5bbcc').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=6c1e06a').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=bb5bbcc').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=6c1e06a').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -51,29 +51,42 @@ export class UpgradeSystem {
   /**
    * Returns the cost for the NEXT purchase of this upgrade (scales with level).
    *
-   * Base formula (levels 0..threshold): baseCost * costScaling^currentLevel
+   * Dynamic cost (costType === 'resourceCap'):
+   *   cost = current cap of the specified costCapResource — e.g. Quantum Capacitor costs
+   *   exactly the current energy cap, rising as the cap is expanded.
    *
-   * Logarithmic transition (level > threshold, for upgrades with many levels):
+   * Base formula (all other upgrades): baseCost * costScaling^currentLevel
+   *
+   * Logarithmic transition (level > logScalingThreshold, opt-in only):
    *   cost = costAtThreshold * (1 + log₂(level − threshold + 1) * (costScaling − 1))
-   * This ensures cost continuity at threshold+1 and gentle growth beyond it,
-   * keeping late-game upgrade costs manageable after milestone storms.
+   * Log scaling is disabled by default (threshold = Infinity); set logScalingThreshold
+   * explicitly on an upgrade definition to opt in.
    */
   getCost(upgradeId) {
     const def = this.#definitions.get(upgradeId);
     const state = this.#states.get(upgradeId);
     if (!def || !state) return Infinity;
     if (def.costRecipe) return def.costRecipe;
+
+    // Dynamic cap-based cost: cost equals the current cap of the target resource.
+    if (def.costType === 'resourceCap') {
+      if (!def.costCapResource) {
+        console.warn(`[UpgradeSystem] getCost(${upgradeId}): costType='resourceCap' but costCapResource is not defined`);
+        return def.baseCost ?? Infinity;
+      }
+      const capState = this.#resourceManager.get(def.costCapResource);
+      return capState?.cap ?? def.baseCost ?? Infinity;
+    }
+
     const scaling = def.costScaling || 1;
     const level = state.level;
 
-    // Logarithmic scaling kicks in for long upgrades (maxLevel > threshold) after the threshold.
-    // Threshold defaults to 5; individual upgrades can override via logScalingThreshold.
-    const threshold = def.logScalingThreshold ?? 5;
+    // Logarithmic scaling is opt-in via logScalingThreshold; defaults to Infinity (disabled).
+    const threshold = def.logScalingThreshold ?? Infinity;
     const maxLevel = def.maxLevel || 1;
 
     if (scaling > 1 && maxLevel > threshold && level > threshold) {
       const costAtThreshold = def.baseCost * Math.pow(scaling, threshold);
-      // Normalisation constant: ensures cost at threshold+1 equals costAtThreshold * scaling
       const logScalingFactor = scaling - 1;
       return Math.round(costAtThreshold * (1 + Math.log2(level - threshold + 1) * logScalingFactor));
     }
