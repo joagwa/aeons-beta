@@ -13,8 +13,8 @@
  * No tokens ever appear in client-side code or committed files.
  */
 
-import { LogBuffer } from '../core/LogBuffer.js?v=6c1e06a';
-import { formatNumber } from '../core/NumberFormatter.js?v=6c1e06a';
+import { LogBuffer } from '../core/LogBuffer.js?v=1a07e68';
+import { formatNumber } from '../core/NumberFormatter.js?v=1a07e68';
 
 export class FeedbackPanel {
   #workerEndpoint = null;
@@ -40,6 +40,10 @@ export class FeedbackPanel {
 
     const openBtn = document.getElementById('feedback-open-btn');
     openBtn?.addEventListener('click', () => this.#open());
+
+    // Mobile drawer header button (toolbar is hidden on mobile)
+    const mobileOpenBtn = document.getElementById('mobile-feedback-btn');
+    mobileOpenBtn?.addEventListener('click', () => this.#open());
 
     document.getElementById('feedback-close')
       ?.addEventListener('click', () => this.#close());

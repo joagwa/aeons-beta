@@ -282,7 +282,7 @@ const tier1Upgrades = [
     effectTarget: 'energy',
     effectMagnitude: 400,
     requiresMilestone: null,
-    mechanic: '⚙ +400 energy cap per level (10 levels: +4,000 total) — each level costs the current energy cap',
+    mechanic: '⚙ Energy cap: +400 × level² — each level costs the current energy cap (level 5: +10,000 | level 10: +40,000)',
   },
   // -- Movement upgrades --
   {
@@ -410,7 +410,7 @@ const tier1Upgrades = [
     effectTarget: 'energy',
     effectMagnitude: 8000,
     requiresMilestone: null,
-    mechanic: '⚙ +8,000 energy cap per level (10 levels: +80,000 total)',
+    mechanic: '⚙ Energy cap: +8,000 × level² (level 5: +200,000 | level 10: +800,000)',
   },
 ];
 
@@ -864,7 +864,7 @@ const tier3Upgrades = [
     effectTarget: 'energy',
     effectMagnitude: 80000,
     requiresMilestone: 'ms_rockyPlanet',
-    mechanic: '⚙ +80,000 energy cap per level (10 levels: +800,000 total)',
+    mechanic: '⚙ Energy cap: +80,000 × level² (level 5: +2,000,000 | level 10: +8,000,000)',
   },
   {
     id: 'upg_cosmicOptimisation',
@@ -950,8 +950,20 @@ const milestones = [
     regionBand: 2,
     reward: [
       { type: 'unlock_mechanic', target: 'darkMatter_display', amount: null },
-      { type: 'unlock_mechanic', target: 'hydrogen_display', amount: null },
     ],
+    isEpochTransitionTrigger: false,
+  },
+  {
+    id: 'ms_hydrogenAge',
+    epochId: 'epoch1',
+    title: 'The Hydrogen Phase',
+    flavourText:
+      'Energy surges through the cosmos in torrents, ionising the nascent gas and driving the first true stellar chemistry. Hydrogen — the most abundant element in the universe — reveals itself, ready to fuel the next great ascent.',
+    conditionType: 'resource_threshold',
+    conditionTarget: 'energy',
+    conditionValue: 10000,
+    regionBand: 2,
+    reward: [{ type: 'unlock_mechanic', target: 'hydrogen_display', amount: null }],
     isEpochTransitionTrigger: false,
   },
   {

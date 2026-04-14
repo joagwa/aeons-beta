@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=6c1e06a').EventBus} */
+  /** @type {import('../core/EventBus.js?v=1a07e68').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=6c1e06a').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=1a07e68').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=6c1e06a').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=1a07e68').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -262,7 +262,8 @@ export class UpgradeSystem {
    * every upgrade that has been purchased at least once, scaling magnitude by level.
    *
    * Scaling rules:
-   *   rateAdditive / capIncrease: effectMagnitude * level (linear stacking)
+   *   rateAdditive: effectMagnitude * level (linear stacking)
+   *   capIncrease: effectMagnitude * level² (quadratic stacking — each level yields more than the last)
    *   rateMultiplier / clickMultiplier: effectMagnitude ^ level (exponential stacking)
    *   others: base magnitude (no scaling)
    */
@@ -278,8 +279,10 @@ export class UpgradeSystem {
       if (level > 1) {
         switch (def.effectType) {
           case 'rateAdditive':
-          case 'capIncrease':
             scaledMag = def.effectMagnitude * level;
+            break;
+          case 'capIncrease':
+            scaledMag = def.effectMagnitude * level * level;
             break;
           case 'rateMultiplier':
           case 'clickMultiplier':

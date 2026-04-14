@@ -280,7 +280,7 @@ Last updated with commit <code>pending</code>.</p>
 <tr><td><strong>Dark Matter</strong></td><td>0</td><td>None</td><td>❌ (unlocked at ms_firstAtom)</td><td>Invisible scaffolding of the cosmos</td></tr>
 <tr><td><strong>Mass</strong></td><td>0</td><td>None</td><td>✅</td><td><strong>Derived</strong> — Σ(element × atomic weight in amu). Cannot be earned or spent directly.</td></tr>
 <tr><td><strong>Gravity</strong></td><td>0</td><td>None</td><td>✅ (derived)</td><td>Derived from Mass; accelerates ambient collection</td></tr>
-<tr><td><strong>Hydrogen</strong></td><td>0</td><td>None</td><td>❌ (unlocked at ms_firstAtom)</td><td>First and most abundant element — fuel for stellar fusion</td></tr>
+<tr><td><strong>Hydrogen</strong></td><td>0</td><td>None</td><td>❌ (unlocked at ms_hydrogenAge — energy ≥ 10,000)</td><td>First and most abundant element — fuel for stellar fusion</td></tr>
 <tr><td><strong>Helium</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first production)</td><td>Forged from hydrogen in stellar cores</td></tr>
 <tr><td><strong>Carbon</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first production)</td><td>Triple-alpha fusion product of red giant stars</td></tr>
 <tr><td><strong>Oxygen</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first production)</td><td>Helium fusion product — most abundant element in rocky planets</td></tr>
@@ -672,7 +672,7 @@ For **Quantum Capacitor**: cost equals the **current energy cap** at time of pur
 | Effect Type | Scaling | Formula at Level N |
 |-------------|---------|-------------------|
 | `rateAdditive` | Linear | `magnitude × N` |
-| `capIncrease` | Linear | `magnitude × N` |
+| `capIncrease` | Quadratic | `magnitude × N²` |
 | `rateMultiplier` | Exponential | `magnitude^N` |
 | `clickMultiplier` | Exponential | `magnitude^N` |
 | `absorptionMultiplier` | Exponential | `magnitude^N` |
@@ -694,7 +694,7 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, pure expone
 | upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×7.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 8× | ×2.0 absorption/level (passive only) — steep cost |
 | upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | ×(1 + level×0.25×E/(E+200)) to mote genesis &amp; attraction (soft-cap 200 energy, up to ×3.5 at L10) |
-| upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | +400 energy cap/level — cost equals current cap each time |
+| upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | +400 × level² energy cap — cost equals current cap each time |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
 | upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond) |
 | upg_ionThrust | Ion Thrust | 10 | 75E × 3× | +25 speed/level |
@@ -711,7 +711,7 @@ Unlocked after Proton Forge. Energy and hydrogen costs. All multi-level upgrades
 | upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | ms_firstAtom |
 | upg_quantumNucleogenesis | Quantum Nucleogenesis | 10 | 250E × 3× | ×1.8 H production rate/level | protonForge |
 | upg_energyDensity | Energy Density | 10 | 100H × 3× | ×0.80 energy per H (−20%)/level | protonForge |
-| upg_quantumReservoir | Quantum Reservoir | 10 | 200H × 3× | +8,000 energy cap/level | protonForge |
+| upg_quantumReservoir | Quantum Reservoir | 10 | 200H × 3× | +8,000 × level² energy cap | protonForge |
 | upg_particleRefinement | Particle Refinement | 10 | 100H × 3× | Higher mote quality tiers | ms_firstAtom |
 | upg_moteResonance | Mote Resonance | 10 | 500H × 3× | ×2.5 absorption/level | particleRefinement |
 | upg_quantumFlood | Quantum Flood | 10 | 300H × 3× | ×2.5 spawn rate/level | ms_firstAtom |
@@ -762,7 +762,7 @@ Late game. Iron, carbon, molecule costs. All multi-level upgrades: 10 levels, pu
 | upg_stellarTide | Stellar Tide | 10 | 25Fe × 3× | ×4.0 spawn rate/level | ms_supernova |
 | upg_planetesimalSweep | Planetesimal Sweep | 1 | 100Fe | ×2.0 H synthesis rate | ms_planetaryDisc |
 | upg_ironCoreDevelopment | Iron Core Development | 1 | 200Fe | +50.0 H synthesis rate | ms_planetesimals |
-| upg_hydrologicalCycle | Hydrological Cycle | 10 | 50H + 20O + 5Fe × 3× | +80,000 energy cap/level | ms_rockyPlanet |
+| upg_hydrologicalCycle | Hydrological Cycle | 10 | 50H + 20O + 5Fe × 3× | +80,000 × level² energy cap | ms_rockyPlanet |
 | upg_cosmicOptimisation | Cosmic Optimisation | 1 | 100Fe+50C+50O+200H+100He | ×1.5 all rates | ms_rockyPlanet |
 | upg_deepTimePatience | Deep-Time Patience | 1 | 1,000Fe | ×1.5 cosmic residue | ms_stablePlanet |
 
@@ -798,7 +798,8 @@ Milestone rewards are now richer:
 |---|-----|-------|-----------|--------|
 | 1 | ms_heatDeathEnds | The End of Heat Death | energy ≥ 1 | — |
 | 2 | ms_subatomicParticle | The First Spark | Game start | — |
-| 3 | ms_firstAtom | Birth of Hydrogen | mass ≥ 50 | Unlocks Dark Matter + Hydrogen display |
+| 3 | ms_firstAtom | Birth of Hydrogen | mass ≥ 50 | Unlocks Dark Matter display |
+| 3.5 | ms_hydrogenAge | The Hydrogen Phase | energy ≥ 10,000 | Unlocks Hydrogen display |
 | 4 | ms_firstMolecule | Bonded | mass ≥ 500 | +200 energy + particle storm |
 | 5 | ms_gasCloud | The Cloud Gathers | mass ≥ 5,000 | Unlocks DM node generation |
 | 6 | ms_nebulaCondenses | A Nebula Is Born | darkMatter ≥ 100 | +50 dark matter + cosmic echo |
