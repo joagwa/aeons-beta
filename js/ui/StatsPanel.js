@@ -1,7 +1,7 @@
 /**
  * StatsPanel — Collapsible panel showing current game statistics.
  */
-import { formatNumber } from '../core/NumberFormatter.js?v=dff554e';
+import { formatNumber } from '../core/NumberFormatter.js?v=d0c4d72';
 
 export class StatsPanel {
   constructor(EventBus) {

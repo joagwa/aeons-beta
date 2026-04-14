@@ -434,7 +434,7 @@ const moteUpgrades = [
     name: 'Mote Genesis',
     description: 'Spawn latent particles from quantum foam. More spawn per level.',
     category: 'motes',
-    baseCost: 25,
+    baseCost: 10,
     costResource: 'energy',
     scalingFactor: 1.0,
     maxLevel: 10,
