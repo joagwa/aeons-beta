@@ -59,10 +59,12 @@ export class ParticleSystem {
     let x, y;
     const attraction = entry.attraction;
     const gr = attraction?.gravityRadius ?? 0;
-    // Early game (small radius ≤ 500px): spawn motes inside the pull zone so they're caught.
-    // Later (large radius): spawn at 2× radius for a funnel effect.
+    // Cap effective spawn radius to the region's half-diagonal so motes are never
+    // generated outside the region regardless of how large the gravity radius grows.
+    const regionHalfDiag = Math.sqrt(bounds.w * bounds.w + bounds.h * bounds.h) * 0.5;
     if (attraction && Math.random() < 0.60) {
-      const spawnRadius = gr <= 880 ? gr * 1.3 : gr * 2;
+      const rawRadius = gr <= 880 ? gr * 1.3 : gr * 2;
+      const spawnRadius = Math.min(rawRadius, regionHalfDiag);
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.sqrt(Math.random()) * spawnRadius; // sqrt for uniform area distribution
       x = attraction.targetX + Math.cos(angle) * dist;
@@ -113,11 +115,14 @@ export class ParticleSystem {
     let x, y;
     const attraction = entry.attraction;
     const gr = attraction?.gravityRadius ?? 0;
-    // Early game (radius ≤ 500): replace absorbed motes within the pull zone.
-    // Later: spawn just outside the pull zone so they drift inward.
+    // Cap to region half-diagonal so replacement motes never spawn outside the region
+    // regardless of how large the gravity radius grows.
+    const regionHalfDiag = Math.sqrt(bounds.w * bounds.w + bounds.h * bounds.h) * 0.5;
     if (attraction && Math.random() < 0.58) {
-      const innerR = gr <= 880 ? gr * 0.4 : gr * 0.8;
-      const outerR = gr <= 880 ? gr * 1.5 : gr * 2.5;
+      const rawInner = gr <= 880 ? gr * 0.4 : gr * 0.8;
+      const rawOuter = gr <= 880 ? gr * 1.5 : gr * 2.5;
+      const innerR = Math.min(rawInner, regionHalfDiag * 0.6); // inner ring stays well within region
+      const outerR = Math.min(rawOuter, regionHalfDiag);       // outer ring capped at region edge
       const angle = Math.random() * Math.PI * 2;
       const dist = innerR + Math.random() * (outerR - innerR);
       x = attraction.targetX + Math.cos(angle) * dist;
@@ -197,8 +202,9 @@ export class ParticleSystem {
             const t = Math.max(0, 1 - dist / gravRadius); // 0 at edge, 1 at center
             const minSpd = 2;
             const maxSpd = 180;
-            // Cubic falloff: t³ creates a strong inner zone with steep outer dropoff
-            const moveSpeed = (minSpd + (maxSpd - minSpd) * t * t * t) * aParms.speedMultiplier * massMult;
+            // Quartic falloff: t⁴ creates strong inner zone with steep outer dropoff,
+            // so far-away particles drift very slowly while close-in ones move fast
+            const moveSpeed = (minSpd + (maxSpd - minSpd) * t * t * t * t) * aParms.speedMultiplier * massMult;
             p.x += (dx / dist) * moveSpeed * dt;
             p.y += (dy / dist) * moveSpeed * dt;
             // Brighten and grow as approaching

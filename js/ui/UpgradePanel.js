@@ -4,7 +4,7 @@
  * Only shows upgrades whose cost-resource has been unlocked.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=4e751ee';
+import { formatNumber } from '../core/NumberFormatter.js?v=bb5bbcc';
 
 const GROUP_ORDER = ['synthesis', 'fusionLab', 'energy', 'motes', 'movement', 'stellar', 'planetary', 'darkMatter'];
 const GROUP_LABELS = {
@@ -80,6 +80,16 @@ export class UpgradePanel {
 
       // Skip group if everything in it is maxed
       if (upgList.every(u => u.state.purchased)) continue;
+
+      // Hide the Synthesis section entirely until at least one upgrade in it is
+      // purchasable (milestone reached) or has already been purchased.
+      if (key === 'synthesis') {
+        const anyActive = upgList.some(u => {
+          const isUnlocked = this.upgradeSystem.getLockReason(u.definition.id) === null;
+          return u.state.level > 0 || isUnlocked;
+        });
+        if (!anyActive) continue;
+      }
 
       const isCollapsed = this._collapsedGroups.has(key);
       const activeCount = upgList.filter(u => !u.state.purchased).length;
