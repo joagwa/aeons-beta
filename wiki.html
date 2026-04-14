@@ -293,7 +293,7 @@ Last updated with commit <code>pending</code>.</p>
 <hr>
 <h2 id="core-mechanics">Core Mechanics</h2>
 <h3 id="mote-absorption-energy-generation">Mote Absorption (Energy Generation)</h3>
-<p>Energy is primarily earned by absorbing mote particles. With the <strong>Energy Resonance</strong> upgrade, energy also ticks in passively each second (each level adds +1.5/sec; level 10 = +15/sec).</p>
+<p>Energy is primarily earned by absorbing mote particles.</p>
 <p><strong>Base energy per mote</strong> depends on quality tier:</p>
 <div class="table-wrapper"><table>
 <thead><tr><th>Quality</th><th>Name</th><th>Base Value</th></tr></thead>
@@ -687,7 +687,7 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, log scaling
 | upg_gravitationalPull | Electromagnetic Bond | 10 | 1E × 3× | Unlock + grow attraction radius (300→6000 over 10 lvls) |
 | upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×7.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 8× | ×2.0 absorption/level (passive only) — steep cost |
-| upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | +1.5 energy/sec per level (passive income) |
+| upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | ×(1 + level×0.25×E/(E+200)) to mote genesis &amp; attraction (soft-cap 200 energy, up to ×3.5 at L10) |
 | upg_quantumCapacitor | Quantum Capacitor | 10 | 500E × 3× | +400 energy cap/level |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
 | upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond) |

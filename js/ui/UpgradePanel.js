@@ -4,7 +4,7 @@
  * Only shows upgrades whose cost-resource has been unlocked.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=749482e';
+import { formatNumber } from '../core/NumberFormatter.js?v=d69ce72';
 
 const GROUP_ORDER = ['synthesis', 'fusionLab', 'energy', 'motes', 'movement', 'stellar', 'planetary', 'darkMatter'];
 const GROUP_LABELS = {
@@ -159,6 +159,8 @@ export class UpgradePanel {
     switch (def.effectType) {
       case 'rateAdditive':
         return `⚙ +${fmtMag} ${target}/s${multi}`;
+      case 'moteResonance':
+        return `⚙ ×(1 + level×${fmtMag}×E/(E+200)) mote genesis & attraction`;
       case 'rateMultiplier':
         return `⚙ ×${mag} ${target} rate${multi}`;
       case 'clickMultiplier':

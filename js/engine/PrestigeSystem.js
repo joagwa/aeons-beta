@@ -8,13 +8,13 @@
  *   - darkMatterBanked is spent on persistent meta upgrades (persists forever)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=749482e').EventBus} */
+  /** @type {import('../core/EventBus.js?v=d69ce72').EventBus} */
   #eventBus;
-  /** @type {import('./UpgradeSystem.js?v=749482e').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=d69ce72').UpgradeSystem} */
   #upgradeSystem;
-  /** @type {import('./MilestoneSystem.js?v=749482e').MilestoneSystem} */
+  /** @type {import('./MilestoneSystem.js?v=d69ce72').MilestoneSystem} */
   #milestoneSystem;
-  /** @type {import('./DarkMatterSystem.js?v=749482e').DarkMatterSystem} */
+  /** @type {import('./DarkMatterSystem.js?v=d69ce72').DarkMatterSystem} */
   #darkMatterSystem;
 
   #count = 0;

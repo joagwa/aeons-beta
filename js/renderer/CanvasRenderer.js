@@ -3,12 +3,12 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=749482e';
-import { Camera } from './Camera.js?v=749482e';
-import { ParticleSystem } from './ParticleSystem.js?v=749482e';
-import { RegionManager } from './RegionManager.js?v=749482e';
-import { FloatingNumbers } from './FloatingNumbers.js?v=749482e';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=749482e';
+import { SpriteManager } from './SpriteManager.js?v=d69ce72';
+import { Camera } from './Camera.js?v=d69ce72';
+import { ParticleSystem } from './ParticleSystem.js?v=d69ce72';
+import { RegionManager } from './RegionManager.js?v=d69ce72';
+import { FloatingNumbers } from './FloatingNumbers.js?v=d69ce72';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d69ce72';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -71,7 +71,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=749482e').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=d69ce72').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -98,6 +98,9 @@ export class CanvasRenderer {
 
     // Current energy value (cached from resource:updated, used by orbital display)
     this._currentEnergy = 0;
+
+    // Energy Resonance upgrade multiplier (applied to attraction radius and mote density)
+    this._resonanceMult = 1;
 
     // Separate targets so competing systems don't overwrite each other
     this._massTargetSize  = 4; // driven by mass thresholds
@@ -322,7 +325,7 @@ export class CanvasRenderer {
         const energyBonus = Math.log10(Math.max(1, this._currentEnergy)) * 60;
         // Mass-based radius expansion: +50% radius per 100 mass, logarithmic scaling
         const massBonus = this._currentMass > 0 ? Math.log10(1 + this._currentMass) * 0.4 : 0;
-        const effectiveRadius = (baseRadius + tractorRange + energyBonus) * (1 + massBonus) * this._stormGravityMult;
+        const effectiveRadius = (baseRadius + tractorRange + energyBonus) * (1 + massBonus) * this._stormGravityMult * this._resonanceMult;
         this.particleSystem.updateAttractionTargetAll(
           this._moteController.worldX,
           this._moteController.worldY,
@@ -1247,10 +1250,19 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=749482e').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=d69ce72').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
+  }
+
+  /**
+   * Update the Energy Resonance multiplier applied to attraction radius.
+   * Called each game tick from main.js with the current resonance factor.
+   * @param {number} mult — ≥1.0
+   */
+  setResonanceMult(mult) {
+    this._resonanceMult = mult;
   }
 
   /**
