@@ -488,15 +488,15 @@ export class ParticleSystem {
   spawnBeaconMote(regionId, worldX, worldY, homeX, homeY, homeSpeed = 30) {
     const entry = this.regions.get(regionId);
     if (!entry) return;
-    const sprite = this.spriteManager.getSprite('mote_rare') || this.spriteManager.getSprite('mote');
+    const sprite = this.spriteManager.getSprite('mote') || this.spriteManager.getSprite('mote_base');
     if (!sprite) return;
     entry.particles.push({
       x: worldX, y: worldY,
       vx: 0, vy: 0,
       size: sprite.maxSize,
-      brightness: 1.0,
-      type: 'mote_rare',
-      quality: TYPE_QUALITY['mote_rare'] ?? 2,
+      brightness: 0.8,
+      type: 'mote',
+      quality: TYPE_QUALITY['mote'] ?? 0,
       sprite,
       attracted: false,
       homing: true,

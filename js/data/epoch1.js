@@ -912,6 +912,19 @@ const upgrades = [...tier1Upgrades, ...moteUpgrades, ...tier2Upgrades, ...tier3U
 // ---------------------------------------------------------------------------
 const milestones = [
   {
+    id: 'ms_heatDeathEnds',
+    epochId: 'epoch1',
+    title: 'The End of Heat Death',
+    flavourText:
+      'For an eternity beyond reckoning, the universe lay in perfect stillness — no light, no heat, no motion. Every star long dead, every black hole evaporated into nothing. And then, against all odds, a quantum fluctuation stirs in the dark. A single mote of energy emerges from the void. The heat death is over. Something new begins.',
+    conditionType: 'resource_threshold',
+    conditionTarget: 'energy',
+    conditionValue: 1,
+    regionBand: 1,
+    reward: null,
+    isEpochTransitionTrigger: false,
+  },
+  {
     id: 'ms_subatomicParticle',
     epochId: 'epoch1',
     title: 'The First Spark',
@@ -1209,7 +1222,7 @@ const milestones = [
 // ---------------------------------------------------------------------------
 // Residual bonus formula - computed at epoch completion
 // ---------------------------------------------------------------------------
-const TOTAL_MILESTONES = 16;
+const TOTAL_MILESTONES = 17;
 const TOTAL_UPGRADES = 23;
 
 /**
