@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=7346077').EventBus} */
+  /** @type {import('../core/EventBus.js?v=805dd00').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=7346077').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=805dd00').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=7346077').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=805dd00').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -322,7 +322,10 @@ export class UpgradeSystem {
       const maxLevel = def?.maxLevel || 1;
 
       // Old format had only `purchased: bool` with no level field.
-      const level = savedState.level !== undefined ? savedState.level : (savedState.purchased ? 1 : 0);
+      const rawLevel = savedState.level !== undefined ? savedState.level : (savedState.purchased ? 1 : 0);
+
+      // Clamp to current maxLevel so rebalanced upgrades don't keep old over-limit levels.
+      const level = Math.min(rawLevel, maxLevel);
 
       // Re-derive purchased from level >= maxLevel so multi-level upgrades
       // loaded from an old save aren't incorrectly treated as fully maxed.
@@ -370,6 +373,94 @@ export class UpgradeSystem {
     this.#states.clear();
     this.#definitions.clear();
     this.#previousAffordability.clear();
+  }
+
+  // ── Definition helpers ────────────────────────────────────────────────
+
+  /** Returns the effectMagnitude from the upgrade's definition, or null if unknown. */
+  getEffectMagnitude(upgradeId) {
+    return this.#definitions.get(upgradeId)?.effectMagnitude ?? null;
+  }
+
+  /** Returns the full definition object for an upgrade, or null. */
+  getDefinition(upgradeId) {
+    return this.#definitions.get(upgradeId) ?? null;
+  }
+
+  /**
+   * Compute current and next-level effect display strings for an upgrade card.
+   * Returns { current, next } string pair, or null for upgrade types with no meaningful spec.
+   *
+   * current: what the player has right now (null if level=0)
+   * next:    what the next purchase will give (null if already maxed)
+   */
+  getUpgradeStats(upgradeId) {
+    const def = this.#definitions.get(upgradeId);
+    const state = this.#states.get(upgradeId);
+    if (!def || !state) return null;
+
+    const level = state.level;
+    const maxLevel = def.maxLevel || 1;
+    const mag = def.effectMagnitude;
+    if (mag == null) return null;
+
+    const fmtMult = (v) => {
+      if (v >= 1000) return `×${Math.round(v).toLocaleString()}`;
+      if (v >= 10)   return `×${parseFloat(v.toFixed(1))}`;
+      return `×${parseFloat(v.toFixed(2))}`;
+    };
+    const fmtNum = (v) => {
+      if (v >= 1e6) return `${(v / 1e6).toFixed(1)}M`;
+      if (v >= 1e3) return `${(v / 1e3).toFixed(1)}k`;
+      return String(Math.round(v));
+    };
+
+    let current = null, next = null;
+
+    switch (def.effectType) {
+      case 'rateMultiplier':
+      case 'absorptionMultiplier':
+      case 'hFusionMult':
+      case 'heFusionMult':
+      case 'moleculeRateMult':
+      case 'ironYieldMult':
+      case 'protonSynthesisRate': {
+        if (level > 0) current = fmtMult(Math.pow(mag, level));
+        if (level < maxLevel) next = fmtMult(Math.pow(mag, level + 1));
+        break;
+      }
+      case 'clickMultiplier': {
+        if (level > 0) current = `${fmtMult(Math.pow(mag, level))} click`;
+        if (level < maxLevel) next = `${fmtMult(Math.pow(mag, level + 1))} click`;
+        break;
+      }
+      case 'protonSynthesisCost': {
+        // mag < 1 means cost reduction per level; show as percentage
+        if (level > 0) current = `${Math.round(Math.pow(mag, level) * 100)}% cost/H`;
+        if (level < maxLevel) next = `${Math.round(Math.pow(mag, level + 1) * 100)}% cost/H`;
+        break;
+      }
+      case 'rateAdditive': {
+        if (level > 0) current = `+${fmtNum(mag * level)}/s`;
+        if (level < maxLevel) next = `+${fmtNum(mag * (level + 1))}/s`;
+        break;
+      }
+      case 'capIncrease': {
+        if (level > 0) current = `+${fmtNum(mag * level)} cap`;
+        if (level < maxLevel) next = `+${fmtNum(mag * (level + 1))} cap`;
+        break;
+      }
+      case 'dmWaveStrength': {
+        if (level > 0) current = `+${mag * level} force`;
+        if (level < maxLevel) next = `+${mag * (level + 1)} force`;
+        break;
+      }
+      default:
+        return null;
+    }
+
+    if (current === null && next === null) return null;
+    return { current, next };
   }
 
   // ── Affordability tracking ────────────────────────────────────────────

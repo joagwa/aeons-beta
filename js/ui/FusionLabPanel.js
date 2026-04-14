@@ -207,7 +207,8 @@ export class FusionLabPanel {
       const frac = this.pse.getSliderFraction();
       // Rough estimate: base rate 1 H/s × multipliers × fraction
       const nucLevel = this.upgradeSystem.getLevel('upg_quantumNucleogenesis') || 0;
-      const rateMult = Math.pow(1.5, nucLevel);
+      const nucleoMag = this.upgradeSystem.getEffectMagnitude('upg_quantumNucleogenesis') ?? 2.0;
+      const rateMult = Math.pow(nucleoMag, nucLevel);
       const rate = 1.0 * rateMult * frac;
       protonEl.textContent = `${rate.toFixed(2)} H/s`;
     }

@@ -4,47 +4,47 @@
  */
 
 // === Core Imports ===
-import { ErrorReporter } from './core/ErrorReporter.js?v=7346077';
-import { LogBuffer } from './core/LogBuffer.js?v=7346077';
-import { EventBus } from './core/EventBus.js?v=7346077';
-import { GameLoop } from './core/GameLoop.js?v=7346077';
-import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=7346077';
-import { SaveSystem } from './core/SaveSystem.js?v=7346077';
-import { UpdateChecker } from './core/UpdateChecker.js?v=7346077';
+import { ErrorReporter } from './core/ErrorReporter.js?v=805dd00';
+import { LogBuffer } from './core/LogBuffer.js?v=805dd00';
+import { EventBus } from './core/EventBus.js?v=805dd00';
+import { GameLoop } from './core/GameLoop.js?v=805dd00';
+import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=805dd00';
+import { SaveSystem } from './core/SaveSystem.js?v=805dd00';
+import { UpdateChecker } from './core/UpdateChecker.js?v=805dd00';
 
 // === Engine Imports ===
-import { ResourceManager } from './engine/ResourceManager.js?v=7346077';
-import { UpgradeSystem } from './engine/UpgradeSystem.js?v=7346077';
-import { MilestoneSystem } from './engine/MilestoneSystem.js?v=7346077';
-import { StarManager } from './engine/StarManager.js?v=7346077';
-import { EpochSystem } from './engine/EpochSystem.js?v=7346077';
-import { MoteController } from './engine/MoteController.js?v=7346077';
-import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=7346077';
-import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=7346077';
-import { AutoBuySystem } from './engine/AutoBuySystem.js?v=7346077';
-import { FusionEngine } from './engine/FusionEngine.js?v=7346077';
-import { MoleculeEngine } from './engine/MoleculeEngine.js?v=7346077';
-import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=7346077';
+import { ResourceManager } from './engine/ResourceManager.js?v=805dd00';
+import { UpgradeSystem } from './engine/UpgradeSystem.js?v=805dd00';
+import { MilestoneSystem } from './engine/MilestoneSystem.js?v=805dd00';
+import { StarManager } from './engine/StarManager.js?v=805dd00';
+import { EpochSystem } from './engine/EpochSystem.js?v=805dd00';
+import { MoteController } from './engine/MoteController.js?v=805dd00';
+import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=805dd00';
+import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=805dd00';
+import { AutoBuySystem } from './engine/AutoBuySystem.js?v=805dd00';
+import { FusionEngine } from './engine/FusionEngine.js?v=805dd00';
+import { MoleculeEngine } from './engine/MoleculeEngine.js?v=805dd00';
+import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=805dd00';
 
 // === Renderer Imports ===
-import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=7346077';
+import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=805dd00';
 
 // === UI Imports ===
-import { ResourcePanel } from './ui/ResourcePanel.js?v=7346077';
-import { UpgradePanel } from './ui/UpgradePanel.js?v=7346077';
-import { MilestoneNotification } from './ui/MilestoneNotification.js?v=7346077';
-import { ChroniclePanel } from './ui/ChroniclePanel.js?v=7346077';
-import { SettingsPanel } from './ui/SettingsPanel.js?v=7346077';
-import { OfflineProgress } from './ui/OfflineProgress.js?v=7346077';
-import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=7346077';
-import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=7346077';
-import { StatsPanel } from './ui/StatsPanel.js?v=7346077';
-import { GoalWidget } from './ui/GoalWidget.js?v=7346077';
-import { MobileTabBar } from './ui/MobileTabBar.js?v=7346077';
-import { FeedbackPanel } from './ui/FeedbackPanel.js?v=7346077';
-import { FusionLabPanel } from './ui/FusionLabPanel.js?v=7346077';
-import { PrestigeSystem } from './engine/PrestigeSystem.js?v=7346077';
-import { PrestigePanel } from './ui/PrestigePanel.js?v=7346077';
+import { ResourcePanel } from './ui/ResourcePanel.js?v=805dd00';
+import { UpgradePanel } from './ui/UpgradePanel.js?v=805dd00';
+import { MilestoneNotification } from './ui/MilestoneNotification.js?v=805dd00';
+import { ChroniclePanel } from './ui/ChroniclePanel.js?v=805dd00';
+import { SettingsPanel } from './ui/SettingsPanel.js?v=805dd00';
+import { OfflineProgress } from './ui/OfflineProgress.js?v=805dd00';
+import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=805dd00';
+import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=805dd00';
+import { StatsPanel } from './ui/StatsPanel.js?v=805dd00';
+import { GoalWidget } from './ui/GoalWidget.js?v=805dd00';
+import { MobileTabBar } from './ui/MobileTabBar.js?v=805dd00';
+import { FeedbackPanel } from './ui/FeedbackPanel.js?v=805dd00';
+import { FusionLabPanel } from './ui/FusionLabPanel.js?v=805dd00';
+import { PrestigeSystem } from './engine/PrestigeSystem.js?v=805dd00';
+import { PrestigePanel } from './ui/PrestigePanel.js?v=805dd00';
 
 // === Game State ===
 let gameState = {
@@ -137,6 +137,7 @@ async function bootstrap() {
   epochTransitionOverlay.init();
   residualBonusPanel.init();
   statsPanel.init(resourceManager, upgradeSystem, milestoneSystem);
+  statsPanel.setEngines(proceduralMoteGenerator, protonSynthesisEngine);
   goalWidget.init();
   mobileTabBar.init();
   feedbackPanel.init();
@@ -270,7 +271,10 @@ async function bootstrap() {
       const floodLevel = upgradeSystem.getLevel('upg_moteFlood')      || 0;
       const satLevel   = upgradeSystem.getLevel('upg_voidSaturation') || 0;
       const combined   = genLevel + floodLevel + satLevel;
-      const rate = 5 * Math.pow(1.5, genLevel) * Math.pow(2.0, floodLevel) * Math.pow(3.0, satLevel);
+      const genMag   = upgradeSystem.getEffectMagnitude('upg_moteGeneration')  ?? 3.0;
+      const floodMag = upgradeSystem.getEffectMagnitude('upg_moteFlood')       ?? 3.0;
+      const satMag   = upgradeSystem.getEffectMagnitude('upg_voidSaturation')  ?? 5.0;
+      const rate = 5 * Math.pow(genMag, genLevel) * Math.pow(floodMag, floodLevel) * Math.pow(satMag, satLevel);
       proceduralMoteGenerator.setGenerationRate(rate);
       // Density grows slowly; quality does the heavy lifting
       const voidCount = Math.min(150, Math.floor(40 + combined * 8));

@@ -389,12 +389,13 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <thead><tr><th>Level</th><th>Spawn Rate Multiplier</th><th>Approx. Spawns/s</th></tr></thead>
 <tbody>
 <tr><td>0</td><td>×1.0</td><td>~5%</td></tr>
-<tr><td>1</td><td>×1.5</td><td>~7.5%</td></tr>
-<tr><td>2</td><td>×2.25</td><td>~11%</td></tr>
-<tr><td>3</td><td>×3.375</td><td>~17%</td></tr>
-<tr><td>4</td><td>×5.06</td><td>~25%</td></tr>
-<tr><td>5</td><td>×7.59</td><td>~38%</td></tr>
+<tr><td>1</td><td>×3.0</td><td>~15%</td></tr>
+<tr><td>2</td><td>×9.0</td><td>~45%</td></tr>
+<tr><td>3</td><td>×27</td><td>~135%</td></tr>
+<tr><td>4</td><td>×81</td><td>~405%</td></tr>
+<tr><td>5</td><td>×243</td><td>~1215%</td></tr>
 </tbody></table></div>
+<p>All three mote-chain upgrades (Mote Genesis ×3.0, Quantum Flood ×3.0, Void Saturation ×5.0) multiply together for a maximum combined rate of ×243 × ×81 × ×125 = ×2.5 million base rate.</p>
 <h3 id="movement">Movement</h3>
 <p>Unlocked by <strong>Cosmic Drift</strong> (requires upg_gravitationalPull).</p>
 <p><strong>Desktop:</strong> WASD or arrow keys to navigate. <strong>Mobile / touch:</strong> Touch-drag anywhere on the canvas to move the character toward the drag point. The character follows the touch position smoothly.</p>
@@ -630,6 +631,10 @@ Multi-element costs use a `costRecipe` array; all costs must be affordable simul
 | `absorptionMultiplier` | Exponential | `magnitude^N` |
 | `unlock` | Binary | Unlocks at level 1 |
 
+**Upgrade cost scaling**: All multi-level upgrades now use a **3× cost per level** formula: `cost(N) = baseCost × 3^N`.
+
+**Live upgrade specs**: Each upgrade card shows the current cumulative effect (`Now: ×6.25`) and what the next level will give (`→ ×12.5`). For cost-reduction upgrades (Energy Density), shown as percentage (`Now: 56% cost/H`).
+
 ---
 
 ### Group A — Discovery
@@ -638,14 +643,14 @@ Always available. Energy costs.
 
 | ID | Name | Levels | Cost | Effect |
 |----|------|--------|------|--------|
-| upg_gravitationalPull | Gravitational Pull | 5 | 15E × 2.2× | Unlock + grow gravity radius |
-| upg_moteGeneration | Mote Genesis | 15 | 25E × 1.4× | ×1.5 spawn rate/level |
-| upg_quantumFluctuation | Quantum Fluctuation | 10 | 50E × 1.5× | ×1.5 absorption/level |
-| upg_clickAmplifier | Click Amplifier | 3 | 75E × 3× | ×2.0 click energy/level |
-| upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 1.5× | ×1.3 absorption/level |
+| upg_gravitationalPull | Gravitational Pull | 5 | 15E × 3× | Unlock + grow gravity radius |
+| upg_moteGeneration | Mote Genesis | 5 | 25E × 3× | ×3.0 spawn rate/level |
+| upg_quantumFluctuation | Quantum Fluctuation | 4 | 50E × 3× | ×2.5 absorption/level |
+| upg_clickAmplifier | Click Amplifier | 3 | 75E × 3× | ×2.5 click energy/level |
+| upg_vacuumHarvesting | Vacuum Harvesting | 3 | 200E × 3× | ×2.0 absorption/level |
 | upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: Grav Pull) |
-| upg_ionThrust | Ion Thrust | 5 | 75E × 2× | +20 speed/level |
-| upg_maneuveringJets | Manoeuvring Jets | 3 | 60E × 2× | +0.8 turn rate/level |
+| upg_ionThrust | Ion Thrust | 3 | 75E × 3× | +30 speed/level |
+| upg_maneuveringJets | Manoeuvring Jets | 3 | 60E × 3× | +0.8 turn rate/level |
 
 ---
 
@@ -656,13 +661,13 @@ Unlocked after Proton Forge. Energy and hydrogen costs.
 | ID | Name | Levels | Cost | Effect | Prereq |
 |----|------|--------|------|--------|--------|
 | upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | — |
-| upg_quantumNucleogenesis | Quantum Nucleogenesis | 5 | 250E × 2× | ×1.5 H production rate | protonForge |
-| upg_energyDensity | Energy Density | 5 | 100H × 2× | −15% energy per H | protonForge |
-| upg_quantumReservoir | Quantum Reservoir | 5 | 200H × 2× | +5,000 energy cap/level | protonForge |
-| upg_particleRefinement | Particle Refinement | 5 | 100H × 2× | Higher mote quality tiers | ms_firstAtom |
-| upg_moteResonance | Mote Resonance | 10 | 500H × 1.6× | ×1.5 absorption/level | particleRefinement |
-| upg_quantumFlood | Quantum Flood | 10 | 300H × 2× | ×2.0 spawn rate/level | ms_firstAtom |
-| upg_eventHorizon | Event Horizon | 5 | 200H × 2× | Tractor beam, +60 px/level | ms_firstAtom |
+| upg_quantumNucleogenesis | Quantum Nucleogenesis | 5 | 250E × 3× | ×2.0 H production rate/level | protonForge |
+| upg_energyDensity | Energy Density | 5 | 100H × 3× | ×0.75 energy per H (−25%)/level | protonForge |
+| upg_quantumReservoir | Quantum Reservoir | 4 | 200H × 3× | +10,000 energy cap/level | protonForge |
+| upg_particleRefinement | Particle Refinement | 5 | 100H × 3× | Higher mote quality tiers | ms_firstAtom |
+| upg_moteResonance | Mote Resonance | 3 | 500H × 3× | ×3.0 absorption/level | particleRefinement |
+| upg_quantumFlood | Quantum Flood | 4 | 300H × 3× | ×3.0 spawn rate/level | ms_firstAtom |
+| upg_eventHorizon | Event Horizon | 4 | 200H × 3× | Tractor beam, +80 px/level | ms_firstAtom |
 
 ---
 
@@ -673,11 +678,11 @@ Shown in the Fusion Lab panel. Hydrogen/helium costs.
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|
 | upg_fusionIgnition | Fusion Ignition | 1 | 500H | Unlock H→He reaction | ms_mainSequenceStar |
-| upg_hydrogenFusion | Hydrogen Fusion | 5 | 200H × 2× | ×1.5 H→He rate/level | fusionIgnition |
-| upg_redGiantCatalyst | Red Giant Catalyst | 1 | 200He | Unlock He→C/O | ms_redGiant |
-| upg_heliumIgnition | Helium Ignition | 5 | 100He × 2× | ×1.5 He→C/O rate/level | redGiantCatalyst |
-| upg_molecularCatalyst | Molecular Catalyst | 3 | 50O × 2× | ×2.0 molecule synthesis rate | ms_oxygenRich |
-| upg_supernovaAmplifier | Supernova Amplifier | 3 | 20Fe × 2× | ×2.0 Fe burst/level | ms_ironPeak |
+| upg_hydrogenFusion | Hydrogen Fusion | 4 | 200H × 3× | ×2.0 H→He rate/level | fusionIgnition |
+| upg_redGiantCatalyst | Red Giant Catalyst | 1 | 200He | Unlock He→C/O | ms_heliumAccumulated |
+| upg_heliumIgnition | Helium Ignition | 4 | 100He × 3× | ×2.0 He→C/O rate/level | redGiantCatalyst |
+| upg_molecularCatalyst | Molecular Catalyst | 4 | 50C × 3× | ×2.0 molecule synthesis rate | ms_carbonForged |
+| upg_supernovaAmplifier | Supernova Amplifier | 4 | 100Fe × 3× | ×2.5 Fe burst/level | ms_supernova |
 
 ---
 
@@ -687,7 +692,7 @@ Gates star formation and evolution. Hydrogen/helium costs.
 
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|
-| upg_stellarNursery | Stellar Nursery | 3 | 500H × 2× | +5.0 H synthesis rate | ms_protostarIgnites |
+| upg_stellarNursery | Stellar Nursery | 3 | 500H × 3× | +10.0 H synthesis rate/level | ms_protostarIgnites |
 | upg_protostarIgnition | Protostar Ignition | 1 | 2,000H | ×2.0 all fusion rates | ms_protostarIgnites |
 | upg_gravityAmplifier | Gravity Amplifier | 1 | 500He | ×1.5 energy rate | ms_mainSequenceStar |
 | upg_gravityAmplifier2 | Gravity Amplifier II | 1 | 1,000He | +80 DM wave force | ms_mainSequenceStar |
@@ -702,14 +707,14 @@ Late game. Iron, carbon, molecule costs.
 
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|
-| upg_rapidCycling | Rapid Cycling | 3 | 10Fe × 2× | ×0.8 star cycle duration | ms_supernova |
-| upg_elementalYield | Elemental Yield | 3 | 50Fe × 2× | ×2.0 iron yield | ms_secondGenStars |
-| upg_voidSaturation | Void Saturation | 5 | 50C × 2.5× | ×3.0 spawn rate/level | ms_carbonForged |
+| upg_rapidCycling | Rapid Cycling | 3 | 10Fe × 3× | ×0.7 star cycle duration/level | ms_supernova |
+| upg_elementalYield | Elemental Yield | 3 | 50Fe × 3× | ×3.0 iron yield/level | ms_secondGenStars |
+| upg_voidSaturation | Void Saturation | 3 | 50C × 3× | ×5.0 spawn rate/level | ms_carbonForged |
 | upg_planetesimalSweep | Planetesimal Sweep | 1 | 100Fe | ×2.0 H synthesis rate | ms_planetaryDisc |
 | upg_ironCoreDevelopment | Iron Core Development | 1 | 200Fe | +50.0 H synthesis rate | ms_planetesimals |
-| upg_hydrologicalCycle | Hydrological Cycle | 5 | 100H₂O + 50Fe × 2× | +50,000 energy cap | ms_rockyPlanet |
-| upg_cosmicOptimisation | Cosmic Optimisation | 1 | 5Fe₂O₃ + 5CH₄ | ×1.2 all rates | ms_rockyPlanet |
-| upg_deepTimePatience | Deep-Time Patience | 1 | 1,000Fe | ×1.2 cosmic residue | ms_stablePlanet |
+| upg_hydrologicalCycle | Hydrological Cycle | 5 | 50H + 20O + 5Fe × 3× | +100,000 energy cap/level | ms_rockyPlanet |
+| upg_cosmicOptimisation | Cosmic Optimisation | 1 | 100Fe+50C+50O+200H+100He | ×1.5 all rates | ms_rockyPlanet |
+| upg_deepTimePatience | Deep-Time Patience | 1 | 1,000Fe | ×1.5 cosmic residue | ms_stablePlanet |
 
 ---
 

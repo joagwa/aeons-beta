@@ -16,8 +16,12 @@ export class ProceduralMoteGenerator {
     this._validRegions = null;         // array of {x, y, w, h} bounding boxes for defined regions
   }
 
+  /** Returns the current mote generation rate (motes per second). */
+  getGenerationRate() {
+    return this.generationRate;
+  }
+
   /**
-   * Seeded PRNG for deterministic generation.
    * Same seed always produces same sequence.
    */
   seededRandom(seed) {

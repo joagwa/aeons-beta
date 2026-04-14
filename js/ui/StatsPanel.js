@@ -1,7 +1,7 @@
 /**
  * StatsPanel — Collapsible panel showing current game statistics.
  */
-import { formatNumber } from '../core/NumberFormatter.js?v=7346077';
+import { formatNumber } from '../core/NumberFormatter.js?v=805dd00';
 
 export class StatsPanel {
   constructor(EventBus) {
@@ -9,6 +9,8 @@ export class StatsPanel {
     this._resourceManager = null;
     this._upgradeSystem = null;
     this._milestoneSystem = null;
+    this._moteGenerator = null;
+    this._protonSynthesisEngine = null;
     this._collapsed = false;
     this._startTime = Date.now();
     this._particlesAbsorbed = 0;
@@ -38,6 +40,12 @@ export class StatsPanel {
     this._timeInterval = setInterval(() => this._updateTime(), 1000);
   }
 
+  /** Inject runtime engines for live rate display */
+  setEngines(moteGenerator, protonSynthesisEngine) {
+    this._moteGenerator = moteGenerator;
+    this._protonSynthesisEngine = protonSynthesisEngine;
+  }
+
   _build() {
     if (!this._body) return;
     this._body.innerHTML = '';
@@ -45,9 +53,11 @@ export class StatsPanel {
     this._addRow('epoch',    '🌌 Epoch',       'The Primordial Universe');
     this._addRow('stage',    '✦ Stage',        this._currentStageLabel);
     this._addRow('time',     '⏱ Time Played',  '0:00:00');
-    this._addRow('sep1',     null,             null); // separator
+    this._addRow('sep1',     null,             null);
     this._addRow('energy',   '⚡ Energy',       '0');
     this._addRow('mass',     '⚫ Mass',         '0');
+    this._addRow('motesPerSec', '✨ Motes/sec', '—');
+    this._addRow('hPerSec',     '⚛ H/sec',     '—');
     this._addRow('sep2',     null,             null);
     this._addRow('milestones','🏆 Milestones',  '0 / 16');
     this._addRow('upgrades', '🔬 Upgrades',    '0');
@@ -88,6 +98,24 @@ export class StatsPanel {
 
     const mass = this._resourceManager.get('mass');
     if (mass) this._updateRow('mass', formatNumber(mass.currentValue));
+
+    // Live mote generation rate
+    if (this._moteGenerator) {
+      const rate = this._moteGenerator.getGenerationRate();
+      this._updateRow('motesPerSec', `${parseFloat(rate.toFixed(1))}/s`);
+    }
+
+    // Live H/sec from proton synthesis engine
+    if (this._protonSynthesisEngine && this._protonSynthesisEngine.isUnlocked()) {
+      const up = this._upgradeSystem;
+      const nucleoLevel = up ? (up.getLevel('upg_quantumNucleogenesis') || 0) : 0;
+      const nucleoMag = up ? (up.getEffectMagnitude('upg_quantumNucleogenesis') ?? 2.0) : 2.0;
+      const rateMult = Math.pow(nucleoMag, nucleoLevel);
+      const hPerSec = 1.0 * rateMult * this._protonSynthesisEngine.getSliderFraction();
+      this._updateRow('hPerSec', `${parseFloat(hPerSec.toFixed(2))}/s`);
+    } else {
+      this._updateRow('hPerSec', '—');
+    }
 
     // Milestones
     if (this._milestoneSystem) {

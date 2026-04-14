@@ -3,12 +3,12 @@
  * Converts energy → hydrogen at a slider-controlled rate, scaled by upgrades.
  * Rate = baseRate × sliderFraction × rateMult
  *   baseRate:    1 hydrogen per second at 100% slider (before upgrades)
- *   rateMult:    ×1.5 per level of upg_quantumNucleogenesis
- *   costMult:    ×0.85 per level of upg_energyDensity (reduces energy cost per H)
+ *   rateMult:    ×effectMagnitude per level of upg_quantumNucleogenesis (default 2.0)
+ *   costMult:    ×effectMagnitude per level of upg_energyDensity (default 0.75, reduces cost per H)
  * Energy cost = costMult × hydrogenProduced
  */
 export class ProtonSynthesisEngine {
-  /** @param {import('./ResourceManager.js?v=7346077').ResourceManager} resourceManager */
+  /** @param {import('./ResourceManager.js?v=805dd00').ResourceManager} resourceManager */
   constructor(resourceManager) {
     this._resourceManager = resourceManager;
     this._sliderFraction = 0;   // 0..1 set by UI slider
@@ -49,8 +49,10 @@ export class ProtonSynthesisEngine {
     const nucleoLevel = up ? (up.getLevel('upg_quantumNucleogenesis') || 0) : 0;
     const densityLevel = up ? (up.getLevel('upg_energyDensity') || 0) : 0;
 
-    const rateMult = Math.pow(1.5, nucleoLevel);
-    const costMult = Math.pow(0.85, densityLevel);  // < 1 → cheaper per H
+    const nucleoMag = up ? (up.getEffectMagnitude('upg_quantumNucleogenesis') ?? 2.0) : 2.0;
+    const densityMag = up ? (up.getEffectMagnitude('upg_energyDensity') ?? 0.75) : 0.75;
+    const rateMult = Math.pow(nucleoMag, nucleoLevel);
+    const costMult = Math.pow(densityMag, densityLevel);  // < 1 → cheaper per H
 
     // Hydrogen produced this tick
     const hRate = 1.0 * rateMult * this._sliderFraction; // H/s

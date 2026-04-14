@@ -4,7 +4,7 @@
  * Only shows upgrades whose cost-resource has been unlocked.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=7346077';
+import { formatNumber } from '../core/NumberFormatter.js?v=805dd00';
 
 const GROUP_ORDER = ['synthesis', 'fusionLab', 'energy', 'motes', 'movement', 'stellar', 'planetary', 'darkMatter'];
 const GROUP_LABELS = {
@@ -259,6 +259,28 @@ export class UpgradePanel {
     el.appendChild(titleRow);
     el.appendChild(descDiv);
     if (hintDiv) el.appendChild(hintDiv);
+
+    // Live specs: current/next effect values
+    const stats = this.upgradeSystem.getUpgradeStats(def.id);
+    if (stats) {
+      const specsDiv = document.createElement('div');
+      specsDiv.className = 'upgrade-specs';
+      specsDiv.dataset.id = def.id;
+      if (stats.current) {
+        const cur = document.createElement('span');
+        cur.className = 'spec-current';
+        cur.textContent = `Now: ${stats.current}`;
+        specsDiv.appendChild(cur);
+      }
+      if (stats.next) {
+        const nxt = document.createElement('span');
+        nxt.className = 'spec-next';
+        nxt.textContent = stats.current ? ` → ${stats.next}` : `Next: ${stats.next}`;
+        specsDiv.appendChild(nxt);
+      }
+      el.appendChild(specsDiv);
+    }
+
     el.appendChild(costDiv);
     if (pipsEl) el.appendChild(pipsEl);
     el.appendChild(lockDiv);
