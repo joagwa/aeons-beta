@@ -396,6 +396,17 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <tr><td>5</td><td>×243</td><td>~1215%</td></tr>
 </tbody></table></div>
 <p>All three mote-chain upgrades (Mote Genesis ×3.0, Quantum Flood ×3.0, Void Saturation ×5.0) multiply together for a maximum combined rate of ×243 × ×81 × ×125 = ×2.5 million base rate.</p>
+<p><strong>Full mote generation chain</strong> (all 5 tiers combined at max):</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Tier</th><th>Upgrade</th><th>Levels</th><th>Mag</th><th>Max Mult</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Mote Genesis</td><td>5</td><td>×3.0</td><td>×243</td></tr>
+<tr><td>2</td><td>Quantum Flood</td><td>4</td><td>×3.0</td><td>×81</td></tr>
+<tr><td>3</td><td>Void Saturation</td><td>3</td><td>×5.0</td><td>×125</td></tr>
+<tr><td>4</td><td>Nebular Surge</td><td>3</td><td>×4.0</td><td>×64</td></tr>
+<tr><td>5</td><td>Stellar Tide</td><td>2</td><td>×5.0</td><td>×25</td></tr>
+</tbody></table></div>
+<p>Combined at full max: ×243 × ×81 × ×125 × ×64 × ×25 ≈ ×3.9 billion base rate</p>
 <h3 id="movement">Movement</h3>
 <p>Unlocked by <strong>Cosmic Drift</strong> (requires upg_gravitationalPull).</p>
 <p><strong>Desktop:</strong> WASD or arrow keys to navigate. <strong>Mobile / touch:</strong> Touch-drag anywhere on the canvas to move the character toward the drag point. The character follows the touch position smoothly.</p>
@@ -647,6 +658,7 @@ Always available. Energy costs.
 | upg_moteGeneration | Mote Genesis | 5 | 25E × 3× | ×3.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 4 | 50E × 3× | ×2.5 absorption/level |
 | upg_clickAmplifier | Click Amplifier | 3 | 75E × 3× | ×2.5 click energy/level |
+| upg_quantumCapacitor | Quantum Capacitor | 5 | 20E × 2× | +500 energy cap/level |
 | upg_vacuumHarvesting | Vacuum Harvesting | 3 | 200E × 3× | ×2.0 absorption/level |
 | upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: Grav Pull) |
 | upg_ionThrust | Ion Thrust | 3 | 75E × 3× | +30 speed/level |
@@ -660,7 +672,7 @@ Unlocked after Proton Forge. Energy and hydrogen costs.
 
 | ID | Name | Levels | Cost | Effect | Prereq |
 |----|------|--------|------|--------|--------|
-| upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | — |
+| upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | ms_firstAtom |
 | upg_quantumNucleogenesis | Quantum Nucleogenesis | 5 | 250E × 3× | ×2.0 H production rate/level | protonForge |
 | upg_energyDensity | Energy Density | 5 | 100H × 3× | ×0.75 energy per H (−25%)/level | protonForge |
 | upg_quantumReservoir | Quantum Reservoir | 4 | 200H × 3× | +10,000 energy cap/level | protonForge |
@@ -710,6 +722,8 @@ Late game. Iron, carbon, molecule costs.
 | upg_rapidCycling | Rapid Cycling | 3 | 10Fe × 3× | ×0.7 star cycle duration/level | ms_supernova |
 | upg_elementalYield | Elemental Yield | 3 | 50Fe × 3× | ×3.0 iron yield/level | ms_secondGenStars |
 | upg_voidSaturation | Void Saturation | 3 | 50C × 3× | ×5.0 spawn rate/level | ms_carbonForged |
+| upg_nebularSurge | Nebular Surge | 3 | 50He × 3× | ×4.0 spawn rate/level | ms_heliumAccumulated |
+| upg_stellarTide | Stellar Tide | 2 | 25Fe × 3× | ×5.0 spawn rate/level | ms_supernova |
 | upg_planetesimalSweep | Planetesimal Sweep | 1 | 100Fe | ×2.0 H synthesis rate | ms_planetaryDisc |
 | upg_ironCoreDevelopment | Iron Core Development | 1 | 200Fe | +50.0 H synthesis rate | ms_planetesimals |
 | upg_hydrologicalCycle | Hydrological Cycle | 5 | 50H + 20O + 5Fe × 3× | +100,000 energy cap/level | ms_rockyPlanet |
