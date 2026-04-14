@@ -187,7 +187,7 @@ const tier1Upgrades = [
     effectTarget: 'attraction',
     effectMagnitude: 1,
     requiresMilestone: null,
-    mechanic: '⚙ Attraction range per level (400→650→950→1400→1900→2500→3200→4100→5100→6200), +60px per log₁₀(energy)',
+    mechanic: '⚙ Attraction range per level (500→750→1050→1500→2000→2600→3300→4200→5200→6300), +60px per log₁₀(energy)',
   },
   {
     id: 'upg_quantumFluctuation',
