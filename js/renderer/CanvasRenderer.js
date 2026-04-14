@@ -3,11 +3,12 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=3860daf';
-import { Camera } from './Camera.js?v=3860daf';
-import { ParticleSystem } from './ParticleSystem.js?v=3860daf';
-import { RegionManager } from './RegionManager.js?v=3860daf';
-import { FloatingNumbers } from './FloatingNumbers.js?v=3860daf';
+import { SpriteManager } from './SpriteManager.js?v=77021ba';
+import { Camera } from './Camera.js?v=77021ba';
+import { ParticleSystem } from './ParticleSystem.js?v=77021ba';
+import { RegionManager } from './RegionManager.js?v=77021ba';
+import { FloatingNumbers } from './FloatingNumbers.js?v=77021ba';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=77021ba';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -70,7 +71,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=3860daf').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=77021ba').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -85,6 +86,25 @@ export class CanvasRenderer {
     // Space dust parallax layers: [far, near]
     this._dustLayers = null;
     this._dustTime   = 0;  // accumulated time for twinkle animation
+
+    // Background world-scroll for early-game movement illusion
+    // Velocity in world px/s — decelerates to 0 after EM Bond is purchased
+    this._bgScrollVx = 50;
+    this._bgScrollVy = 12;
+    this._bgScrollTargetVx = 50;
+    this._bgScrollTargetVy = 12;
+    this._dustScrollX = 0;
+    this._dustScrollY = 0;
+
+    // Current energy value (cached from resource:updated, used by orbital display)
+    this._currentEnergy = 0;
+
+    // Separate targets so competing systems don't overwrite each other
+    this._massTargetSize  = 4; // driven by mass thresholds
+    // _visualTargetSize = max(massTargetSize, orbitalDisplay.getMinPlayerSize()) — computed each frame
+
+    // Orbital energy display (orbiting motes representing current energy)
+    this._orbitalDisplay = new OrbitalEnergyDisplay();
   }
 
   // ---------------------------------------------------------------
@@ -137,7 +157,7 @@ export class CanvasRenderer {
       if (this.canvasConfig?.homeObject) {
         this.canvasConfig.homeObject.baseColor = data.color;
       }
-      this._visualTargetSize = data.size;
+      this._massTargetSize = data.size;
       this._visualTargetGlow = data.glowRadius;
       this._visualColor = data.color;
       if (data.particleBoost && this.particleSystem) {
@@ -228,6 +248,7 @@ export class CanvasRenderer {
     if (this._visualThresholds && this._visualThresholds.length > 0) {
       const t = this._visualThresholds[0];
       this._visualSize = t.size;
+      this._massTargetSize = t.size;
       this._visualTargetSize = t.size;
       this._visualGlow = t.glowRadius;
       this._visualTargetGlow = t.glowRadius;
@@ -239,6 +260,13 @@ export class CanvasRenderer {
       }
     }
     this._thresholdLevel = 0;
+
+    // Spawn beacon mote — a single homing mote that drifts toward the player.
+    // It is cleaned up when EM Bond is purchased (clearHomingParticles).
+    if (config.homeObject) {
+      const ho = config.homeObject;
+      this.particleSystem.spawnBeaconMote('void', ho.worldX + 400, ho.worldY, ho.worldX, ho.worldY);
+    }
 
     // Apply any gravity upgrade that fired before canvasConfig was ready
     if (this._pendingGravityLevel > 0) {
@@ -313,11 +341,39 @@ export class CanvasRenderer {
       }
     }
 
+    // Update beacon homing target to player's current position
+    if (this.canvasConfig.homeObject) {
+      this.particleSystem.setHomingTarget(
+        this.canvasConfig.homeObject.worldX,
+        this.canvasConfig.homeObject.worldY
+      );
+    }
+
+    // Decelerate background scroll toward target (lerp at 0.5/s — ~2s to stop)
+    const scrollLerp = Math.min(1, 0.5 * clampedDt);
+    this._bgScrollVx += (this._bgScrollTargetVx - this._bgScrollVx) * scrollLerp;
+    this._bgScrollVy += (this._bgScrollTargetVy - this._bgScrollVy) * scrollLerp;
+    // Snap to zero to avoid infinite crawl
+    if (Math.abs(this._bgScrollVx) < 0.3) this._bgScrollVx = 0;
+    if (Math.abs(this._bgScrollVy) < 0.1) this._bgScrollVy = 0;
+
+    // Accumulate dust drift offset for space dust parallax scroll
+    this._dustScrollX += this._bgScrollVx * clampedDt;
+    this._dustScrollY += this._bgScrollVy * clampedDt;
+
+    // Push scroll velocity into particle system
+    this.particleSystem.setWorldScroll(this._bgScrollVx, this._bgScrollVy);
+
     // Contact absorption: active before gravity is purchased; drifting into motes gives energy
     if (this.particleSystem && this.canvasConfig?.homeObject && this._gravityBaseRadius === 0) {
       const ho = this.canvasConfig.homeObject;
       this.particleSystem.checkContactAbsorption(ho.worldX, ho.worldY, 40);
     }
+
+    // Update orbital energy display angles
+    this._orbitalDisplay.update(clampedDt, this._currentEnergy);
+    // Keep visual target as max of mass-driven size and energy-tier minimum
+    this._visualTargetSize = Math.max(this._massTargetSize, this._orbitalDisplay.getMinPlayerSize());
 
     // Update
     this.regionManager.update(clampedDt);
@@ -540,6 +596,9 @@ export class CanvasRenderer {
     }
 
     ctx.globalAlpha = 1;
+
+    // Draw orbiting energy motes around player
+    this._orbitalDisplay.render(ctx, sx, sy);
   }
 
   /** Returns screen position of the home object. */
@@ -862,16 +921,19 @@ export class CanvasRenderer {
     // Modulate particle behavior based on resource rates
     if (!this.canvasConfig) return;
 
-    if (data.resourceId === 'energy' && data.ratePerSec != null) {
-      const intensity = Math.min(2, 0.5 + data.ratePerSec * 0.05);
-      this.particleSystem.setRegionParams('void', {
-        motionSpeed: intensity,
-        brightness: Math.min(1.5, 0.6 + data.ratePerSec * 0.02),
-      });
+    if (data.resourceId === 'energy') {
+      this._currentEnergy = data.newValue ?? 0;
+      if (data.ratePerSec != null) {
+        const intensity = Math.min(2, 0.5 + data.ratePerSec * 0.05);
+        this.particleSystem.setRegionParams('void', {
+          motionSpeed: intensity,
+          brightness: Math.min(1.5, 0.6 + data.ratePerSec * 0.02),
+        });
+      }
     }
 
     if (data.resourceId === 'mass' && this._visualThresholds) {
-      const mass = data.currentValue || 0;
+      const mass = data.newValue || 0;
       this._currentMass = mass; // Track mass for gravity scaling
       let newLevel = 0;
       for (let i = this._visualThresholds.length - 1; i >= 0; i--) {
@@ -891,9 +953,9 @@ export class CanvasRenderer {
       const nextT = this._visualThresholds[newLevel + 1];
       if (nextT) {
         const t = Math.min(1, Math.max(0, (mass - curT.minMass) / (nextT.minMass - curT.minMass)));
-        this._visualTargetSize = curT.size + (nextT.size - curT.size) * t;
+        this._massTargetSize = curT.size + (nextT.size - curT.size) * t;
       } else {
-        this._visualTargetSize = curT.size;
+        this._massTargetSize = curT.size;
       }
     }
   }
@@ -908,6 +970,13 @@ export class CanvasRenderer {
         return;
       }
       try {
+        // Stop background scroll — beacon phase is over
+        this._bgScrollTargetVx = 0;
+        this._bgScrollTargetVy = 0;
+        // Clean up beacon mote and start normal mote genesis
+        this.particleSystem.clearHomingParticles('void');
+        this.particleSystem.spawnInitialParticles('void', 250);
+
         // Gravity radius scales with upgrade level — much larger with steep falloff
         const gravityRadiusByLevel = [0, 200, 400, 700, 1000, 1400];
         const level = data.level || 1;
@@ -1053,9 +1122,9 @@ export class CanvasRenderer {
       const parallaxFactor = layer.parallax;
 
       for (const p of layer.particles) {
-        // Screen position for this particle
-        const sx = ((p.nx * viewW - this.camera.x * parallaxFactor) % viewW + viewW) % viewW;
-        let   sy = ((p.ny * viewH - this.camera.y * parallaxFactor) % viewH + viewH) % viewH;
+        // Screen position for this particle, offset by accumulated world scroll
+        const sx = ((p.nx * viewW - (this.camera.x + this._dustScrollX) * parallaxFactor) % viewW + viewW) % viewW;
+        let   sy = ((p.ny * viewH - (this.camera.y + this._dustScrollY) * parallaxFactor) % viewH + viewH) % viewH;
 
         // Compute target displacement from the nearest wave front (main or reflected).
         // Using direct lerp instead of spring physics so dust snaps back the moment the wave passes.
@@ -1180,7 +1249,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=3860daf').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=77021ba').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

@@ -311,18 +311,24 @@ Last updated with commit <code>e52f092</code>.</p>
 <h3 id="clicking">Clicking</h3>
 <blockquote>
 <p><strong>Removed.</strong> Clicking on the canvas no longer generates energy. Energy is earned by
-drifting through motes (see Auto-Drift below) and by gravity absorption after
-Gravitational Pull is purchased.</p>
+the beacon mote drifting to the player (see Beacon Phase below) and by gravity
+absorption after Electromagnetic Bond is purchased.</p>
 </blockquote>
-<h3 id="auto-drift-pre-cosmic-drift">Auto-Drift (pre-Cosmic Drift)</h3>
-<p>Before <strong>Cosmic Drift</strong> is purchased, the player mote drifts automatically through the void at 120 px/s. It meanders by ±45° every 2–5 seconds and soft-bounces off the edges of the void region (200 px margin).</p>
-<p>Drifting into a mote absorbs it via <strong>contact absorption</strong> (40 px contact radius), which fires the same <code>particle:absorbed</code> event as gravity absorption and awards energy based on particle quality. This is the sole source of energy before Gravitational Pull is purchased.</p>
-<p>Once Cosmic Drift is unlocked, auto-drift stops and the player takes full manual control.</p>
+<h3 id="beacon-phase-pre-electromagnetic-bond">Beacon Phase (pre-Electromagnetic Bond)</h3>
+<p>When the game starts, <strong>no ambient motes are spawned</strong>. Instead, a single glowing <strong>beacon mote</strong> (<code>mote_rare</code> sprite) drifts slowly toward the player from the right side of the screen.</p>
+<p>The <strong>background scrolls</strong> at ~50 px/s (rightward + slight upward drift), implying the player is moving through space.</p>
+<p>When the beacon mote reaches the player (contact radius 40 px), it is absorbed and awards <strong>1 energy</strong>. This is just enough to purchase <strong>Electromagnetic Bond</strong> (cost: 1 energy).</p>
+<p>On purchase:</p>
+<ul>
+<li>The beacon mote is removed.</li>
+<li>~250 ambient void motes spawn (normal mote genesis begins).</li>
+<li>Background scroll decelerates to a halt (~2 seconds).</li>
+</ul>
 <h3 id="gravity-system">Gravity System</h3>
-<p>Gravity pulls nearby motes toward your particle. It is unlocked by purchasing <strong>Gravitational Pull</strong>.</p>
-<p><strong>Gravity radius by upgrade level:</strong></p>
+<p>Gravity pulls nearby motes toward your particle. It is unlocked by purchasing <strong>Electromagnetic Bond</strong> (<code>upg_gravitationalPull</code>).</p>
+<p><strong>Attraction radius by upgrade level:</strong></p>
 <div class="table-wrapper"><table>
-<thead><tr><th>Grav Pull Level</th><th>Base Radius (px)</th></tr></thead>
+<thead><tr><th>EM Bond Level</th><th>Base Radius (px)</th></tr></thead>
 <tbody>
 <tr><td>1</td><td>200</td></tr>
 <tr><td>2</td><td>400</td></tr>
@@ -404,13 +410,13 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 </tbody></table></div>
 <p>Combined at full max: ×243 × ×81 × ×125 × ×64 × ×25 ≈ ×3.9 billion base rate</p>
 <h3 id="movement">Movement</h3>
-<p>Unlocked by <strong>Cosmic Drift</strong> (requires upg_gravitationalPull).</p>
+<p>Unlocked by <strong>Cosmic Drift</strong> (requires upg_gravitationalPull / Electromagnetic Bond).</p>
 <p><strong>Desktop:</strong> WASD or arrow keys to navigate. <strong>Mobile / touch:</strong> Touch-drag anywhere on the canvas to move the character toward the drag point. The character follows the touch position smoothly.</p>
 <ul>
 <li><strong>Ion Thrust</strong>: +20 speed per level (max 5 levels)</li>
 <li><strong>Manoeuvring Jets</strong>: +0.8 turn rate per level (max 3 levels)</li>
 </ul>
-<p>Once movement is unlocked, the <strong>Space Dust</strong> parallax layer becomes visible (see below).</p>
+<p>Once movement is unlocked, the <strong>Space Dust</strong> parallax layer continues scrolling (it also scrolls during the beacon phase to imply drift).</p>
 <h3 id="dark-matter-node-system">Dark Matter Node System</h3>
 <blockquote>
 <p>Activated at <strong>ms_gasCloud</strong>. Nodes appear automatically when achievement thresholds are crossed — no upgrade gate required.</p>
@@ -443,12 +449,10 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <p><strong>Reflected ripple:</strong> When the wave front reaches the player, a cosmic dust wave reflects back toward the dark matter node in a 60° cone (±30°, max 140 px, ~0.7 s duration). The cone is centred on the direction from the player toward the DM node, and dust within it is displaced — evoking a stone-in-pond reflection.</p>
 <hr>
 <h3 id="space-dust-background">Space Dust Background</h3>
-<blockquote>
-<p>Unlocks lazily the first frame after <strong>Cosmic Drift</strong> is active (movement enabled).</p>
-</blockquote>
 <p>350 dust particles are seeded with a deterministic random seed and drawn at ultra-low opacity (0.014–0.056 alpha), providing a subtle spatial reference as the player moves.</p>
 <ul>
-<li><strong>Parallax factor</strong>: 0.07 (dust moves at 7% of camera velocity → near-stationary)</li>
+<li><strong>Parallax factor</strong>: 0.20 (far layer) / 0.50 (near layer)</li>
+<li><strong>Beacon phase scroll</strong>: during the early game, dust scrolls at ~50 px/s (parallax-attenuated) along with the world scroll, implying movement through space. Scroll stops after Electromagnetic Bond is purchased.</li>
 <li><strong>Colour palette</strong>: 72% cool blue-white (<code>#c8d8f8</code>), 28% warm amber (<code>#ffe8c0</code>)</li>
 <li><strong>Tiling</strong>: normalised coordinates tile seamlessly across the viewport</li>
 </ul>
@@ -457,6 +461,30 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <li>A radial dark halo (radius ~55–95 px) darkens the immediate area around the node</li>
 <li>Dust particles near the node are pushed outward (max 50 px displacement)</li>
 <li>At the expanding wave front, dust is subtly brightened (no size expansion — prevents the ring-of-pixels artefact)</li>
+</ul>
+<hr>
+<h3 id="orbital-energy-display">Orbital Energy Display</h3>
+<p>Energy is visually represented as <strong>motes orbiting the player</strong>. Each unit of current energy corresponds to one orbiting mote, shown in base-10 tiers:</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Tier</th><th>Power</th><th>Orbit radius</th><th>Colour</th><th>Orbit speed</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>Ones</td><td>60 px</td><td>Blue <code>#5878c0</code></td><td>Fast</td></tr>
+<tr><td>1</td><td>Tens</td><td>80 px</td><td>Cyan <code>#00d4ff</code></td><td>Medium</td></tr>
+<tr><td>2</td><td>Hundreds</td><td>105 px</td><td>Purple <code>#c850ff</code></td><td>Slow</td></tr>
+<tr><td>3</td><td>Thousands</td><td>135 px</td><td>Gold <code>#ffd700</code></td><td>Very slow</td></tr>
+<tr><td>4</td><td>Ten-thousands</td><td>170 px</td><td>White <code>#ffffff</code></td><td>Very slow</td></tr>
+</tbody></table></div>
+<p>Each tier shows <code>floor(energy / 10^t) % 10</code> motes evenly spaced around the orbit. For example, 37 energy = 7 blue motes (ones) + 3 cyan motes (tens).</p>
+<p><strong>Spending energy</strong> removes motes from orbit in real time — the display always reflects the <strong>current</strong> energy value.</p>
+<p><strong>Tier rollover flash:</strong> when a tier's count rolls from 9 → 0 (e.g. energy hits 10, 100, etc.), the next tier briefly flashes brighter.</p>
+<p><strong>Player size:</strong> minimum player visual size grows with the highest active energy tier:</p>
+<ul>
+<li>No energy: minimum 0 (mass-driven size only)</li>
+<li>Tier 0 active: minimum 5 px</li>
+<li>Tier 1 active: minimum 7 px</li>
+<li>Tier 2 active: minimum 10 px</li>
+<li>Tier 3 active: minimum 14 px</li>
+<li>Tier 4 active: minimum 18 px</li>
 </ul>
 <hr>
 <h3 id="star-lifecycle">Star Lifecycle</h3>
@@ -650,7 +678,7 @@ Always available. Energy costs.
 
 | ID | Name | Levels | Cost | Effect |
 |----|------|--------|------|--------|
-| upg_gravitationalPull | Gravitational Pull | 5 | 15E × 3× | Unlock + grow gravity radius |
+| upg_gravitationalPull | Electromagnetic Bond | 5 | 1E × 3× | Unlock + grow attraction radius |
 | upg_moteGeneration | Mote Genesis | 5 | 25E × 3× | ×3.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 4 | 50E × 3× | ×2.5 absorption/level |
 | upg_clickAmplifier | Energy Resonance | 3 | 75E × 3× | ×2.5 energy per absorbed mote/level |

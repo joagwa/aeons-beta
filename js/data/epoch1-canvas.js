@@ -23,7 +23,7 @@ export const epoch1CanvasConfig = {
       particleTypes: ['mote', 'shimmer'],
       maxParticles: 500,
       initiallyActive: true,
-      initialParticleCount: 400,
+      initialParticleCount: 0,
     },
     {
       regionId: 'atomicNursery',

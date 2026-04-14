@@ -22,6 +22,9 @@ export class ParticleSystem {
     // Spawn flash tracking: [{x, y, age, maxAge}]
     this._spawnFlashes = [];
     this._qualityLevel = 0;
+    // Background scroll velocity (world px/s) — applied to all non-homing particles
+    this._worldScrollVx = 0;
+    this._worldScrollVy = 0;
   }
 
   /** Initialize particle arrays for each region. */
@@ -92,6 +95,7 @@ export class ParticleSystem {
    */
   _spawnEdgeParticle(entry) {
     if (entry.particles.length >= MAX_PER_REGION) return;
+    if (entry.targetDensity === 0) return; // pre-genesis: don't replace absorbed particles
 
     const bounds = entry.config.worldBounds;
     const types = entry.config.particleTypes;
@@ -170,7 +174,17 @@ export class ParticleSystem {
           p._pushTimer = Math.max(0, p._pushTimer - dt);
         }
 
-        if (p.attracted && attraction && !p._pushTimer) {
+        if (p.homing) {
+          // Beacon mote: drift toward homeX/homeY, immune to world scroll and gravity
+          const dx = p.homeX - p.x;
+          const dy = p.homeY - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist > 1) {
+            p.x += (dx / dist) * p.homeSpeed * dt;
+            p.y += (dy / dist) * p.homeSpeed * dt;
+          }
+          p.brightness = 0.75 + Math.sin(Date.now() * 0.003) * 0.2;
+        } else if (p.attracted && attraction && !p._pushTimer) {
           // Cubic distance-based speed with mass scaling: strong core, steep dropoff
           const dx = attraction.targetX - p.x;
           const dy = attraction.targetY - p.y;
@@ -191,6 +205,10 @@ export class ParticleSystem {
           // Normal ambient drift (also used during DM wave push)
           p.x += p.vx * speed * dt;
           p.y += p.vy * speed * dt;
+
+          // Background world scroll (implies player movement through space)
+          p.x -= this._worldScrollVx * dt;
+          p.y -= this._worldScrollVy * dt;
 
           // Wrap within region bounds
           if (p.x < bounds.x)             p.x += bounds.w;
@@ -233,6 +251,7 @@ export class ParticleSystem {
 
         for (const p of entry.particles) {
           if (p.attracted) continue;
+          if (p.homing) continue; // beacon: never pulled by gravity
           if (p._pushTimer > 0) continue; // DM wave push: skip re-attraction
 
           const dx = attraction.targetX - p.x;
@@ -440,6 +459,56 @@ export class ParticleSystem {
    */
   setAbsorptionCallback(fn) {
     this._onAbsorb = fn;
+  }
+
+  /** Set the world-scroll velocity (world px/s) applied each frame to all non-homing particles. */
+  setWorldScroll(vx, vy) {
+    this._worldScrollVx = vx;
+    this._worldScrollVy = vy;
+  }
+
+  /** Update the homing target for all beacon particles (used when player position changes). */
+  setHomingTarget(x, y) {
+    for (const [, entry] of this.regions) {
+      for (const p of entry.particles) {
+        if (p.homing) { p.homeX = x; p.homeY = y; }
+      }
+    }
+  }
+
+  /**
+   * Spawn a beacon mote that drifts toward the player — bypasses targetDensity checks.
+   * @param {string} regionId
+   * @param {number} worldX   Initial world X
+   * @param {number} worldY   Initial world Y
+   * @param {number} homeX    Target world X (player position)
+   * @param {number} homeY    Target world Y (player position)
+   * @param {number} homeSpeed  Drift speed in world px/s
+   */
+  spawnBeaconMote(regionId, worldX, worldY, homeX, homeY, homeSpeed = 30) {
+    const entry = this.regions.get(regionId);
+    if (!entry) return;
+    const sprite = this.spriteManager.getSprite('mote_rare') || this.spriteManager.getSprite('mote');
+    if (!sprite) return;
+    entry.particles.push({
+      x: worldX, y: worldY,
+      vx: 0, vy: 0,
+      size: sprite.maxSize,
+      brightness: 1.0,
+      type: 'mote_rare',
+      quality: TYPE_QUALITY['mote_rare'] ?? 2,
+      sprite,
+      attracted: false,
+      homing: true,
+      homeX, homeY, homeSpeed,
+    });
+  }
+
+  /** Remove all homing particles from a region (cleans up beacon on upgrade purchase or reload). */
+  clearHomingParticles(regionId) {
+    const entry = this.regions.get(regionId);
+    if (!entry) return;
+    entry.particles = entry.particles.filter(p => !p.homing);
   }
 
   /**

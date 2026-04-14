@@ -110,11 +110,7 @@ export class MoteController {
    * @param {number} dt — real wall-clock delta in seconds (clamped externally)
    */
   tick(dt) {
-    if (dt <= 0) return;
-    if (!this._enabled) {
-      this._tickAutoDrift(dt);
-      return;
-    }
+    if (!this._enabled || dt <= 0) return;
 
     const accel = this.maxSpeed * 8 * dt;   // reach max speed in ~0.125s
     const friction = Math.pow(0.008, dt);    // aggressive stop — nearly instant when released

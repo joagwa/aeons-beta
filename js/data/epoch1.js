@@ -172,10 +172,10 @@ const tier1Upgrades = [
   {
     id: 'upg_gravitationalPull',
     epochId: 'epoch1',
-    name: 'Gravitational Pull',
-    description: 'Harness ambient gravity to draw nearby motes toward you, absorbing their energy on contact.',
+    name: 'Electromagnetic Bond',
+    description: 'Channel electromagnetic attraction to draw nearby motes toward you, absorbing their energy on contact.',
     category: 'tier1',
-    baseCost: 15,
+    baseCost: 1,
     costResource: 'energy',
     scalingFactor: 1.0,
     maxLevel: 5,
@@ -186,7 +186,7 @@ const tier1Upgrades = [
     effectTarget: 'gravity',
     effectMagnitude: 1,
     requiresMilestone: null,
-    mechanic: '⚙ Gravity range increases each level (200 → 400 → 700 → 1000 → 1400)',
+    mechanic: '⚙ Attraction range increases each level (200 → 400 → 700 → 1000 → 1400)',
   },
   {
     id: 'upg_quantumFluctuation',
