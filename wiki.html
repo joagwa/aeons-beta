@@ -228,7 +228,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit <code>12175e2</code>.</p>
+Last updated with commit <code>pending</code>.</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -293,7 +293,7 @@ Last updated with commit <code>12175e2</code>.</p>
 <hr>
 <h2 id="core-mechanics">Core Mechanics</h2>
 <h3 id="mote-absorption-energy-generation">Mote Absorption (Energy Generation)</h3>
-<p>Energy is <strong>not</strong> generated passively. Every point of energy comes from absorbing a visible mote particle on screen.</p>
+<p>Energy is primarily earned by absorbing mote particles. With the <strong>Energy Resonance</strong> upgrade, energy also ticks in passively each second (each level adds +1.5/sec; level 10 = +15/sec).</p>
 <p><strong>Base energy per mote</strong> depends on quality tier:</p>
 <div class="table-wrapper"><table>
 <thead><tr><th>Quality</th><th>Name</th><th>Base Value</th></tr></thead>
@@ -306,7 +306,7 @@ Last updated with commit <code>12175e2</code>.</p>
 </tbody></table></div>
 <p><strong>Absorption multipliers</strong> stack multiplicatively:</p>
 <pre><code>finalEnergy = qualityBase × (quantumFluctuation^level) × (vacuumHarvesting^level)
-            = qualityBase × 1.5^qfLevel × 1.3^vhLevel</code></pre>
+            = qualityBase × 2.0^qfLevel × 1.8^vhLevel</code></pre>
 <p>Result is rounded up to a minimum of 1.</p>
 <h3 id="clicking">Clicking</h3>
 <blockquote>
@@ -391,18 +391,18 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <thead><tr><th>Level</th><th>Spawn Rate Multiplier</th><th>Approx. Spawns/s</th></tr></thead>
 <tbody>
 <tr><td>0</td><td>×1.0</td><td>~5%</td></tr>
-<tr><td>1</td><td>×3.0</td><td>~15%</td></tr>
-<tr><td>2</td><td>×9.0</td><td>~45%</td></tr>
-<tr><td>3</td><td>×27</td><td>~135%</td></tr>
-<tr><td>4</td><td>×81</td><td>~405%</td></tr>
-<tr><td>5</td><td>×243</td><td>~1215%</td></tr>
+<tr><td>1</td><td>×7.0</td><td>~35%</td></tr>
+<tr><td>2</td><td>×49</td><td>~245%</td></tr>
+<tr><td>3</td><td>×343</td><td>~1715%</td></tr>
+<tr><td>4</td><td>×2,401</td><td>~12005%</td></tr>
+<tr><td>5</td><td>×16,807</td><td>~84035%</td></tr>
 </tbody></table></div>
-<p>All three mote-chain upgrades (Mote Genesis ×3.0, Quantum Flood ×3.0, Void Saturation ×5.0) multiply together for a maximum combined rate of ×243 × ×81 × ×125 = ×2.5 million base rate.</p>
+<p>All three mote-chain upgrades (Mote Genesis ×7.0, Quantum Flood ×3.0, Void Saturation ×5.0) multiply together for a maximum combined rate far beyond the prior cap.</p>
 <p><strong>Full mote generation chain</strong> (all 5 tiers combined at max):</p>
 <div class="table-wrapper"><table>
 <thead><tr><th>Tier</th><th>Upgrade</th><th>Levels</th><th>Mag</th><th>Max Mult</th></tr></thead>
 <tbody>
-<tr><td>1</td><td>Mote Genesis</td><td>5</td><td>×3.0</td><td>×243</td></tr>
+<tr><td>1</td><td>Mote Genesis</td><td>5</td><td>×7.0</td><td>×16,807</td></tr>
 <tr><td>2</td><td>Quantum Flood</td><td>4</td><td>×3.0</td><td>×81</td></tr>
 <tr><td>3</td><td>Void Saturation</td><td>3</td><td>×5.0</td><td>×125</td></tr>
 <tr><td>4</td><td>Nebular Surge</td><td>3</td><td>×4.0</td><td>×64</td></tr>
@@ -685,9 +685,9 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, log scaling
 | ID | Name | Levels | Cost | Effect |
 |----|------|--------|------|--------|
 | upg_gravitationalPull | Electromagnetic Bond | 10 | 1E × 3× | Unlock + grow attraction radius (300→6000 over 10 lvls) |
-| upg_moteGeneration | Mote Genesis | 10 | 25E × 3× | ×3.0 spawn rate/level |
-| upg_quantumFluctuation | Quantum Fluctuation | 10 | 50E × 3× | ×2.0 absorption/level |
-| upg_clickAmplifier | Energy Resonance | 10 | 75E × 3× | ×2.0 energy per absorbed mote/level |
+| upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×7.0 spawn rate/level |
+| upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 8× | ×2.0 absorption/level (passive only) — steep cost |
+| upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | +1.5 energy/sec per level (passive income) |
 | upg_quantumCapacitor | Quantum Capacitor | 10 | 500E × 3× | +400 energy cap/level |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
 | upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond) |
