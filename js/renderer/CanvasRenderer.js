@@ -3,12 +3,12 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=0095b8c';
-import { Camera } from './Camera.js?v=0095b8c';
-import { ParticleSystem } from './ParticleSystem.js?v=0095b8c';
-import { RegionManager } from './RegionManager.js?v=0095b8c';
-import { FloatingNumbers } from './FloatingNumbers.js?v=0095b8c';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=0095b8c';
+import { SpriteManager } from './SpriteManager.js?v=8342269';
+import { Camera } from './Camera.js?v=8342269';
+import { ParticleSystem } from './ParticleSystem.js?v=8342269';
+import { RegionManager } from './RegionManager.js?v=8342269';
+import { FloatingNumbers } from './FloatingNumbers.js?v=8342269';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=8342269';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -71,7 +71,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=0095b8c').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=8342269').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -318,9 +318,11 @@ export class CanvasRenderer {
       if (this._gravityBaseRadius > 0) {
         const baseRadius = this._gravityBaseRadius || 100;
         const tractorRange = this._moteController.tractorBeamRange || 0;
+        // Energy-based radius bonus: +60px per log10(energy) so early accumulation widens pull
+        const energyBonus = Math.log10(Math.max(1, this._currentEnergy)) * 60;
         // Mass-based radius expansion: +50% radius per 100 mass, logarithmic scaling
         const massBonus = this._currentMass > 0 ? Math.log10(1 + this._currentMass) * 0.4 : 0;
-        const effectiveRadius = (baseRadius + tractorRange) * (1 + massBonus) * this._stormGravityMult;
+        const effectiveRadius = (baseRadius + tractorRange + energyBonus) * (1 + massBonus) * this._stormGravityMult;
         this.particleSystem.updateAttractionTargetAll(
           this._moteController.worldX,
           this._moteController.worldY,
@@ -978,7 +980,7 @@ export class CanvasRenderer {
         this.particleSystem.spawnInitialParticles('void', 25);
 
         // Gravity radius scales with upgrade level — 10 levels
-        const gravityRadiusByLevel = [0, 300, 500, 800, 1200, 1700, 2300, 3000, 3900, 4900, 6000];
+        const gravityRadiusByLevel = [0, 400, 650, 950, 1400, 1900, 2500, 3200, 4100, 5100, 6200];
         const level = data.level || 1;
         const radius = gravityRadiusByLevel[Math.min(level, gravityRadiusByLevel.length - 1)];
 
@@ -1249,7 +1251,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=0095b8c').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=8342269').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

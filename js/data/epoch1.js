@@ -187,7 +187,7 @@ const tier1Upgrades = [
     effectTarget: 'attraction',
     effectMagnitude: 1,
     requiresMilestone: null,
-    mechanic: '⚙ Attraction range per level (300→500→800→1200→1700→2300→3000→3900→4900→6000)',
+    mechanic: '⚙ Attraction range per level (400→650→950→1400→1900→2500→3200→4100→5100→6200), +60px per log₁₀(energy)',
   },
   {
     id: 'upg_quantumFluctuation',
@@ -444,9 +444,9 @@ const moteUpgrades = [
     prerequisites: [],
     effectType: 'rateMultiplier',
     effectTarget: 'moteGeneration',
-    effectMagnitude: 3.0,
+    effectMagnitude: 3.5,
     requiresMilestone: null,
-    mechanic: '⚙ ×3.0 mote spawn rate per level (10 levels)',
+    mechanic: '⚙ ×3.5 mote spawn rate per level (10 levels)',
   },
   {
     id: 'upg_moteQuality',
