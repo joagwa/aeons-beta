@@ -648,9 +648,15 @@ Opened via the Prestige panel. Four branches of persistent upgrades:
 
 ### Cost Formula
 
-For multi-level upgrades:</code></pre>
+For multi-level upgrades with exponential scaling:</code></pre>
 <p>cost(level) = baseCost × costScaling^(level - 1)</p>
 <pre><code>
+For multi-level upgrades with **logarithmic scaling** from level 3 (`logScalingThreshold: 2`):
+- Levels 1–2: exponential as above
+- Levels 3+: `costAtThreshold × (1 + log₂(level - threshold + 1) × (costScaling - 1))`
+
+This creates steep early costs that flatten out at higher levels, rewarding sustained investment.
+
 For single-level upgrades: cost is simply `baseCost`.
 
 Multi-element costs use a `costRecipe` array; all costs must be affordable simultaneously.
@@ -666,7 +672,7 @@ Multi-element costs use a `costRecipe` array; all costs must be affordable simul
 | `absorptionMultiplier` | Exponential | `magnitude^N` |
 | `unlock` | Binary | Unlocks at level 1 |
 
-**Upgrade cost scaling**: All multi-level upgrades now use a **3× cost per level** formula: `cost(N) = baseCost × 3^N`.
+**All multi-level upgrades are now 10 levels** with `costScaling: 3×` and `logScalingThreshold: 2` (exponential for L1–2, logarithmic from L3 onward).
 
 **Live upgrade specs**: Each upgrade card shows the current cumulative effect (`Now: ×6.25`) and what the next level will give (`→ ×12.5`). For cost-reduction upgrades (Energy Density), shown as percentage (`Now: 56% cost/H`).
 
@@ -674,51 +680,51 @@ Multi-element costs use a `costRecipe` array; all costs must be affordable simul
 
 ### Group A — Discovery
 
-Always available. Energy costs.
+Always available. Energy costs. All multi-level upgrades: 10 levels, log scaling from L3.
 
 | ID | Name | Levels | Cost | Effect |
 |----|------|--------|------|--------|
-| upg_gravitationalPull | Electromagnetic Bond | 5 | 1E × 3× | Unlock + grow attraction radius |
-| upg_moteGeneration | Mote Genesis | 5 | 25E × 3× | ×3.0 spawn rate/level |
-| upg_quantumFluctuation | Quantum Fluctuation | 4 | 50E × 3× | ×2.5 absorption/level |
-| upg_clickAmplifier | Energy Resonance | 3 | 75E × 3× | ×2.5 energy per absorbed mote/level |
-| upg_quantumCapacitor | Quantum Capacitor | 5 | 500E × 2× | +500 energy cap/level |
-| upg_vacuumHarvesting | Vacuum Harvesting | 3 | 200E × 3× | ×2.0 absorption/level |
-| upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: Grav Pull) |
-| upg_ionThrust | Ion Thrust | 3 | 75E × 3× | +30 speed/level |
-| upg_maneuveringJets | Manoeuvring Jets | 3 | 60E × 3× | +0.8 turn rate/level |
+| upg_gravitationalPull | Electromagnetic Bond | 10 | 1E × 3× | Unlock + grow attraction radius (200→5000 over 10 lvls) |
+| upg_moteGeneration | Mote Genesis | 10 | 25E × 3× | ×2.5 spawn rate/level |
+| upg_quantumFluctuation | Quantum Fluctuation | 10 | 50E × 3× | ×2.0 absorption/level |
+| upg_clickAmplifier | Energy Resonance | 10 | 75E × 3× | ×2.0 energy per absorbed mote/level |
+| upg_quantumCapacitor | Quantum Capacitor | 10 | 500E × 3× | +400 energy cap/level |
+| upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
+| upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond) |
+| upg_ionThrust | Ion Thrust | 10 | 75E × 3× | +25 speed/level |
+| upg_maneuveringJets | Manoeuvring Jets | 10 | 60E × 3× | +0.6 turn rate/level |
 
 ---
 
 ### Group B — Synthesis
 
-Unlocked after Proton Forge. Energy and hydrogen costs.
+Unlocked after Proton Forge. Energy and hydrogen costs. All multi-level upgrades: 10 levels, log scaling from L3.
 
 | ID | Name | Levels | Cost | Effect | Prereq |
 |----|------|--------|------|--------|--------|
 | upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | ms_firstAtom |
-| upg_quantumNucleogenesis | Quantum Nucleogenesis | 5 | 250E × 3× | ×2.0 H production rate/level | protonForge |
-| upg_energyDensity | Energy Density | 5 | 100H × 3× | ×0.75 energy per H (−25%)/level | protonForge |
-| upg_quantumReservoir | Quantum Reservoir | 4 | 200H × 3× | +10,000 energy cap/level | protonForge |
-| upg_particleRefinement | Particle Refinement | 5 | 100H × 3× | Higher mote quality tiers | ms_firstAtom |
-| upg_moteResonance | Mote Resonance | 3 | 500H × 3× | ×3.0 absorption/level | particleRefinement |
-| upg_quantumFlood | Quantum Flood | 4 | 300H × 3× | ×3.0 spawn rate/level | ms_firstAtom |
-| upg_eventHorizon | Event Horizon | 4 | 200H × 3× | Tractor beam, +80 px/level | ms_firstAtom |
+| upg_quantumNucleogenesis | Quantum Nucleogenesis | 10 | 250E × 3× | ×1.8 H production rate/level | protonForge |
+| upg_energyDensity | Energy Density | 10 | 100H × 3× | ×0.80 energy per H (−20%)/level | protonForge |
+| upg_quantumReservoir | Quantum Reservoir | 10 | 200H × 3× | +8,000 energy cap/level | protonForge |
+| upg_particleRefinement | Particle Refinement | 10 | 100H × 3× | Higher mote quality tiers | ms_firstAtom |
+| upg_moteResonance | Mote Resonance | 10 | 500H × 3× | ×2.5 absorption/level | particleRefinement |
+| upg_quantumFlood | Quantum Flood | 10 | 300H × 3× | ×2.5 spawn rate/level | ms_firstAtom |
+| upg_eventHorizon | Event Horizon | 10 | 200H × 3× | Tractor beam, +65 px/level | ms_firstAtom |
 
 ---
 
 ### Group C — Fusion Lab
 
-Shown in the Fusion Lab panel. Hydrogen/helium costs.
+Shown in the Fusion Lab panel. Hydrogen/helium costs. All multi-level upgrades: 10 levels, log scaling from L3.
 
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|
 | upg_fusionIgnition | Fusion Ignition | 1 | 500H | Unlock H→He reaction | ms_mainSequenceStar |
-| upg_hydrogenFusion | Hydrogen Fusion | 4 | 200H × 3× | ×2.0 H→He rate/level | fusionIgnition |
+| upg_hydrogenFusion | Hydrogen Fusion | 10 | 200H × 3× | ×1.8 H→He rate/level | fusionIgnition |
 | upg_redGiantCatalyst | Red Giant Catalyst | 1 | 200He | Unlock He→C/O | ms_heliumAccumulated |
-| upg_heliumIgnition | Helium Ignition | 4 | 100He × 3× | ×2.0 He→C/O rate/level | redGiantCatalyst |
-| upg_molecularCatalyst | Molecular Catalyst | 4 | 50C × 3× | ×2.0 molecule synthesis rate | ms_carbonForged |
-| upg_supernovaAmplifier | Supernova Amplifier | 4 | 100Fe × 3× | ×2.5 Fe burst/level | ms_supernova |
+| upg_heliumIgnition | Helium Ignition | 10 | 100He × 3× | ×1.8 He→C/O rate/level | redGiantCatalyst |
+| upg_molecularCatalyst | Molecular Catalyst | 10 | 50C × 3× | ×1.8 molecule synthesis rate | ms_carbonForged |
+| upg_supernovaAmplifier | Supernova Amplifier | 10 | 100Fe × 3× | ×2.0 Fe burst/level | ms_supernova |
 
 ---
 
@@ -728,7 +734,7 @@ Gates star formation and evolution. Hydrogen/helium costs.
 
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|
-| upg_stellarNursery | Stellar Nursery | 3 | 500H × 3× | +10.0 H synthesis rate/level | ms_protostarIgnites |
+| upg_stellarNursery | Stellar Nursery | 3 | 500H × 3× | +8.0 H synthesis rate/level | ms_protostarIgnites |
 | upg_protostarIgnition | Protostar Ignition | 1 | 2,000H | ×2.0 all fusion rates | ms_protostarIgnites |
 | upg_gravityAmplifier | Gravity Amplifier | 1 | 500He | ×1.5 energy rate | ms_mainSequenceStar |
 | upg_gravityAmplifier2 | Gravity Amplifier II | 1 | 1,000He | +80 DM wave force | ms_mainSequenceStar |
@@ -739,18 +745,18 @@ Gates star formation and evolution. Hydrogen/helium costs.
 
 ### Group E — Planetary Forge
 
-Late game. Iron, carbon, molecule costs.
+Late game. Iron, carbon, molecule costs. All multi-level upgrades: 10 levels, log scaling from L3.
 
 | ID | Name | Levels | Cost | Effect | Gate |
 |----|------|--------|------|--------|------|
-| upg_rapidCycling | Rapid Cycling | 3 | 10Fe × 3× | ×0.7 star cycle duration/level | ms_supernova |
-| upg_elementalYield | Elemental Yield | 3 | 50Fe × 3× | ×3.0 iron yield/level | ms_secondGenStars |
-| upg_voidSaturation | Void Saturation | 3 | 50C × 3× | ×5.0 spawn rate/level | ms_carbonForged |
-| upg_nebularSurge | Nebular Surge | 3 | 50He × 3× | ×4.0 spawn rate/level | ms_heliumAccumulated |
-| upg_stellarTide | Stellar Tide | 2 | 25Fe × 3× | ×5.0 spawn rate/level | ms_supernova |
+| upg_rapidCycling | Rapid Cycling | 10 | 10Fe × 3× | ×0.85 star cycle duration/level | ms_supernova |
+| upg_elementalYield | Elemental Yield | 10 | 50Fe × 3× | ×2.5 iron yield/level | ms_secondGenStars |
+| upg_voidSaturation | Void Saturation | 10 | 50C × 3× | ×4.0 spawn rate/level | ms_carbonForged |
+| upg_nebularSurge | Nebular Surge | 10 | 50He × 3× | ×3.5 spawn rate/level | ms_heliumAccumulated |
+| upg_stellarTide | Stellar Tide | 10 | 25Fe × 3× | ×4.0 spawn rate/level | ms_supernova |
 | upg_planetesimalSweep | Planetesimal Sweep | 1 | 100Fe | ×2.0 H synthesis rate | ms_planetaryDisc |
 | upg_ironCoreDevelopment | Iron Core Development | 1 | 200Fe | +50.0 H synthesis rate | ms_planetesimals |
-| upg_hydrologicalCycle | Hydrological Cycle | 5 | 50H + 20O + 5Fe × 3× | +100,000 energy cap/level | ms_rockyPlanet |
+| upg_hydrologicalCycle | Hydrological Cycle | 10 | 50H + 20O + 5Fe × 3× | +80,000 energy cap/level | ms_rockyPlanet |
 | upg_cosmicOptimisation | Cosmic Optimisation | 1 | 100Fe+50C+50O+200H+100He | ×1.5 all rates | ms_rockyPlanet |
 | upg_deepTimePatience | Deep-Time Patience | 1 | 1,000Fe | ×1.5 cosmic residue | ms_stablePlanet |
 

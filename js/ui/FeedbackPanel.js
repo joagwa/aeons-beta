@@ -13,8 +13,8 @@
  * No tokens ever appear in client-side code or committed files.
  */
 
-import { LogBuffer } from '../core/LogBuffer.js?v=d413b80';
-import { formatNumber } from '../core/NumberFormatter.js?v=d413b80';
+import { LogBuffer } from '../core/LogBuffer.js?v=dff554e';
+import { formatNumber } from '../core/NumberFormatter.js?v=dff554e';
 
 export class FeedbackPanel {
   #workerEndpoint = null;

@@ -3,12 +3,12 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=d413b80';
-import { Camera } from './Camera.js?v=d413b80';
-import { ParticleSystem } from './ParticleSystem.js?v=d413b80';
-import { RegionManager } from './RegionManager.js?v=d413b80';
-import { FloatingNumbers } from './FloatingNumbers.js?v=d413b80';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d413b80';
+import { SpriteManager } from './SpriteManager.js?v=dff554e';
+import { Camera } from './Camera.js?v=dff554e';
+import { ParticleSystem } from './ParticleSystem.js?v=dff554e';
+import { RegionManager } from './RegionManager.js?v=dff554e';
+import { FloatingNumbers } from './FloatingNumbers.js?v=dff554e';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=dff554e';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -71,7 +71,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=d413b80').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=dff554e').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -973,12 +973,12 @@ export class CanvasRenderer {
         // Stop background scroll — beacon phase is over
         this._bgScrollTargetVx = 0;
         this._bgScrollTargetVy = 0;
-        // Clean up beacon mote and start normal mote genesis
+        // Clean up beacon mote and start normal mote genesis (sparse — gravity will do the work)
         this.particleSystem.clearHomingParticles('void');
-        this.particleSystem.spawnInitialParticles('void', 250);
+        this.particleSystem.spawnInitialParticles('void', 25);
 
-        // Gravity radius scales with upgrade level — much larger with steep falloff
-        const gravityRadiusByLevel = [0, 200, 400, 700, 1000, 1400];
+        // Gravity radius scales with upgrade level — 10 levels
+        const gravityRadiusByLevel = [0, 200, 400, 700, 1000, 1400, 1900, 2500, 3200, 4100, 5000];
         const level = data.level || 1;
         const radius = gravityRadiusByLevel[Math.min(level, gravityRadiusByLevel.length - 1)];
 
@@ -1249,7 +1249,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=d413b80').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=dff554e').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
