@@ -11,7 +11,7 @@
  * Upgrade nodes rendered as HTML over the canvas.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=1a07e68';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=64b5ed7';
 
 const BRANCH_CONFIG = {
   production:  { label: 'Production',  color: '#f0c040', angle: -90 },

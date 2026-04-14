@@ -391,13 +391,13 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <thead><tr><th>Level</th><th>Spawn Rate Multiplier</th><th>Approx. Spawns/s</th></tr></thead>
 <tbody>
 <tr><td>0</td><td>×1.0</td><td>~5%</td></tr>
-<tr><td>1</td><td>×7.0</td><td>~35%</td></tr>
-<tr><td>2</td><td>×49</td><td>~245%</td></tr>
-<tr><td>3</td><td>×343</td><td>~1715%</td></tr>
-<tr><td>4</td><td>×2,401</td><td>~12005%</td></tr>
-<tr><td>5</td><td>×16,807</td><td>~84035%</td></tr>
+<tr><td>1</td><td>×2.0</td><td>~10%</td></tr>
+<tr><td>2</td><td>×4</td><td>~20%</td></tr>
+<tr><td>3</td><td>×8</td><td>~40%</td></tr>
+<tr><td>4</td><td>×16</td><td>~80%</td></tr>
+<tr><td>5</td><td>×32</td><td>~160%</td></tr>
 </tbody></table></div>
-<p>All three mote-chain upgrades (Mote Genesis ×7.0, Quantum Flood ×3.0, Void Saturation ×5.0) multiply together for a maximum combined rate far beyond the prior cap.</p>
+<p>All three mote-chain upgrades (Mote Genesis ×2.0, Quantum Flood ×3.0, Void Saturation ×5.0) multiply together for a maximum combined rate far beyond the prior cap.</p>
 <p><strong>Immediate burst on purchase</strong> — purchasing Mote Genesis, Quantum Flood, or Void Saturation instantly places a batch of attracted particles within the tractor beam's gravity radius (0.7× the current radius) so players see collection feedback right away. Burst count scales with combined upgrade levels:</p>
 <div class="table-wrapper"><table>
 <thead><tr><th>Combined levels (gen + flood + sat)</th><th>Burst count</th></tr></thead>
@@ -410,13 +410,13 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <div class="table-wrapper"><table>
 <thead><tr><th>Tier</th><th>Upgrade</th><th>Levels</th><th>Mag</th><th>Max Mult</th></tr></thead>
 <tbody>
-<tr><td>1</td><td>Mote Genesis</td><td>5</td><td>×7.0</td><td>×16,807</td></tr>
+<tr><td>1</td><td>Mote Genesis</td><td>10</td><td>×2.0</td><td>×1,024</td></tr>
 <tr><td>2</td><td>Quantum Flood</td><td>4</td><td>×3.0</td><td>×81</td></tr>
 <tr><td>3</td><td>Void Saturation</td><td>3</td><td>×5.0</td><td>×125</td></tr>
 <tr><td>4</td><td>Nebular Surge</td><td>3</td><td>×4.0</td><td>×64</td></tr>
 <tr><td>5</td><td>Stellar Tide</td><td>2</td><td>×5.0</td><td>×25</td></tr>
 </tbody></table></div>
-<p>Combined at full max: ×243 × ×81 × ×125 × ×64 × ×25 ≈ ×3.9 billion base rate</p>
+<p>Combined at full max: ×1,024 × ×81 × ×125 × ×64 × ×25 ≈ ×1.6 billion base rate</p>
 <h3 id="movement">Movement</h3>
 <p>Unlocked by <strong>Cosmic Drift</strong> (requires upg_gravitationalPull / Electromagnetic Bond).</p>
 <p><strong>Desktop:</strong> WASD or arrow keys to navigate. <strong>Mobile / touch:</strong> Touch-drag anywhere on the canvas to move the character toward the drag point. The character follows the touch position smoothly.</p>
@@ -691,12 +691,12 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, pure expone
 | ID | Name | Levels | Cost | Effect |
 |----|------|--------|------|--------|
 | upg_gravitationalPull | Electromagnetic Bond | 10 | 1E × 3× | Unlock + grow attraction radius (300→6000 over 10 lvls) |
-| upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×7.0 spawn rate/level |
+| upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×2.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 8× | ×2.0 absorption/level (passive only) — steep cost |
 | upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | ×(1 + level×0.25×E/(E+200)) to mote genesis &amp; attraction (soft-cap 200 energy, up to ×3.5 at L10) |
 | upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | +400 × level² energy cap — cost equals current cap each time |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
-| upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond) |
+| upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond, no milestone required) |
 | upg_ionThrust | Ion Thrust | 10 | 75E × 3× | +25 speed/level |
 | upg_manoeuvringJets | Manoeuvring Jets | 10 | 60E × 3× | +0.6 turn rate/level |
 
@@ -708,7 +708,7 @@ Unlocked after Proton Forge. Energy and hydrogen costs. All multi-level upgrades
 
 | ID | Name | Levels | Cost | Effect | Prereq |
 |----|------|--------|------|--------|--------|
-| upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | ms_firstAtom |
+| upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider (no milestone required) | — |
 | upg_quantumNucleogenesis | Quantum Nucleogenesis | 10 | 250E × 3× | ×1.8 H production rate/level | protonForge |
 | upg_energyDensity | Energy Density | 10 | 100H × 3× | ×0.80 energy per H (−20%)/level | protonForge |
 | upg_quantumReservoir | Quantum Reservoir | 10 | 200H × 3× | +8,000 × level² energy cap | protonForge |

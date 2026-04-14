@@ -299,7 +299,7 @@ const tier1Upgrades = [
     effectType: 'unlock',
     effectTarget: 'moteMovement',
     effectMagnitude: 1,
-    requiresMilestone: 'ms_firstAtom',
+    requiresMilestone: null,
   },
   {
     id: 'upg_ionThrust',
@@ -355,7 +355,7 @@ const tier1Upgrades = [
     effectType: 'unlock',
     effectTarget: 'protonSynthesis',
     effectMagnitude: 1,
-    requiresMilestone: 'ms_firstAtom',
+    requiresMilestone: null,
     mechanic: '⚙ Unlocks the Fusion Lab panel and energy → hydrogen synthesis slider',
   },
   {
@@ -433,9 +433,9 @@ const moteUpgrades = [
     prerequisites: [],
     effectType: 'rateMultiplier',
     effectTarget: 'moteGeneration',
-    effectMagnitude: 7.0,
+    effectMagnitude: 2.0,
     requiresMilestone: null,
-    mechanic: '⚙ ×7.0 mote spawn rate per level (10 levels)',
+    mechanic: '⚙ ×2.0 mote spawn rate per level (10 levels: up to ×1,024x base rate)',
   },
   {
     id: 'upg_moteQuality',
