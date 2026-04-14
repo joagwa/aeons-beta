@@ -3,12 +3,12 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=d69ce72';
-import { Camera } from './Camera.js?v=d69ce72';
-import { ParticleSystem } from './ParticleSystem.js?v=d69ce72';
-import { RegionManager } from './RegionManager.js?v=d69ce72';
-import { FloatingNumbers } from './FloatingNumbers.js?v=d69ce72';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d69ce72';
+import { SpriteManager } from './SpriteManager.js?v=4e751ee';
+import { Camera } from './Camera.js?v=4e751ee';
+import { ParticleSystem } from './ParticleSystem.js?v=4e751ee';
+import { RegionManager } from './RegionManager.js?v=4e751ee';
+import { FloatingNumbers } from './FloatingNumbers.js?v=4e751ee';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=4e751ee';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -71,7 +71,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=d69ce72').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=4e751ee').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -1250,7 +1250,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=d69ce72').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=4e751ee').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
