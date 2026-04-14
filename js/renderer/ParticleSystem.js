@@ -58,9 +58,11 @@ export class ParticleSystem {
 
     let x, y;
     const attraction = entry.attraction;
-    // 60% chance to spawn within ~2× gravity radius of attraction center
-    if (attraction && Math.random() < 0.6) {
-      const spawnRadius = (attraction.gravityRadius || 300) * 2;
+    const gr = attraction?.gravityRadius ?? 0;
+    // Early game (small radius ≤ 500px): spawn motes inside the pull zone so they're caught.
+    // Later (large radius): spawn at 2× radius for a funnel effect.
+    if (attraction && Math.random() < 0.85) {
+      const spawnRadius = gr <= 500 ? gr * 0.9 : gr * 2;
       const angle = Math.random() * Math.PI * 2;
       const dist = Math.sqrt(Math.random()) * spawnRadius; // sqrt for uniform area distribution
       x = attraction.targetX + Math.cos(angle) * dist;
@@ -110,10 +112,12 @@ export class ParticleSystem {
 
     let x, y;
     const attraction = entry.attraction;
-    // 50% chance to spawn near gravity zone (but outside the tight pull radius)
-    if (attraction && Math.random() < 0.5) {
-      const innerR = (attraction.gravityRadius || 300) * 0.8;
-      const outerR = (attraction.gravityRadius || 300) * 2.5;
+    const gr = attraction?.gravityRadius ?? 0;
+    // Early game (radius ≤ 500): replace absorbed motes within the pull zone.
+    // Later: spawn just outside the pull zone so they drift inward.
+    if (attraction && Math.random() < 0.75) {
+      const innerR = gr <= 500 ? 0 : gr * 0.8;
+      const outerR = gr <= 500 ? gr * 0.95 : gr * 2.5;
       const angle = Math.random() * Math.PI * 2;
       const dist = innerR + Math.random() * (outerR - innerR);
       x = attraction.targetX + Math.cos(angle) * dist;
