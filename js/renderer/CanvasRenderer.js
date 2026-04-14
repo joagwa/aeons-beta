@@ -3,12 +3,12 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=9f33b5b';
-import { Camera } from './Camera.js?v=9f33b5b';
-import { ParticleSystem } from './ParticleSystem.js?v=9f33b5b';
-import { RegionManager } from './RegionManager.js?v=9f33b5b';
-import { FloatingNumbers } from './FloatingNumbers.js?v=9f33b5b';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=9f33b5b';
+import { SpriteManager } from './SpriteManager.js?v=749482e';
+import { Camera } from './Camera.js?v=749482e';
+import { ParticleSystem } from './ParticleSystem.js?v=749482e';
+import { RegionManager } from './RegionManager.js?v=749482e';
+import { FloatingNumbers } from './FloatingNumbers.js?v=749482e';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=749482e';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -71,7 +71,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=9f33b5b').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=749482e').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -501,13 +501,6 @@ export class CanvasRenderer {
     ctx.beginPath();
     ctx.arc(sx, sy, s, 0, Math.PI * 2);
     ctx.fill();
-
-    // Cross-hair glow dots
-    ctx.globalAlpha = 0.5 + pulse * 0.4;
-    ctx.fillRect(Math.round(sx - s - 2), Math.round(sy), 2, 1);
-    ctx.fillRect(Math.round(sx + s + 1), Math.round(sy), 2, 1);
-    ctx.fillRect(Math.round(sx), Math.round(sy - s - 2), 1, 2);
-    ctx.fillRect(Math.round(sx), Math.round(sy + s + 1), 1, 2);
 
     // Pulse ring
     if (pulse > 0.05) {
@@ -1254,7 +1247,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=9f33b5b').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=749482e').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
