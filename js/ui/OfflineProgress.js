@@ -2,7 +2,7 @@
  * OfflineProgress — Modal showing resource gains accumulated while away.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=b0b0131';
+import { formatNumber } from '../core/NumberFormatter.js?v=d97716d';
 
 export class OfflineProgress {
   constructor(EventBus) {

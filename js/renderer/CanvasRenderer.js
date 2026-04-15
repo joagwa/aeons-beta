@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=b0b0131';
-import { Camera } from './Camera.js?v=b0b0131';
-import { ParticleSystem } from './ParticleSystem.js?v=b0b0131';
-import { RegionManager } from './RegionManager.js?v=b0b0131';
-import { FloatingNumbers } from './FloatingNumbers.js?v=b0b0131';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=b0b0131';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=b0b0131';
+import { SpriteManager } from './SpriteManager.js?v=d97716d';
+import { Camera } from './Camera.js?v=d97716d';
+import { ParticleSystem } from './ParticleSystem.js?v=d97716d';
+import { RegionManager } from './RegionManager.js?v=d97716d';
+import { FloatingNumbers } from './FloatingNumbers.js?v=d97716d';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d97716d';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d97716d';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -72,7 +72,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=b0b0131').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=d97716d').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -1304,7 +1304,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=b0b0131').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=d97716d').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

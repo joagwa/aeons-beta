@@ -228,7 +228,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit <code>ded8e73</code> (Gate synthesis upgrades behind 1st Epoch Collapse).</p>
+Last updated with commit <code>b0b0131</code> (Prestige reset, beacon mote fix, center-screen prestige prompt).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -607,8 +607,9 @@ Two distinct prestige currencies serve two functions within the energy phase:
 ### Aeon Prestige (Meta, Player-Triggered)
 
 - **When**: Player manually triggers when energy ≥ current energy cap.
+- **How**: A pulsing "✦ Void Saturated" button appears in the center of the canvas when the cap is reached. Clicking it opens the prestige panel.
 - **Earns**: 1+ Aeons per run (base 1, +1 per Echo Chamber level).
-- **Resets**: energy, upgrades, milestones, stars (in-run systems).
+- **Resets**: energy, upgrades, milestones, stars (in-run systems); player position snaps to the epoch home; movement and gravity state fully cleared.
 - **Persists**: Aeons total, all purchased Aeon upgrades, Epoch Echoes, quark allocations, subatomic state.
 
 **Cap progression via Expanded Vacuum**: 500 → 5,000 → 50,000 → 500,000 → 5,000,000 → 10,000,000. Requires 4–5 Aeon prestiges to unlock the full 10M ceiling.
