@@ -3,8 +3,8 @@
  * Subscribes to EventBus for resource changes and epoch transitions.
  */
 
-import { formatNumber, formatRate } from '../core/NumberFormatter.js?v=64ea755';
-import { getPhysicalMassGrams, formatPhysicalMass } from '../core/MassFormatter.js?v=64ea755';
+import { formatNumber, formatRate } from '../core/NumberFormatter.js?v=12b3fba';
+import { getPhysicalMassGrams, formatPhysicalMass } from '../core/MassFormatter.js?v=12b3fba';
 
 const ELEMENT_IDS = new Set(['hydrogen', 'helium', 'carbon', 'oxygen', 'iron']);
 
