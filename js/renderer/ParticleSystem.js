@@ -521,6 +521,20 @@ export class ParticleSystem {
     }
   }
 
+  /**
+   * Reset all gravity/vacuum/attraction state for a prestige run.
+   * Call before loadEpochConfig so new regions start with no attraction.
+   */
+  clearDefaultAttraction() {
+    this._defaultAttraction = null;
+    this._vacuumTarget = null;
+    for (const [, entry] of this.regions) {
+      entry.attraction = null;
+      entry.attractionParams = null;
+      for (const p of entry.particles) p.attracted = false;
+    }
+  }
+
   /** Update the homing target for all beacon particles (used when player position changes). */
   setHomingTarget(x, y) {
     for (const [, entry] of this.regions) {

@@ -1682,7 +1682,76 @@ html, body {
 }
 .fl-toggle input:checked + .fl-toggle-slider::before { transform: translateX(14px); }
 
-/* ── Prestige Overlay ──────────────────────────────────────────────────── */
+/* ── Prestige Prompt (center-screen call-to-action) ───────────────────── */
+#prestige-prompt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 50;
+}
+#prestige-prompt.hidden { display: none; }
+
+.prestige-prompt-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(180,120,255,0.18) 0%, transparent 70%);
+  animation: prestige-prompt-pulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.prestige-prompt-title {
+  position: relative;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #c8a0ff;
+  text-shadow: 0 0 18px rgba(200,160,255,0.9), 0 0 40px rgba(160,100,255,0.5);
+  letter-spacing: 0.08em;
+  animation: prestige-prompt-pulse 2s ease-in-out infinite;
+}
+
+.prestige-prompt-sub {
+  position: relative;
+  font-size: 0.75rem;
+  color: rgba(200,160,255,0.65);
+  text-align: center;
+  max-width: 220px;
+  line-height: 1.4;
+}
+
+.prestige-prompt-btn {
+  position: relative;
+  pointer-events: all;
+  background: linear-gradient(135deg, rgba(100,60,180,0.85), rgba(160,80,255,0.85));
+  border: 1px solid rgba(200,160,255,0.6);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 10px 28px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 20px rgba(160,80,255,0.4);
+  transition: box-shadow 0.2s, transform 0.1s;
+  animation: prestige-prompt-pulse 2s ease-in-out infinite;
+}
+.prestige-prompt-btn:hover {
+  box-shadow: 0 0 32px rgba(200,140,255,0.7);
+  transform: scale(1.04);
+}
+
+@keyframes prestige-prompt-pulse {
+  0%, 100% { opacity: 0.85; }
+  50%       { opacity: 1; }
+}
+
+
 .prestige-overlay {
   position: fixed;
   inset: 0;

@@ -88,6 +88,24 @@ export class MoteController {
   }
 
   /**
+   * Reset all movement state for a prestige run. Does NOT re-attach event listeners.
+   * Call this before loadEpoch, then set worldX/worldY to the new home object position.
+   */
+  resetForPrestige() {
+    this._enabled = false;
+    this.maxSpeed = 0;
+    this.tractorBeamRange = 0;
+    this.tractorBeamStrength = 1.0;
+    this._vx = 0;
+    this._vy = 0;
+    this._input = { up: false, down: false, left: false, right: false };
+    this._joystickActive = false;
+    this._hintShowTime = 0;
+    this._lastMoveTime = 0;
+    this._driftChangeTimer = 2 + Math.random() * 3;
+  }
+
+  /**
    * Set universe bounds for clamping (called when canvas config loads).
    */
   setBounds(w, h) {
