@@ -4,7 +4,7 @@
  * Only shows upgrades whose cost-resource has been unlocked.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=64b5ed7';
+import { formatNumber } from '../core/NumberFormatter.js?v=2243215';
 
 const GROUP_ORDER = ['synthesis', 'fusionLab', 'energy', 'motes', 'movement', 'stellar', 'planetary', 'darkMatter'];
 const GROUP_LABELS = {
@@ -40,6 +40,7 @@ export class UpgradePanel {
     this.eventBus.on('milestone:triggered',           () => this._renderAll());
     this.eventBus.on('resource:visibility:changed',   () => this._renderAll());
     this.eventBus.on('epoch:transition:complete',     () => this._renderAll());
+    this.eventBus.on('upgrade:visibility_changed',    () => this._renderAll());
 
     const header = document.getElementById('upgrade-panel-header');
     if (header) header.addEventListener('click', () => this._toggleCollapse());

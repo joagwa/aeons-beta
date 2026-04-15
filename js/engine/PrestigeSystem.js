@@ -1,145 +1,236 @@
 /**
- * PrestigeSystem — Manages prestige state, dark matter banking, and meta upgrade tree.
+ * PrestigeSystem — Manages Aeon prestige cycles and the Epoch Echo currency.
  *
- * Dark matter flow:
- *   - DarkMatterSystem.totalCollected tracks DM collected this run
- *   - Prestige requires >= 10 DM collected AND ms_firstAtom reached
- *   - On prestige: run DM added to darkMatterBanked, then run resets
- *   - darkMatterBanked is spent on persistent meta upgrades (persists forever)
+ * Aeon prestige (player-triggered):
+ *   - Trigger: energy >= currentCap
+ *   - Awards: 1+ Aeons (bonus from Echo Chamber)
+ *   - Resets: energy, upgrades, milestones
+ *   - Persists: Aeons total, purchased Aeon upgrades, dynamic energy cap
+ *
+ * Epoch Echo (story, auto-triggered at Epoch Collapse):
+ *   - Awarded by EpochCollapseAnimation on completion
+ *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=64b5ed7').EventBus} */
+  /** @type {import('../core/EventBus.js?v=2243215').EventBus} */
   #eventBus;
-  /** @type {import('./UpgradeSystem.js?v=64b5ed7').UpgradeSystem} */
+  /** @type {import('./ResourceManager.js?v=2243215').ResourceManager} */
+  #resourceManager;
+  /** @type {import('./UpgradeSystem.js?v=2243215').UpgradeSystem} */
   #upgradeSystem;
-  /** @type {import('./MilestoneSystem.js?v=64b5ed7').MilestoneSystem} */
-  #milestoneSystem;
-  /** @type {import('./DarkMatterSystem.js?v=64b5ed7').DarkMatterSystem} */
-  #darkMatterSystem;
 
   #count = 0;
-  #darkMatterBanked = 0;
+  #aeonCount = 0;
+  #epochEchoCount = 0;
+  #peakEnergy = 0;
   /** @type {Map<string, number>} prestige upgrade id → level */
   #levels = new Map();
 
-  // ── Tree definition ────────────────────────────────────────────────────
+  // ── Tree definitions ──────────────────────────────────────────────────
 
-  static TREE = {
-    production: [
-      { id: 'prs_voidMemory',    name: 'Void Memory',       cost: 10,  maxLevel: 1, description: 'Start each run with 50 H and 10 He' },
-      { id: 'prs_primordalRate', name: 'Primordial Rate',   cost: 25,  maxLevel: 1, description: '+25% proton synthesis rate', requires: 'prs_voidMemory' },
-      { id: 'prs_moteStorm',     name: 'Mote Storm',        cost: 50,  maxLevel: 1, description: 'Start each run with Mote Genesis L3 purchased', requires: 'prs_primordalRate' },
-      { id: 'prs_energySurge',   name: 'Energy Surge',      cost: 75,  maxLevel: 1, description: '+50% starting energy cap', requires: 'prs_moteStorm' },
-      { id: 'prs_heliumSeed',    name: 'Helium Seed',       cost: 100, maxLevel: 1, description: 'Start each run with 20 He', requires: 'prs_energySurge' },
+  static AEON_TREE = {
+    expansion: [
+      { id: 'prs_expandedVacuum', name: 'Expanded Vacuum', cost: 1, maxLevel: 5, description: 'Raise energy cap ×10 per level (500 → 5K → 50K → 500K → 5M → 10M)' },
     ],
-    discovery: [
-      { id: 'prs_fusionKnowledge',   name: 'Fusion Knowledge',   cost: 15, maxLevel: 1, description: 'Start each run with Fusion Ignition purchased' },
-      { id: 'prs_stellarMemory',     name: 'Stellar Memory',     cost: 30, maxLevel: 1, description: 'Star lifecycle 50% faster', requires: 'prs_fusionKnowledge' },
-      { id: 'prs_elementalAffinity', name: 'Elemental Affinity', cost: 50, maxLevel: 1, description: 'He\u2192C/O unlocked from first red giant', requires: 'prs_stellarMemory' },
-      { id: 'prs_molecularInstinct', name: 'Molecular Instinct', cost: 75, maxLevel: 1, description: 'Molecule synthesis starts at 2\u00d7 rate', requires: 'prs_elementalAffinity' },
+    efficiency: [
+      { id: 'prs_quantumResonance', name: 'Quantum Resonance', cost: 1, maxLevel: 5, description: '+25% base energy rate per level' },
+      { id: 'prs_moteInheritance',  name: 'Mote Inheritance',  cost: 1, maxLevel: 1, description: 'Start each run with EM Bond L1', requires: 'prs_quantumResonance' },
     ],
-    darkForce: [
-      { id: 'prs_darkResonance', name: 'Dark Resonance',        cost: 10, maxLevel: 1, description: '+1 DM node burst per energy threshold crossed' },
-      { id: 'prs_voidHarvest',   name: 'Void Harvest',          cost: 25, maxLevel: 1, description: '\u00d71.5 DM node creation rate', requires: 'prs_darkResonance' },
-      { id: 'prs_dmSiphon',      name: 'DM Siphon',             cost: 15, maxLevel: 1, description: '+40 px DM collection radius' },
-      { id: 'prs_darkFlow',      name: 'Dark Flow',             cost: 30, maxLevel: 1, description: '+5 max simultaneous DM nodes', requires: 'prs_darkResonance' },
-      { id: 'prs_dmCapacity',    name: 'Dark Matter Abundance', cost: 20, maxLevel: 5, description: '+5 bonus DM nodes on each prestige' },
-    ],
-    inheritance: [
-      { id: 'prs_gravityStart', name: 'Gravity Start', cost: 20, maxLevel: 1, description: 'Begin with Gravitational Pull L2 purchased' },
-      { id: 'prs_motorStart',   name: 'Motor Start',   cost: 20, maxLevel: 1, description: 'Begin with Cosmic Drift unlocked' },
-      { id: 'prs_protonStart',  name: 'Proton Start',  cost: 35, maxLevel: 1, description: 'Begin with Proton Forge purchased', requires: 'prs_gravityStart' },
-      { id: 'prs_forgeMemory',  name: 'Forge Memory',  cost: 50, maxLevel: 1, description: '+25% proton synthesis rate carry-over', requires: 'prs_protonStart' },
-      { id: 'prs_cosmicWeb',    name: 'Cosmic Web',    cost: 60, maxLevel: 1, description: 'DM threshold values halved', requires: 'prs_forgeMemory' },
+    memory: [
+      { id: 'prs_primalMemory', name: 'Primal Memory', cost: 1, maxLevel: 1, description: 'Start next run with 50% of last run peak energy' },
+      { id: 'prs_echoChamber',  name: 'Echo Chamber',  cost: 2, maxLevel: 1, description: '+1 bonus Aeon on each future prestige', requires: 'prs_primalMemory' },
     ],
   };
 
-  static get ALL_UPGRADES() {
-    return Object.values(PrestigeSystem.TREE).flat();
+  static ECHO_TREE = {
+    collapse: [
+      { id: 'prs_quarkSight',     name: 'Quark Sight',      cost: 1, maxLevel: 1, description: 'Unlock the Quark Allocation Panel' },
+      { id: 'prs_chromaticField',  name: 'Chromatic Field',  cost: 1, maxLevel: 1, description: 'Quark colour blending applies to orbital motes', requires: 'prs_quarkSight' },
+      { id: 'prs_flavourResonance',name: 'Flavour Resonance',cost: 2, maxLevel: 1, description: 'Quark bonus scaling ×1.5', requires: 'prs_chromaticField' },
+      { id: 'prs_deepStructure',   name: 'Deep Structure',   cost: 2, maxLevel: 1, description: 'Unlock subatomic phase (protons, neutrons, electrons)', requires: 'prs_flavourResonance' },
+    ],
+  };
+
+  static get ALL_AEON_UPGRADES() {
+    return Object.values(PrestigeSystem.AEON_TREE).flat();
   }
 
-  // ── Constructor ────────────────────────────────────────────────────────
+  static get ALL_ECHO_UPGRADES() {
+    return Object.values(PrestigeSystem.ECHO_TREE).flat();
+  }
 
-  constructor(EventBus, upgradeSystem, milestoneSystem, darkMatterSystem) {
+  static get ALL_UPGRADES() {
+    return [...PrestigeSystem.ALL_AEON_UPGRADES, ...PrestigeSystem.ALL_ECHO_UPGRADES];
+  }
+
+  // ── Constructor ───────────────────────────────────────────────────────
+
+  constructor(EventBus, upgradeSystem, resourceManager) {
     this.#eventBus = EventBus;
     this.#upgradeSystem = upgradeSystem;
-    this.#milestoneSystem = milestoneSystem;
-    this.#darkMatterSystem = darkMatterSystem;
+    this.#resourceManager = resourceManager;
   }
 
-  // ── Accessors ──────────────────────────────────────────────────────────
+  // ── Accessors ─────────────────────────────────────────────────────────
 
-  getCount()           { return this.#count; }
-  getDarkMatterBanked(){ return this.#darkMatterBanked; }
-  getLevel(id)         { return this.#levels.get(id) ?? 0; }
-  getRunDM()           { return this.#darkMatterSystem?.totalCollected ?? 0; }
+  getCount()            { return this.#count; }
+  getAeonCount()        { return this.#aeonCount; }
+  getEpochEchoCount()   { return this.#epochEchoCount; }
+  getPeakEnergy()       { return this.#peakEnergy; }
+  getLevel(id)          { return this.#levels.get(id) ?? 0; }
 
   canPrestige() {
-    const firstAtom = this.#milestoneSystem?.isTriggered?.('ms_firstAtom') ?? false;
-    return this.getRunDM() >= 10 && firstAtom;
+    const energy = this.#resourceManager?.get('energy');
+    if (!energy) return false;
+    return energy.currentValue >= energy.cap && energy.cap > 0;
   }
 
-  // ── Prestige action ────────────────────────────────────────────────────
+  /** How many Aeons the next prestige would award. */
+  getPrestigeAeonReward() {
+    const base = 1;
+    const echoBonus = this.getLevel('prs_echoChamber') >= 1 ? 1 : 0;
+    return base + echoBonus;
+  }
+
+  /** Current energy cap (for display). */
+  getCurrentEnergyCap() {
+    return this.#resourceManager?.get('energy')?.cap ?? 500;
+  }
+
+  /** Next energy cap after purchasing one more Expanded Vacuum level. */
+  getNextEnergyCap() {
+    const level = this.getLevel('prs_expandedVacuum');
+    if (level >= 5) return 10000000;
+    return 500 * Math.pow(10, level + 1);
+  }
+
+  // ── Track peak energy each tick ───────────────────────────────────────
+
+  trackPeakEnergy() {
+    const energy = this.#resourceManager?.get('energy');
+    if (energy && energy.currentValue > this.#peakEnergy) {
+      this.#peakEnergy = energy.currentValue;
+    }
+  }
+
+  // ── Prestige action ───────────────────────────────────────────────────
 
   executePrestige() {
     if (!this.canPrestige()) return false;
-    const runDM = this.getRunDM();
-    this.#darkMatterBanked += runDM;
+    const reward = this.getPrestigeAeonReward();
+    const peakAtPrestige = this.#peakEnergy;
+    this.#aeonCount += reward;
     this.#count++;
-    const bonusNodes = 10 + this.getLevel('prs_dmCapacity') * 5;
     this.#eventBus.emit('prestige:execute', {
       count: this.#count,
-      dmBanked: this.#darkMatterBanked,
-      bonusNodes,
+      aeonsEarned: reward,
+      aeonTotal: this.#aeonCount,
+      peakEnergy: peakAtPrestige,
     });
+    this.#peakEnergy = 0;
     return true;
   }
 
-  // ── Upgrade purchasing ─────────────────────────────────────────────────
+  // ── Epoch Echo award (called by Epoch Collapse) ───────────────────────
+
+  awardEpochEcho(count = 1) {
+    this.#epochEchoCount += count;
+    this.#eventBus.emit('epochEcho:awarded', { count: this.#epochEchoCount });
+  }
+
+  // ── Upgrade purchasing ────────────────────────────────────────────────
 
   canAffordUpgrade(id) {
-    const def = PrestigeSystem.ALL_UPGRADES.find(u => u.id === id);
+    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
+    const def = allUpgrades.find(u => u.id === id);
     if (!def) return false;
     if (this.getLevel(id) >= def.maxLevel) return false;
     if (def.requires && this.getLevel(def.requires) < 1) return false;
-    return this.#darkMatterBanked >= def.cost;
+
+    // Determine currency
+    const isEcho = PrestigeSystem.ALL_ECHO_UPGRADES.some(u => u.id === id);
+    const balance = isEcho ? this.#epochEchoCount : this.#aeonCount;
+    return balance >= def.cost;
   }
 
   purchaseUpgrade(id) {
     if (!this.canAffordUpgrade(id)) return false;
-    const def = PrestigeSystem.ALL_UPGRADES.find(u => u.id === id);
-    this.#darkMatterBanked -= def.cost;
+    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
+    const def = allUpgrades.find(u => u.id === id);
+
+    const isEcho = PrestigeSystem.ALL_ECHO_UPGRADES.some(u => u.id === id);
+    if (isEcho) {
+      this.#epochEchoCount -= def.cost;
+    } else {
+      this.#aeonCount -= def.cost;
+    }
+
     this.#levels.set(id, (this.#levels.get(id) ?? 0) + 1);
     this.#eventBus.emit('prestige:upgrade:purchased', { id, level: this.getLevel(id) });
+
+    // Apply Expanded Vacuum cap progression immediately
+    if (id === 'prs_expandedVacuum') {
+      const newCap = 500 * Math.pow(10, this.getLevel('prs_expandedVacuum'));
+      this.#resourceManager.setCurrentCap('energy', newCap);
+    }
+
     return true;
   }
 
-  // ── Run-start bonuses ──────────────────────────────────────────────────
+  /**
+   * Force-grant an upgrade without checking cost or prerequisites.
+   * Used by story events (e.g. Epoch Collapse auto-granting echo chain).
+   */
+  forceGrantUpgrade(id) {
+    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
+    const def = allUpgrades.find(u => u.id === id);
+    if (!def) return;
+    if (this.getLevel(id) >= def.maxLevel) return;
+    this.#levels.set(id, (this.#levels.get(id) ?? 0) + 1);
+    this.#eventBus.emit('prestige:upgrade:purchased', { id, level: this.getLevel(id) });
+  }
 
-  applyRunBonuses(resourceManager, upgradeSystem) {
-    if (this.getLevel('prs_voidMemory') >= 1) {
-      resourceManager.add('hydrogen', 50);
-      resourceManager.add('helium', 10);
+  // ── Run-start bonuses ─────────────────────────────────────────────────
+
+  /**
+   * Apply bonuses at the start of a new run (after prestige reset).
+   * @param {object} resourceManager
+   * @param {object} upgradeSystem
+   * @param {number} [peakEnergyOverride] — peak energy from the prestige event
+   */
+  applyRunBonuses(resourceManager, upgradeSystem, peakEnergyOverride) {
+    // Apply persistent bonuses (cap, rate multiplier)
+    this.applyPersistentBonuses(resourceManager, upgradeSystem);
+
+    // Primal Memory — start with 50% of last peak energy (one-shot, not on reload)
+    const peak = peakEnergyOverride ?? 0;
+    if (this.getLevel('prs_primalMemory') >= 1 && peak > 0) {
+      resourceManager.add('energy', Math.floor(peak * 0.5));
     }
-    if (this.getLevel('prs_heliumSeed') >= 1) {
-      resourceManager.add('helium', 20);
-    }
-    if (this.getLevel('prs_moteStorm') >= 1) {
-      const cur = upgradeSystem.getLevel('upg_moteGeneration') ?? 0;
-      for (let i = cur; i < 3; i++) upgradeSystem.forceLevel('upg_moteGeneration', i + 1);
-    }
-    if (this.getLevel('prs_protonStart') >= 1) {
-      upgradeSystem.forceLevel('upg_protonForge', 1);
-    }
-    if (this.getLevel('prs_fusionKnowledge') >= 1) {
-      upgradeSystem.forceLevel('upg_fusionIgnition', 1);
-    }
-    if (this.getLevel('prs_gravityStart') >= 1) {
+
+    // Mote Inheritance — start with EM Bond L1
+    if (this.getLevel('prs_moteInheritance') >= 1) {
       const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
-      if (cur < 2) upgradeSystem.forceLevel('upg_gravitationalPull', 2);
+      if (cur < 1) upgradeSystem.forceLevel('upg_gravitationalPull', 1);
     }
-    if (this.getLevel('prs_motorStart') >= 1) {
-      upgradeSystem.forceLevel('upg_cosmicDrift', 1);
+  }
+
+  /**
+   * Apply only persistent bonuses that are safe to re-apply on save load.
+   * Does NOT re-seed energy or re-purchase upgrades.
+   */
+  applyPersistentBonuses(resourceManager) {
+    // Expanded Vacuum — restore dynamic cap
+    const vacLevel = this.getLevel('prs_expandedVacuum');
+    if (vacLevel > 0) {
+      const cap = 500 * Math.pow(10, vacLevel);
+      resourceManager.setCurrentCap('energy', cap);
+    }
+
+    // Quantum Resonance — persistent energy rate multiplier
+    const qrLevel = this.getLevel('prs_quantumResonance');
+    if (qrLevel > 0) {
+      resourceManager.applyPersistentRateMultiplier('energy', 1 + qrLevel * 0.25);
     }
   }
 
@@ -147,34 +238,44 @@ export class PrestigeSystem {
    * Runtime multipliers applied by other systems.
    */
   getRuntimeBonuses() {
+    const qrLevel = this.getLevel('prs_quantumResonance');
     return {
-      protonSynthesisRateMult:   this.getLevel('prs_primordalRate')     >= 1 ? 1.25 : 1.0,
-      starLifecycleSpeedMult:    this.getLevel('prs_stellarMemory')     >= 1 ? 1.5  : 1.0,
-      moleculeSynthesisRateMult: this.getLevel('prs_molecularInstinct') >= 1 ? 2.0  : 1.0,
-      dmCollectRadiusBonus:      this.getLevel('prs_dmSiphon')          >= 1 ? 40   : 0,
-      dmMaxNodeBonus:            this.getLevel('prs_darkFlow')          >= 1 ? 5    : 0,
-      energyCapMult:             this.getLevel('prs_energySurge')       >= 1 ? 1.5  : 1.0,
-      elementalAffinityUnlocked: this.getLevel('prs_elementalAffinity') >= 1,
-      cosmicWebActive:           this.getLevel('prs_cosmicWeb')         >= 1,
+      energyRateMult: 1 + qrLevel * 0.25,
+      quarkSightUnlocked: this.getLevel('prs_quarkSight') >= 1,
+      chromaticFieldActive: this.getLevel('prs_chromaticField') >= 1,
+      flavourResonanceMult: this.getLevel('prs_flavourResonance') >= 1 ? 1.5 : 1.0,
+      deepStructureUnlocked: this.getLevel('prs_deepStructure') >= 1,
     };
   }
 
-  // ── Save / Load ────────────────────────────────────────────────────────
+  // ── Save / Load ───────────────────────────────────────────────────────
 
   getState() {
     const upgrades = {};
     for (const [id, level] of this.#levels) upgrades[id] = level;
-    return { count: this.#count, darkMatterBanked: this.#darkMatterBanked, upgrades };
+    return {
+      count: this.#count,
+      aeonCount: this.#aeonCount,
+      epochEchoCount: this.#epochEchoCount,
+      peakEnergy: this.#peakEnergy,
+      upgrades,
+    };
   }
 
   loadState(state) {
     if (!state) return;
     this.#count            = state.count            ?? 0;
-    this.#darkMatterBanked = state.darkMatterBanked ?? 0;
+    this.#aeonCount        = state.aeonCount        ?? 0;
+    this.#epochEchoCount   = state.epochEchoCount   ?? 0;
+    this.#peakEnergy       = state.peakEnergy       ?? 0;
     if (state.upgrades) {
       for (const [id, level] of Object.entries(state.upgrades)) {
         this.#levels.set(id, level);
       }
+    }
+    // Backwards compatibility: old saves had darkMatterBanked
+    if (state.darkMatterBanked != null && this.#aeonCount === 0) {
+      // Don't migrate DM to Aeons — just let them start fresh
     }
   }
 }

@@ -2,7 +2,8 @@
  * OrbitalEnergyDisplay — renders motes orbiting the player representing current energy.
  * Energy is displayed in base-10: each tier shows the corresponding digit as orbiting motes.
  * Each tier orbits on a distinct inclined plane, projecting a 3D multi-ring appearance.
- * Tier 0 = ones (radius 60), Tier 1 = tens (radius 80), ..., Tier 4 = ten-thousands (radius 170).
+ * Tier 0 = ones (radius 50), Tier 1 = tens (radius 68), ..., Tier 6 = millions (radius 210).
+ * All tiers are white pre-Collapse; quark colours are applied post-Epoch Collapse.
  *
  * Render order matters for depth: call renderBack() BEFORE drawing the player, then
  * renderFront() AFTER, so near-side motes appear in front and far-side motes behind.
@@ -12,11 +13,13 @@
 // incl: tilt from the screen plane (0 = flat ring, π/2 = edge-on line)
 // node: orientation of the tilt axis in screen space
 const TIERS = [
-  { radius: 60,  moteSize: 2.5, color: '#5878c0', speed: 1.5,  incl: 0,                  node: 0                }, // ones — flat equatorial
-  { radius: 80,  moteSize: 4,   color: '#00d4ff', speed: 1.0,  incl: Math.PI / 6,        node: Math.PI * 0.4    }, // tens — 30°
-  { radius: 105, moteSize: 6,   color: '#c850ff', speed: 0.7,  incl: Math.PI * 5 / 18,   node: Math.PI * 0.8    }, // hundreds — 50°
-  { radius: 135, moteSize: 8,   color: '#ffd700', speed: 0.45, incl: Math.PI * 7 / 18,   node: Math.PI * 1.2    }, // thousands — 70°
-  { radius: 170, moteSize: 11,  color: '#ffffff', speed: 0.3,  incl: Math.PI * 4 / 9,    node: Math.PI * 1.6    }, // ten-thousands — 80°
+  { radius: 50,  moteSize: 2.0,  color: '#ffffff', speed: 2.0,  incl: 0,                    node: 0                }, // ones — flat equatorial
+  { radius: 68,  moteSize: 3.0,  color: '#ffffff', speed: 1.5,  incl: Math.PI / 6,          node: Math.PI * 0.4    }, // tens — 30°
+  { radius: 88,  moteSize: 4.5,  color: '#ffffff', speed: 1.1,  incl: Math.PI * 5 / 18,     node: Math.PI * 0.8    }, // hundreds — 50°
+  { radius: 112, moteSize: 6.0,  color: '#ffffff', speed: 0.8,  incl: Math.PI * 7 / 18,     node: Math.PI * 1.2    }, // thousands — 70°
+  { radius: 140, moteSize: 8.0,  color: '#ffffff', speed: 0.55, incl: Math.PI * 4 / 9,      node: Math.PI * 1.6    }, // ten-thousands — 80°
+  { radius: 172, moteSize: 10.0, color: '#ffffff', speed: 0.35, incl: Math.PI / 4,           node: Math.PI * 0.2    }, // hundred-thousands — 45°
+  { radius: 210, moteSize: 13.0, color: '#ffffff', speed: 0.22, incl: Math.PI * 67 / 180,   node: Math.PI           }, // millions — 67°
 ];
 
 // Precompute fixed trig values per tier (incl/node never change at runtime)
@@ -28,7 +31,7 @@ TIERS.forEach(t => {
 });
 
 // Minimum player visual size driven by the highest active tier
-const TIER_PLAYER_MIN_SIZE = [5, 7, 10, 14, 18];
+const TIER_PLAYER_MIN_SIZE = [5, 7, 10, 14, 18, 22, 26];
 
 export class OrbitalEnergyDisplay {
   constructor() {
@@ -36,6 +39,20 @@ export class OrbitalEnergyDisplay {
     this._counts = new Array(TIERS.length).fill(0);
     this._angles = TIERS.map(() => []); // per-tier array of mote angles
     this._flashTimers = new Array(TIERS.length).fill(0); // brief flash on tier rollover
+    this._speedMultiplier = 1;  // Epoch Collapse spin-up
+    this._radiusScale = 1;      // Epoch Collapse radius collapse (0 = all at center)
+    this._quarkColor = null;    // Quark-blended color override (null = use tier default white)
+    this._mode = 'energy';      // 'energy' or 'subatomic'
+    this._subatomicCounts = { proton: 0, neutron: 0, electron: 0 };
+  }
+
+  /** Switch display mode. 'energy' = normal orbital, 'subatomic' = proton/neutron/electron rings. */
+  setMode(mode) { this._mode = mode; }
+  getMode() { return this._mode; }
+
+  /** Update subatomic particle counts for subatomic mode rendering. */
+  setSubatomicCounts(protons, neutrons, electrons) {
+    this._subatomicCounts = { proton: protons, neutron: neutrons, electron: electrons };
   }
 
   /** Advance angles and sync mote counts to current energy. */
@@ -57,7 +74,7 @@ export class OrbitalEnergyDisplay {
       }
 
       for (let i = 0; i < this._angles[t].length; i++) {
-        this._angles[t][i] += TIERS[t].speed * dt;
+        this._angles[t][i] += TIERS[t].speed * this._speedMultiplier * dt;
       }
     }
 
@@ -77,27 +94,39 @@ export class OrbitalEnergyDisplay {
     return TIER_PLAYER_MIN_SIZE[maxTier] ?? 0;
   }
 
+  /** Set orbital spin speed multiplier (for Epoch Collapse spin-up). */
+  setSpeedMultiplier(m) { this._speedMultiplier = m; }
+
+  /** Set orbital radius scale factor: 1 = normal, 0 = collapsed to center. */
+  setRadiusScale(s) { this._radiusScale = Math.max(0, Math.min(1, s)); }
+
+  /** Set quark-blended color for all motes (null = white default). */
+  setQuarkColor(hexColor) { this._quarkColor = hexColor || null; }
+
   /**
    * Render far-side elements (behind player): orbital path ellipses + motes with oz < 0.
    * Must be called BEFORE the player is drawn.
    */
   renderBack(ctx, sx, sy) {
     ctx.save();
-
-    // Faint orbital path ellipses for each active tier
-    for (let t = 0; t < TIERS.length; t++) {
-      if (this._counts[t] === 0) continue;
-      const tier = TIERS[t];
-      ctx.globalAlpha = 0.07;
-      ctx.strokeStyle = tier.color;
-      ctx.lineWidth = 0.5;
-      ctx.beginPath();
-      // Project tilted circle as ellipse: semi-major=radius, semi-minor=radius*|cosIncl|, rotated by node
-      ctx.ellipse(sx, sy, tier.radius, tier.radius * Math.abs(tier._cosIncl), tier.node, 0, Math.PI * 2);
-      ctx.stroke();
+    if (this._mode === 'subatomic') {
+      this._renderSubatomicPaths(ctx, sx, sy);
+      this._renderSubatomicMotes(ctx, sx, sy, false);
+    } else {
+      // Faint orbital path ellipses for each active tier
+      for (let t = 0; t < TIERS.length; t++) {
+        if (this._counts[t] === 0) continue;
+        const tier = TIERS[t];
+        ctx.globalAlpha = 0.07;
+        ctx.strokeStyle = this._quarkColor || tier.color;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        const r = tier.radius * this._radiusScale;
+        ctx.ellipse(sx, sy, r, r * Math.abs(tier._cosIncl), tier.node, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      this._renderMotes(ctx, sx, sy, false);
     }
-
-    this._renderMotes(ctx, sx, sy, false);
     ctx.globalAlpha = 1;
     ctx.restore();
   }
@@ -108,7 +137,11 @@ export class OrbitalEnergyDisplay {
    */
   renderFront(ctx, sx, sy) {
     ctx.save();
-    this._renderMotes(ctx, sx, sy, true);
+    if (this._mode === 'subatomic') {
+      this._renderSubatomicMotes(ctx, sx, sy, true);
+    } else {
+      this._renderMotes(ctx, sx, sy, true);
+    }
     ctx.globalAlpha = 1;
     ctx.restore();
   }
@@ -123,6 +156,7 @@ export class OrbitalEnergyDisplay {
       const tier = TIERS[t];
       const flash = this._flashTimers[t] || 0;
       const sizeBoost = 1 + flash * 0.35;
+      const moteColor = this._quarkColor || tier.color;
 
       for (let i = 0; i < count; i++) {
         const angle = this._angles[t][i];
@@ -130,22 +164,24 @@ export class OrbitalEnergyDisplay {
         const sinTheta = Math.sin(angle);
 
         // Orthographic 3D projection of a tilted circular orbit
-        const ox = tier.radius * (cosTheta * tier._cosNode - sinTheta * tier._cosIncl * tier._sinNode);
-        const oy = tier.radius * (cosTheta * tier._sinNode + sinTheta * tier._cosIncl * tier._cosNode);
-        const oz = tier.radius * sinTheta * tier._sinIncl;
+        const scaledR = tier.radius * this._radiusScale;
+        const ox = scaledR * (cosTheta * tier._cosNode - sinTheta * tier._cosIncl * tier._sinNode);
+        const oy = scaledR * (cosTheta * tier._sinNode + sinTheta * tier._cosIncl * tier._cosNode);
+        const oz = scaledR * sinTheta * tier._sinIncl;
 
         // Skip motes not on the requested depth side
         if (frontSide ? oz < 0 : oz >= 0) continue;
 
         // Depth cue: near motes slightly larger/brighter; clamped to avoid extremes
-        const depth = Math.max(0.75, Math.min(1.25, 1 + oz / (tier.radius * 3)));
+        const depthBase = scaledR > 0 ? scaledR * 3 : tier.radius * 3;
+        const depth = Math.max(0.75, Math.min(1.25, 1 + oz / depthBase));
         const mx = sx + ox;
         const my = sy + oy;
         const r = tier.moteSize * sizeBoost * depth;
 
         // Soft glow halo
         const grad = ctx.createRadialGradient(mx, my, 0, mx, my, r * 3.5);
-        grad.addColorStop(0, tier.color);
+        grad.addColorStop(0, moteColor);
         grad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.globalAlpha = (0.22 + flash * 0.1) * depth;
         ctx.fillStyle = grad;
@@ -155,7 +191,7 @@ export class OrbitalEnergyDisplay {
 
         // Core dot
         ctx.globalAlpha = (0.8 + flash * 0.2) * Math.max(0.3, depth);
-        ctx.fillStyle = tier.color;
+        ctx.fillStyle = moteColor;
         ctx.beginPath();
         ctx.arc(mx, my, r, 0, Math.PI * 2);
         ctx.fill();
@@ -173,5 +209,84 @@ export class OrbitalEnergyDisplay {
     this._angles[tierIndex] = count > 0
       ? Array.from({ length: count }, (_, i) => baseAngle + (i / count) * Math.PI * 2)
       : [];
+  }
+
+  // ── Subatomic mode rendering ──────────────────────────────────────────
+
+  static SUBATOMIC_RINGS = [
+    // Inner ring: protons (red) — close to nucleus
+    { id: 'proton',   radius: 55,  moteSize: 5.0, color: '#ff4444', speed: 0.8,  incl: Math.PI / 5,  node: 0 },
+    // Middle ring: neutrons (grey-blue)
+    { id: 'neutron',  radius: 80,  moteSize: 4.5, color: '#6688aa', speed: 0.6,  incl: Math.PI / 4,  node: Math.PI * 0.7 },
+    // Outer ring: electrons (cyan, fast)
+    { id: 'electron', radius: 130, moteSize: 2.5, color: '#44ffff', speed: 2.5,  incl: Math.PI / 3,  node: Math.PI * 1.3 },
+  ];
+
+  _renderSubatomicPaths(ctx, sx, sy) {
+    const rings = OrbitalEnergyDisplay.SUBATOMIC_RINGS;
+    for (const ring of rings) {
+      const count = this._subatomicCounts[ring.id] ?? 0;
+      if (count === 0) continue;
+      const cosIncl = Math.cos(ring.incl);
+      ctx.globalAlpha = 0.06;
+      ctx.strokeStyle = ring.color;
+      ctx.lineWidth = 0.5;
+      ctx.beginPath();
+      const r = ring.radius * this._radiusScale;
+      ctx.ellipse(sx, sy, r, r * Math.abs(cosIncl), ring.node, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+  }
+
+  _renderSubatomicMotes(ctx, sx, sy, frontSide) {
+    const rings = OrbitalEnergyDisplay.SUBATOMIC_RINGS;
+    const elapsed = performance.now() / 1000;
+
+    for (const ring of rings) {
+      const count = Math.floor(this._subatomicCounts[ring.id] ?? 0);
+      if (count === 0) continue;
+
+      const cosNode = Math.cos(ring.node);
+      const sinNode = Math.sin(ring.node);
+      const cosIncl = Math.cos(ring.incl);
+      const sinIncl = Math.sin(ring.incl);
+      const scaledR = ring.radius * this._radiusScale;
+      const speed = ring.speed * this._speedMultiplier;
+
+      for (let i = 0; i < count; i++) {
+        const angle = (elapsed * speed + (i / count) * Math.PI * 2);
+        const cosTheta = Math.cos(angle);
+        const sinTheta = Math.sin(angle);
+
+        const ox = scaledR * (cosTheta * cosNode - sinTheta * cosIncl * sinNode);
+        const oy = scaledR * (cosTheta * sinNode + sinTheta * cosIncl * cosNode);
+        const oz = scaledR * sinTheta * sinIncl;
+
+        if (frontSide ? oz < 0 : oz >= 0) continue;
+
+        const depthBase = scaledR > 0 ? scaledR * 3 : ring.radius * 3;
+        const depth = Math.max(0.75, Math.min(1.25, 1 + oz / depthBase));
+        const mx = sx + ox;
+        const my = sy + oy;
+        const r = ring.moteSize * depth;
+
+        // Glow halo
+        const grad = ctx.createRadialGradient(mx, my, 0, mx, my, r * 3);
+        grad.addColorStop(0, ring.color);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.globalAlpha = 0.2 * depth;
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(mx, my, r * 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core dot
+        ctx.globalAlpha = 0.85 * Math.max(0.3, depth);
+        ctx.fillStyle = ring.color;
+        ctx.beginPath();
+        ctx.arc(mx, my, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
   }
 }

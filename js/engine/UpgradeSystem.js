@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=64b5ed7').EventBus} */
+  /** @type {import('../core/EventBus.js?v=2243215').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=64b5ed7').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=2243215').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=64b5ed7').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=2243215').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -85,12 +85,32 @@ export class UpgradeSystem {
     const threshold = def.logScalingThreshold ?? Infinity;
     const maxLevel = def.maxLevel || 1;
 
+    // Hard exponential scaling kicks in at hardScalingStart (opt-in).
+    // cost = normalCost(hardScalingStart) * hardScaling ^ (level - hardScalingStart)
+    const hardStart = def.hardScalingStart ?? Infinity;
+    if (level >= hardStart && isFinite(hardStart)) {
+      const costAtHardStart = this.#normalCost(def, hardStart, threshold);
+      return Math.round(costAtHardStart * Math.pow(def.hardScaling, level - hardStart));
+    }
+
     if (scaling > 1 && maxLevel > threshold && level > threshold) {
       const costAtThreshold = def.baseCost * Math.pow(scaling, threshold);
       const logScalingFactor = scaling - 1;
       return Math.round(costAtThreshold * (1 + Math.log2(level - threshold + 1) * logScalingFactor));
     }
 
+    return Math.round(def.baseCost * Math.pow(scaling, level));
+  }
+
+  /** Compute the "normal" cost at a given level (log scaling only, no hard scaling). */
+  #normalCost(def, level, threshold) {
+    const scaling = def.costScaling || 1;
+    const maxLevel = def.maxLevel || 1;
+    if (scaling > 1 && maxLevel > threshold && level > threshold) {
+      const costAtThreshold = def.baseCost * Math.pow(scaling, threshold);
+      const logScalingFactor = scaling - 1;
+      return Math.round(costAtThreshold * (1 + Math.log2(level - threshold + 1) * logScalingFactor));
+    }
     return Math.round(def.baseCost * Math.pow(scaling, level));
   }
 
@@ -185,6 +205,7 @@ export class UpgradeSystem {
     const def = this.#definitions.get(upgradeId);
     const state = this.#states.get(upgradeId);
     if (!def || !state) return false;
+    if (def.hidden) return false;
     if (state.level > 0) return true;
     if (def.costRecipe) {
       const costRes = this.#resourceManager.get(def.costRecipe[0].resourceId);
@@ -317,6 +338,15 @@ export class UpgradeSystem {
    */
   getLevel(upgradeId) {
     return this.#states.get(upgradeId)?.level || 0;
+  }
+
+  /** Show or hide an upgrade (e.g., reveal post-collapse upgrades). */
+  setHidden(upgradeId, hidden) {
+    const def = this.#definitions.get(upgradeId);
+    if (def) {
+      def.hidden = hidden;
+      this.#eventBus.emit('upgrade:visibility_changed', { upgradeId, hidden });
+    }
   }
 
   // ── Serialisation ─────────────────────────────────────────────────────

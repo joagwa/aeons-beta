@@ -228,7 +228,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit <code>pending</code>.</p>
+Last updated with commit <code>d2005aa</code> (Phase G-H — Subatomic System &amp; Documentation).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -248,16 +248,22 @@ Last updated with commit <code>pending</code>.</p>
 <li><a href="#elemental-fusion-system">Elemental Fusion System</a></li>
 <li><a href="#molecule-synthesis">Molecule Synthesis</a></li>
 <li><a href="#physical-mass-display">Physical Mass Display</a></li>
-<li><a href="#prestige-system">Prestige System</a></li>
+<li><a href="#prestige-system-aeon--epoch-echo">Prestige System (Aeon &amp; Epoch Echo)</a></li>
+<li><a href="#epoch-collapse-animation">Epoch Collapse Animation</a></li>
+<li><a href="#quark-flavour-system">Quark Flavour System</a></li>
+<li><a href="#subatomic-phase">Subatomic Phase</a></li>
+<li><a href="#orbital-energy-display">Orbital Energy Display</a></li>
 <li><a href="#fusion-lab-panel">Fusion Lab Panel</a></li>
 <li><a href="#upgrades">Upgrades</a></li>
 <li><a href="#cost-formula">Cost Formula</a></li>
+<li><a href="#hard-scaling-post-collapse-wall">Hard Scaling (Post-Collapse Wall)</a></li>
 <li><a href="#effect-scaling-rules">Effect Scaling Rules</a></li>
 <li><a href="#group-a--discovery">Group A — Discovery</a></li>
 <li><a href="#group-b--synthesis">Group B — Synthesis</a></li>
 <li><a href="#group-c--fusion-lab">Group C — Fusion Lab</a></li>
 <li><a href="#group-d--stellar-path">Group D — Stellar Path</a></li>
 <li><a href="#group-e--planetary-forge">Group E — Planetary Forge</a></li>
+<li><a href="#subatomic-upgrades-post-2nd-collapse">Subatomic Upgrades (Post-2nd Collapse)</a></li>
 <li><a href="#goal-widget">Goal Widget</a></li>
 <li><a href="#milestones">Milestones</a></li>
 <li><a href="#visual-thresholds">Visual Thresholds</a></li>
@@ -268,15 +274,16 @@ Last updated with commit <code>pending</code>.</p>
 <hr>
 <h2 id="overview">Overview</h2>
 <p><strong>Epoch 1: The Primordial Universe</strong> — You begin as a lone particle in an empty void. Through absorbing energy motes, converting energy to hydrogen via proton synthesis, and unlocking gravity, you progress through the formation of atoms, gas clouds, nebulae, stars, and eventually planets.</p>
-<p>Mass is now <strong>fully derived</strong> from the atomic weights of elements you accumulate — it cannot be earned or spent directly. The epoch ends when you reach the <strong>stable, Earth-like planet</strong> milestone.</p>
-<p>A <strong>Prestige</strong> system lets you reset your run mid-game in exchange for banked Dark Matter, which is spent on persistent meta upgrades that make each subsequent run faster and deeper.</p>
+<p>Mass is now <strong>fully derived</strong> from the atomic weights of elements you accumulate — it cannot be earned or spent directly.</p>
+<p>The energy phase features an <strong>Aeon Prestige</strong> system: repeatedly reset your run to earn Aeons, which buy persistent meta upgrades that raise the energy cap from 500 toward 10,000,000. At 10M energy, an automatic <strong>Epoch Collapse</strong> (Big Crunch cinematic) awards an Epoch Echo and unlocks <strong>quark flavours</strong> — six coloured energy types with passive bonuses. A second Collapse unlocks the <strong>subatomic phase</strong>: quarks form protons, neutrons, and electrons.</p>
+<p>The epoch ends when you reach the <strong>stable, Earth-like planet</strong> milestone.</p>
 <hr>
 <h2 id="resources">Resources</h2>
 <h3 id="elements-molecules">Elements &amp; Molecules</h3>
 <div class="table-wrapper"><table>
 <thead><tr><th>Resource</th><th>Initial</th><th>Cap</th><th>Visible</th><th>Description</th></tr></thead>
 <tbody>
-<tr><td><strong>Energy</strong></td><td>0</td><td>500</td><td>✅</td><td>Raw quantum energy — earned by absorbing motes or clicking</td></tr>
+<tr><td><strong>Energy</strong></td><td>0</td><td>500 (absolute: 10M)</td><td>✅</td><td>Raw quantum energy — earned by absorbing motes or clicking</td></tr>
 <tr><td><strong>Dark Matter</strong></td><td>0</td><td>None</td><td>❌ (unlocked at ms_firstAtom)</td><td>Invisible scaffolding of the cosmos</td></tr>
 <tr><td><strong>Mass</strong></td><td>0</td><td>None</td><td>✅</td><td><strong>Derived</strong> — Σ(element × atomic weight in amu). Cannot be earned or spent directly.</td></tr>
 <tr><td><strong>Gravity</strong></td><td>0</td><td>None</td><td>✅ (derived)</td><td>Derived from Mass; accelerates ambient collection</td></tr>
@@ -289,6 +296,16 @@ Last updated with commit <code>pending</code>.</p>
 <tr><td><strong>Carbon Dioxide (CO₂)</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first synthesis)</td><td>Key to planetary atmospheres</td></tr>
 <tr><td><strong>Methane (CH₄)</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first synthesis)</td><td>Found in gas giants and early atmospheres</td></tr>
 <tr><td><strong>Iron Oxide (Fe₂O₃)</strong></td><td>0</td><td>None</td><td>❌ (unlocked on first synthesis)</td><td>Rust — iron reacting with oxygen</td></tr>
+</tbody></table></div>
+<h3 id="subatomic-particles-post-2nd-epoch-collapse">Subatomic Particles (Post-2nd Epoch Collapse)</h3>
+<div class="table-wrapper"><table>
+<thead><tr><th>Resource</th><th>Initial</th><th>Cap</th><th>Visible</th><th>Description</th></tr></thead>
+<tbody>
+<tr><td><strong>Quark (Up)</strong></td><td>0</td><td>None</td><td>❌ (hidden until 2nd Collapse)</td><td>Up-type quark — building block for hadrons</td></tr>
+<tr><td><strong>Quark (Down)</strong></td><td>0</td><td>None</td><td>❌ (hidden until 2nd Collapse)</td><td>Down-type quark — building block for hadrons</td></tr>
+<tr><td><strong>Proton</strong></td><td>0</td><td>12 (base)</td><td>❌ (hidden until 2nd Collapse)</td><td>Formed from 2 up + 1 down quark. +2% energy rate per proton.</td></tr>
+<tr><td><strong>Neutron</strong></td><td>0</td><td>12 (base)</td><td>❌ (hidden until 2nd Collapse)</td><td>Formed from 1 up + 2 down quark. +1% stability per neutron.</td></tr>
+<tr><td><strong>Electron</strong></td><td>0</td><td>24 (base)</td><td>❌ (hidden until 2nd Collapse)</td><td>Generated from energy via Lepton Field. +0.5% attract radius per electron.</td></tr>
 </tbody></table></div>
 <hr>
 <h2 id="core-mechanics">Core Mechanics</h2>
@@ -583,72 +600,150 @@ Sections are only visible once their prerequisite upgrade has been purchased.
 
 ---
 
-## Prestige System
+## Prestige System (Aeon &amp; Epoch Echo)
 
-The **Prestige** system allows resetting your run mid-game in exchange for Dark Matter, which is then spent on persistent meta upgrades.
+Two distinct prestige currencies serve two functions within the energy phase:
 
-### When Prestige Is Available
+### Aeon Prestige (Meta, Player-Triggered)
 
-- `ms_firstAtom` has been triggered (first hydrogen reached)
-- Player has accumulated ≥ 10 Dark Matter this run
-- Access via the **✦** toolbar button (appears once any DM is collected)
+- **When**: Player manually triggers when energy ≥ current energy cap.
+- **Earns**: 1+ Aeons per run (base 1, +1 per Echo Chamber level).
+- **Resets**: energy, upgrades, milestones, stars (in-run systems).
+- **Persists**: Aeons total, all purchased Aeon upgrades, Epoch Echoes, quark allocations, subatomic state.
 
-### What Happens on Prestige
+**Cap progression via Expanded Vacuum**: 500 → 5,000 → 50,000 → 500,000 → 5,000,000 → 10,000,000. Requires 4–5 Aeon prestiges to unlock the full 10M ceiling.
 
-1. All in-run resources, upgrades, milestones, stars → reset to zero
-2. Dark Matter collected this run is **banked** (added to `darkMatterBanked`)
-3. 10 DM nodes are immediately created in the void (+5 per `prs_dmCapacity` level)
-4. Prestige run bonuses are applied (pre-purchased upgrades, seeded resources)
-5. Epoch 1 reloads fresh
+#### Aeon Upgrade Tree
 
-### What Persists
+| ID | Name | Cost | Max | Effect |
+|----|------|------|-----|--------|
+| prs_primalMemory | Primal Memory | 1 Aeon | 1 | Start next run with 50% of last peak energy |
+| prs_quantumResonance | Quantum Resonance | 1 Aeon | 5 | +25% base energy rate (stacks multiplicatively) |
+| prs_expandedVacuum | Expanded Vacuum | 1 Aeon | 5 | Raise energy cap 10× per level |
+| prs_moteInheritance | Mote Inheritance | 1 Aeon | 1 | Start next run with EM Bond L1 pre-purchased |
+| prs_echoChamber | Echo Chamber | 2 Aeons | 1 | +1 bonus Aeon on each future prestige |
 
-- `darkMatterBanked` — total DM available to spend on meta upgrades
-- Prestige upgrade levels (all `prs_*` upgrades)
-- Prestige count
+### Epoch Echo (Story, Auto-Triggered)
 
-### Meta Upgrade Tree
+- **When**: Automatically awarded at each Epoch Collapse event.
+- **Earns**: 1 Epoch Echo per Collapse.
+- **Cannot be spent until earned** — the panel appears only after the first Collapse.
 
-Opened via the Prestige panel. Four branches of persistent upgrades:
+#### Epoch Echo Upgrade Tree
 
-**Production branch** (yellow) — start each run ahead
+| ID | Name | Cost | Effect |
+|----|------|------|--------|
+| prs_quarkSight | Quark Sight | 1 Echo | Unlock Quark Allocation Panel (auto-purchased on 1st Collapse) |
+| prs_chromaticField | Chromatic Field | 1 Echo | Quark colour blending applies to orbital motes |
+| prs_flavourResonance | Flavour Resonance | 2 Echoes | Quark bonus scaling factor ×1.5 |
+| prs_deepStructure | Deep Structure | 2 Echoes | Unlock subatomic phase (auto-purchased on 2nd Collapse) |
 
-| ID | Name | DM | Effect |
-|----|------|----|--------|
-| prs_voidMemory | Void Memory | 10 | Start with 50 H + 10 He |
-| prs_primordalRate | Primordial Rate | 25 | +25% proton synthesis rate |
-| prs_moteStorm | Mote Storm | 50 | Start with Mote Genesis L3 |
-| prs_energySurge | Energy Surge | 75 | +50% starting energy cap |
-| prs_heliumSeed | Helium Seed | 100 | Start with 20 He |
+---
 
-**Discovery branch** (blue) — unlock mechanics earlier
+### Epoch Collapse Animation
 
-| ID | Name | DM | Effect |
-|----|------|----|--------|
-| prs_fusionKnowledge | Fusion Knowledge | 15 | Start with Fusion Ignition purchased |
-| prs_stellarMemory | Stellar Memory | 30 | Star lifecycle 50% faster |
-| prs_elementalAffinity | Elemental Affinity | 50 | He→C/O unlocked from first red giant |
-| prs_molecularInstinct | Molecular Instinct | 75 | Molecule synthesis starts at 2× rate |
+Triggered when `energy.currentValue ≥ 10,000,000` (the absolute cap). The collapse is a multi-phase cinematic:
 
-**Dark Force branch** (purple) — improve DM collection
+| Phase | Time | Effect |
+|-------|------|--------|
+| 0 — Spin-up | 0–3s | Orbital mote speed ramps 1× → 6× |
+| 1 — Vacuum | 2–7s | All background motes pulled toward player |
+| 2 — Convergence | 5–8s | Orbital radii collapse to zero |
+| 3 — Flash | 7–9s | White overlay covers canvas |
+| 4 — Narrative | 8–14s | Lore text typewriter effect |
+| 5 — Done | 14s+ | [Continue] button → triggers prestige reset + Echo award |
 
-| ID | Name | DM | Effect |
-|----|------|----|--------|
-| prs_darkResonance | Dark Resonance | 10 | +1 DM burst node per energy threshold |
-| prs_voidHarvest | Void Harvest | 25 | ×1.5 DM node creation rate |
-| prs_dmSiphon | DM Siphon | 15 | +40 px DM collection radius |
-| prs_darkFlow | Dark Flow | 30 | +5 max simultaneous DM nodes |
-| prs_dmCapacity | Dark Matter Abundance | 20 | +5 bonus nodes on each prestige (max 5 levels) |
+**1st Collapse**: Awards 1 Epoch Echo, auto-purchases Quark Sight, unlocks QuarkEngine.
+**2nd Collapse**: Awards 1 Epoch Echo, auto-purchases Deep Structure, unlocks SubatomicEngine, switches orbital display to subatomic mode.
 
-**Inheritance branch** (orange) — carry upgrades forward
+---
 
-| ID | Name | DM | Effect |
-|----|------|----|--------|
-| prs_gravityStart | Gravity Start | 20 | Begin with Gravitational Pull L2 |
-| prs_motorStart | Motor Start | 20 | Begin with Cosmic Drift unlocked |
-| prs_protonStart | Proton Start | 35 | Begin with Proton Forge purchased |
-| prs_forgeMemory | Forge Memory | 50 | +25% proton synthesis rate carry-over |
-| prs_cosmicWeb | Cosmic Web | 60 | DM threshold values halved |
+### Quark Flavour System
+
+Unlocked after the first Epoch Collapse. All orbital motes are pure white until quarks are unlocked.
+
+Six quark flavours with individual passive bonuses on energy gain:
+
+| Flavour | Colour | Strength | Bonus |
+|---------|--------|----------|-------|
+| Up | #4488ff | 0.020 | +% energy rate |
+| Down | #ff4444 | 0.015 | +% mote spawn |
+| Charm | #44ff88 | 0.018 | +% absorption per mote |
+| Strange | #cc44ff | 0.012 | +% energy cap |
+| Top | #ffd700 | 0.010 | +% EM Bond attraction radius |
+| Bottom | #44dddd | 0.008 | -% upgrade costs |
+
+**Allocation**: 6 sliders summing to 100%. Default: 100% Up.
+
+**Bonus formula**: `bonus = fraction × strength × log₁₀(energy + 1) × resonanceScale`
+
+`resonanceScale` = 1.5 if Flavour Resonance purchased, else 1.0.
+
+**Orbital colour**: Mote fill colour blends from white toward each quark colour weighted by allocation fraction.
+
+---
+
+### Subatomic Phase
+
+Unlocked after the 2nd Epoch Collapse (reach 10M energy with quarks active).
+
+#### SubatomicEngine
+
+- **Quark production**: `baseRate × allocationFraction × dt` for up and down quarks.
+- **Proton formation**: 2 up + 1 down quark → 1 proton (requires Quark Confinement).
+- **Neutron formation**: 1 up + 2 down quark → 1 neutron (requires Quark Confinement).
+- **Electron generation**: From energy via Lepton Field unlock.
+- **Auto-form toggles**: Enable automatic hadron formation from accumulated quarks.
+
+#### Passive Bonuses
+
+| Particle | Bonus per unit |
+|----------|---------------|
+| Proton | +2% energy rate |
+| Neutron | +1% stability |
+| Electron | +0.5% attraction radius |
+
+#### Particle Forge Panel
+
+UI displaying quark counts, auto-form toggles (proton/neutron), particle counts with caps, and passive bonus values. Located on the left side of the screen.
+
+#### Subatomic Orbital Display
+
+When in subatomic mode, the orbital display switches from energy tiers to three rings:
+
+| Ring | Particle | Radius | Colour | Speed |
+|------|----------|--------|--------|-------|
+| Inner | Proton | 55 | Red (#ff4444) | 0.8 |
+| Middle | Neutron | 80 | Grey-blue (#6688aa) | 0.6 |
+| Outer | Electron | 130 | Cyan (#44ffff) | 2.5 |
+
+---
+
+## Orbital Energy Display
+
+The player character is surrounded by orbiting motes that visually represent the current energy level. Each **order of magnitude** (power of 10) adds a new orbital tier.
+
+### 7-Tier System
+
+| Tier | Threshold | Radius | Mote Size | Speed | Inclination |
+|------|-----------|--------|-----------|-------|-------------|
+| 0 | 1 (ones) | 50 | 2.0 | 2.0 | 0° |
+| 1 | 10 | 68 | 3.0 | 1.5 | 30° |
+| 2 | 100 | 88 | 4.5 | 1.1 | 50° |
+| 3 | 1,000 | 112 | 6.0 | 0.8 | 70° |
+| 4 | 10,000 | 140 | 8.0 | 0.55 | 80° |
+| 5 | 100,000 | 172 | 10.0 | 0.35 | 45° |
+| 6 | 1,000,000 | 210 | 13.0 | 0.22 | 67° |
+
+Each tier rotates on a different axis (inclination + ascending node), giving a 3D orbital appearance. Motes per tier = leading digit of that decimal place (1–9).
+
+Player character size scales with tier: [5, 7, 10, 14, 18, 22, 26] px.
+
+**Colours**: All white (#ffffff) pre-Collapse. After Quark unlock, motes blend toward quark allocation colours.
+
+### Subatomic Mode
+
+After the 2nd Epoch Collapse, the display switches to three dedicated rings for proton, neutron, and electron counts (see Subatomic Phase above).
 
 ---
 
@@ -666,6 +761,21 @@ For single-level upgrades: cost is simply `baseCost`.
 Multi-element costs use a `costRecipe` array; all costs must be affordable simultaneously.
 
 For **Quantum Capacitor**: cost equals the **current energy cap** at time of purchase. Each level raises the cap, so subsequent levels automatically cost more as the cap grows.
+
+### Hard Scaling (L6+ Exponential Wall)
+
+Some key upgrades have a `hardScalingStart` level, beyond which costs increase at an additional exponential rate:
+</code></pre>
+<p>cost(level) = normalCost(hardScalingStart) × hardScaling^(level - hardScalingStart)</p>
+<pre><code>
+| Upgrade | hardScalingStart | hardScaling |
+|---------|-----------------|-------------|
+| EM Bond | 5 | 5.0 |
+| Quantum Fluctuation | 5 | 6.0 |
+| Vacuum Harvesting | 5 | 4.0 |
+| Mote Genesis | 5 | 4.5 |
+
+L6–L10 are intentionally unreachable pre-Collapse. Quark bonuses (especially Bottom: -% upgrade costs) make them achievable post-Collapse.
 
 ### Effect Scaling Rules
 
@@ -765,6 +875,23 @@ Late game. Iron, carbon, molecule costs. All multi-level upgrades: 10 levels, pu
 | upg_hydrologicalCycle | Hydrological Cycle | 10 | 50H + 20O + 5Fe × 3× | +80,000 × level² energy cap | ms_rockyPlanet |
 | upg_cosmicOptimisation | Cosmic Optimisation | 1 | 100Fe+50C+50O+200H+100He | ×1.5 all rates | ms_rockyPlanet |
 | upg_deepTimePatience | Deep-Time Patience | 1 | 1,000Fe | ×1.5 cosmic residue | ms_stablePlanet |
+
+---
+
+### Group F — Subatomic (Post-2nd Epoch Collapse)
+
+All hidden until the 2nd Epoch Collapse unlocks the subatomic phase.
+
+| ID | Name | Levels | Cost | Effect |
+|----|------|--------|------|--------|
+| upg_quarkConfinement | Quark Confinement | 1 | 100E | Unlock hadron formation (proton/neutron) |
+| upg_protonForge2 | Proton Forge II | 5 | 500E × 5× | ×1.5 proton rate/level |
+| upg_neutronBinder | Neutron Binder | 5 | 500E × 5× | ×1.5 neutron rate/level |
+| upg_leptonField | Lepton Field | 1 | 2,000E | Unlock electron generation |
+| upg_electronCascade | Electron Cascade | 5 | 1,000E × 5× | ×1.5 electron rate/level |
+| upg_nuclearForce | Nuclear Force | 3 | 5,000E × 8× | +24 proton cap/level |
+| upg_neutronShell | Neutron Shell | 3 | 5,000E × 8× | +24 neutron cap/level |
+| upg_electronShell | Electron Shell | 3 | 8,000E × 8× | +48 electron cap/level |
 
 ---
 
@@ -927,6 +1054,21 @@ Where:
 <pre><code>
 ### Residual Bonus</code></pre>
 <p>bonus = 0.05 + ((triggered/16) × 0.5 + (purchased/totalUpgrades) × 0.5) × 0.15</p>
+<pre><code>
+### Quark Passive Bonus</code></pre>
+<p>bonus = allocationFraction × flavourStrength × log₁₀(energy + 1) × resonanceScale resonanceScale = 1.5 (if Flavour Resonance purchased), else 1.0</p>
+<pre><code>
+### Hard Scaling Cost (L6+)</code></pre>
+<p>cost(N) = normalCost(hardScalingStart) × hardScaling^(N - hardScalingStart)   where N &gt;= hardScalingStart normalCost(N) = baseCost × costScaling^(N - 1)</p>
+<pre><code>
+### Aeon Prestige Reward</code></pre>
+<p>aeonsEarned = 1 + echoChamberLevel</p>
+<pre><code>
+### Dynamic Energy Cap</code></pre>
+<p>effectiveCap = min(absoluteCap, dynamicCap + upgradeBonuses + persistentBonuses) dynamicCap = 500 × 10^(expandedVacuumLevel) absoluteCap = 10,000,000</p>
+<pre><code>
+### Subatomic Production</code></pre>
+<p>quarkRate = baseRate × (1 + upgradeMultiplier) proton: requires 2 quark_up + 1 quark_down neutron: requires 1 quark_up + 2 quark_down electronRate = baseRate × (1 + cascadeMultiplier)  (requires Lepton Field)</p>
 
   </main>
 </div>

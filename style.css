@@ -1872,3 +1872,208 @@ html, body {
   pointer-events: none;
   user-select: none;
 }
+
+/* === Narrative Overlay (Epoch Collapse) === */
+.narrative-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.narrative-overlay.hidden { display: none; }
+
+.narrative-content {
+  max-width: 600px;
+  text-align: center;
+  padding: 2rem;
+}
+
+.narrative-text {
+  color: #e0e0e0;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  white-space: pre-line;
+  font-family: 'Georgia', serif;
+  letter-spacing: 0.02em;
+  min-height: 200px;
+}
+
+.narrative-continue {
+  margin-top: 2rem;
+  padding: 0.75rem 2rem;
+  background: transparent;
+  border: 1px solid #ffd700;
+  color: #ffd700;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s, color 0.3s;
+}
+.narrative-continue:hover {
+  background: #ffd700;
+  color: #000;
+}
+.narrative-continue.hidden { display: none; }
+
+/* === Quark Panel === */
+.quark-panel {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  width: 280px;
+  background: rgba(10, 10, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 200;
+  backdrop-filter: blur(6px);
+}
+.quark-panel.hidden { display: none; }
+
+.quark-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.quark-panel-header h3 {
+  margin: 0;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.quark-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: #ffffff;
+}
+
+.quark-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.quark-slider-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 36px;
+  gap: 6px;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.quark-label {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.quark-slider {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255,255,255,0.1);
+  border-radius: 2px;
+}
+.quark-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  cursor: pointer;
+}
+
+.quark-pct {
+  color: rgba(255,255,255,0.6);
+  text-align: right;
+  font-family: monospace;
+}
+
+.quark-bonus {
+  grid-column: 1 / -1;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.65rem;
+  padding-left: 66px;
+  margin-top: -4px;
+}
+
+/* --- Particle Forge Panel --- */
+.particle-forge-panel {
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  width: 260px;
+  background: rgba(10, 10, 20, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  z-index: 200;
+  backdrop-filter: blur(6px);
+  font-size: 0.8rem;
+  color: #d0d0d0;
+}
+.particle-forge-panel.hidden { display: none; }
+
+.forge-title {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.forge-section {
+  margin-bottom: 10px;
+}
+
+.forge-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+
+.forge-label {
+  font-weight: 500;
+  min-width: 85px;
+}
+
+.proton-row .forge-label { color: #ff6666; }
+.neutron-row .forge-label { color: #8899bb; }
+.electron-row .forge-label { color: #44dddd; }
+
+.forge-bonus {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: auto;
+}
+
+.forge-controls {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.forge-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.forge-toggle input[type="checkbox"] {
+  accent-color: #44dddd;
+  cursor: pointer;
+}

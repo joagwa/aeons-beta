@@ -1,23 +1,26 @@
 /**
- * PrestigePanel — Full-screen overlay with animated star-field and meta upgrade tree.
+ * PrestigePanel — Full-screen overlay with animated star-field and Aeon/Echo upgrade tree.
  *
- * Layout: 4 branches radiate from a central hub.
- *   Production (top)    — yellow — 5 upgrades
- *   Discovery (right)   — blue  — 4 upgrades
- *   Dark Force (left)   — purple — 5 upgrades
- *   Inheritance (bottom)— orange — 5 upgrades
+ * Layout: 3 Aeon branches + 1 Echo branch (post-Collapse only).
+ *   Expansion (top)   — gold  — Expanded Vacuum
+ *   Efficiency (right) — blue  — Quantum Resonance, Mote Inheritance
+ *   Memory (left)      — purple — Primal Memory, Echo Chamber
+ *   Collapse (bottom)  — cyan  — Echo upgrades (Quark Sight, etc.)
  *
  * Star-field background rendered on a canvas element.
  * Upgrade nodes rendered as HTML over the canvas.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=64b5ed7';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=2243215';
 
-const BRANCH_CONFIG = {
-  production:  { label: 'Production',  color: '#f0c040', angle: -90 },
-  discovery:   { label: 'Discovery',   color: '#60a5fa', angle:   0 },
-  darkForce:   { label: 'Dark Force',  color: '#a78bfa', angle: 180 },
-  inheritance: { label: 'Inheritance', color: '#fb923c', angle:  90 },
+const AEON_BRANCHES = {
+  expansion:   { label: 'Expansion',  color: '#ffd700' },
+  efficiency:  { label: 'Efficiency', color: '#60a5fa' },
+  memory:      { label: 'Memory',     color: '#a78bfa' },
+};
+
+const ECHO_BRANCHES = {
+  collapse:    { label: 'Epoch Echoes', color: '#44dddd' },
 };
 
 export class PrestigePanel {
@@ -57,8 +60,7 @@ export class PrestigePanel {
 
     this.bus.on('prestige:upgrade:purchased', () => this._renderTree());
     this.bus.on('prestige:execute',           () => this._renderTree());
-    this.bus.on('darkMatter:threshold',       () => this._renderHeader());
-    this.bus.on('darkMatter:collected',       () => this._renderHeader());
+    this.bus.on('epochEcho:awarded',          () => this._renderTree());
 
     window.addEventListener('resize', () => {
       this._resizeCanvas();
@@ -134,20 +136,26 @@ export class PrestigePanel {
     }
   }
 
-  // ── Header (DM balance + prestige button) ─────────────────────────────
+  // ── Header (Aeon balance + prestige button) ────────────────────────────
 
   _renderHeader() {
     const el = this.overlay?.querySelector('#prestige-dm-display');
     if (!el) return;
-    const banked = this.prestigeSystem.getDarkMatterBanked();
-    const runDM  = this.prestigeSystem.getRunDM();
-    el.textContent = `Dark Matter: ${banked.toFixed(0)} banked  |  ${runDM.toFixed(0)} this run`;
+    const ps = this.prestigeSystem;
+    const aeons = ps.getAeonCount();
+    const echoes = ps.getEpochEchoCount();
+    const cap = ps.getCurrentEnergyCap();
+    const reward = ps.getPrestigeAeonReward();
+    el.innerHTML = `<span style="color:#ffd700">✦ ${aeons} Aeons</span>` +
+      (echoes > 0 ? ` <span style="color:#44dddd;margin-left:12px">◈ ${echoes} Epoch Echoes</span>` : '') +
+      `<br><span style="font-size:0.85em;opacity:0.7">Energy Cap: ${cap.toLocaleString()} | Next prestige: +${reward} Aeon${reward > 1 ? 's' : ''}</span>`;
 
     const btn = this.overlay?.querySelector('#prestige-action-btn');
     if (btn) {
-      const canPrestige = this.prestigeSystem.canPrestige();
+      const canPrestige = ps.canPrestige();
       btn.disabled = !canPrestige;
-      btn.title    = canPrestige ? 'Reset this run and bank Dark Matter' : 'Requires: ms_firstAtom reached and \u2265 10 DM collected';
+      btn.textContent = canPrestige ? `Prestige (+${reward} Aeon${reward > 1 ? 's' : ''})` : 'Reach energy cap to prestige';
+      btn.title = canPrestige ? 'Reset this run and earn Aeons' : 'Fill your energy to the cap first';
     }
   }
 
@@ -159,28 +167,43 @@ export class PrestigePanel {
     if (!container) return;
     container.innerHTML = '';
 
-    for (const [branchId, cfg] of Object.entries(BRANCH_CONFIG)) {
-      const upgrades = PrestigeSystem.TREE[branchId] ?? [];
-      const branch = document.createElement('div');
-      branch.className = `prs-branch prs-branch--${branchId}`;
+    // Aeon branches
+    for (const [branchId, cfg] of Object.entries(AEON_BRANCHES)) {
+      const upgrades = PrestigeSystem.AEON_TREE[branchId] ?? [];
+      container.appendChild(this._buildBranch(branchId, cfg, upgrades, 'aeon'));
+    }
 
-      const title = document.createElement('div');
-      title.className = 'prs-branch-title';
-      title.style.color = cfg.color;
-      title.textContent = cfg.label;
-      branch.appendChild(title);
-
-      const chain = document.createElement('div');
-      chain.className = 'prs-chain';
-      for (const def of upgrades) {
-        chain.appendChild(this._buildUpgradeNode(def, cfg.color));
+    // Echo branches (only if player has echoes or has purchased echo upgrades)
+    const ps = this.prestigeSystem;
+    const hasEchoes = ps.getEpochEchoCount() > 0 || ps.getLevel('prs_quarkSight') >= 1;
+    if (hasEchoes) {
+      for (const [branchId, cfg] of Object.entries(ECHO_BRANCHES)) {
+        const upgrades = PrestigeSystem.ECHO_TREE[branchId] ?? [];
+        container.appendChild(this._buildBranch(branchId, cfg, upgrades, 'echo'));
       }
-      branch.appendChild(chain);
-      container.appendChild(branch);
     }
   }
 
-  _buildUpgradeNode(def, color) {
+  _buildBranch(branchId, cfg, upgrades, currency) {
+    const branch = document.createElement('div');
+    branch.className = `prs-branch prs-branch--${branchId}`;
+
+    const title = document.createElement('div');
+    title.className = 'prs-branch-title';
+    title.style.color = cfg.color;
+    title.textContent = cfg.label;
+    branch.appendChild(title);
+
+    const chain = document.createElement('div');
+    chain.className = 'prs-chain';
+    for (const def of upgrades) {
+      chain.appendChild(this._buildUpgradeNode(def, cfg.color, currency));
+    }
+    branch.appendChild(chain);
+    return branch;
+  }
+
+  _buildUpgradeNode(def, color, currency) {
     const ps = this.prestigeSystem;
     const level     = ps.getLevel(def.id);
     const maxLevel  = def.maxLevel ?? 1;
@@ -198,12 +221,14 @@ export class PrestigePanel {
     node.style.setProperty('--branch-color', color);
 
     const levelBadge = maxLevel > 1 ? ` <span class="prs-level">${level}/${maxLevel}</span>` : '';
+    const currencyLabel = currency === 'echo' ? 'Echo' : 'Aeon';
+    const currencySymbol = currency === 'echo' ? '◈' : '✦';
     node.innerHTML = `
       <div class="prs-node-dot"></div>
       <div class="prs-node-body">
         <div class="prs-node-name">${def.name}${levelBadge}</div>
         <div class="prs-node-desc">${def.description}</div>
-        <div class="prs-node-cost">${def.cost} DM</div>
+        <div class="prs-node-cost">${currencySymbol} ${def.cost} ${currencyLabel}${def.cost > 1 ? 's' : ''}</div>
       </div>
     `;
 

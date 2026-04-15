@@ -3,12 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=64b5ed7';
-import { Camera } from './Camera.js?v=64b5ed7';
-import { ParticleSystem } from './ParticleSystem.js?v=64b5ed7';
-import { RegionManager } from './RegionManager.js?v=64b5ed7';
-import { FloatingNumbers } from './FloatingNumbers.js?v=64b5ed7';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=64b5ed7';
+import { SpriteManager } from './SpriteManager.js?v=2243215';
+import { Camera } from './Camera.js?v=2243215';
+import { ParticleSystem } from './ParticleSystem.js?v=2243215';
+import { RegionManager } from './RegionManager.js?v=2243215';
+import { FloatingNumbers } from './FloatingNumbers.js?v=2243215';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=2243215';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=2243215';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -71,7 +72,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=64b5ed7').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=2243215').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -108,6 +109,11 @@ export class CanvasRenderer {
 
     // Orbital energy display (orbiting motes representing current energy)
     this._orbitalDisplay = new OrbitalEnergyDisplay();
+
+    // Epoch Collapse animation controller
+    this._collapseAnim = new EpochCollapseAnimation();
+    this._collapseTriggered = false; // prevent re-trigger
+    this._narrativePanel = null;     // set via setNarrativePanel()
   }
 
   // ---------------------------------------------------------------
@@ -380,6 +386,41 @@ export class CanvasRenderer {
     // Keep visual target as max of mass-driven size and energy-tier minimum
     this._visualTargetSize = Math.max(this._massTargetSize, this._orbitalDisplay.getMinPlayerSize());
 
+    // --- Epoch Collapse animation ---
+    if (this._collapseAnim.isRunning()) {
+      this._collapseAnim.update(clampedDt);
+
+      // Speed up orbital rotation
+      this._orbitalDisplay.setSpeedMultiplier(this._collapseAnim.getSpeedMultiplier());
+
+      // Collapse orbital radii (getRadiusCollapse returns 1→0, use directly as scale)
+      const radiusCollapse = this._collapseAnim.getRadiusCollapse();
+      this._orbitalDisplay.setRadiusScale(radiusCollapse);
+
+      // Vacuum particles toward player
+      const vacStr = this._collapseAnim.getVacuumStrength();
+      if (vacStr > 0 && ho) {
+        this.particleSystem.setVacuumMode(ho.worldX, ho.worldY, vacStr);
+      }
+
+      // Narrative panel fade
+      const narAlpha = this._collapseAnim.getNarrativeAlpha();
+      if (this._narrativePanel) {
+        this._narrativePanel.setAlpha(narAlpha);
+        if (narAlpha >= 1 && !this._narrativePanel.isVisible()) {
+          // Already shown via setAlpha — ensure continue button is available
+        }
+      }
+
+      // If animation finished, emit event
+      if (this._collapseAnim.isDone()) {
+        this.particleSystem.setVacuumMode(null, null, 0);
+        this._orbitalDisplay.setSpeedMultiplier(1);
+        this._orbitalDisplay.setRadiusScale(1);
+        // NarrativePanel continue button will emit collapse:complete
+      }
+    }
+
     // Update
     this.regionManager.update(clampedDt);
     this.particleSystem.update(clampedDt);
@@ -455,6 +496,18 @@ export class CanvasRenderer {
 
     // Draw controls hint overlay (bottom-left of canvas)
     this._drawControlsHint(this.mainCtx, viewW, viewH);
+
+    // --- Epoch Collapse flash overlay (on top of everything except UI) ---
+    if (this._collapseAnim.isRunning()) {
+      const flashAlpha = this._collapseAnim.getFlashAlpha();
+      if (flashAlpha > 0.01) {
+        this.mainCtx.save();
+        this.mainCtx.globalAlpha = flashAlpha;
+        this.mainCtx.fillStyle = '#ffffff';
+        this.mainCtx.fillRect(0, 0, viewW, viewH);
+        this.mainCtx.restore();
+      }
+    }
 
     // Draw virtual joystick overlay (screen-space, on top of everything)
     this._drawJoystick(this.mainCtx);
@@ -1251,7 +1304,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=64b5ed7').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=2243215').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
@@ -1264,6 +1317,37 @@ export class CanvasRenderer {
    */
   setResonanceMult(mult) {
     this._resonanceMult = mult;
+  }
+
+  /** Attach the NarrativePanel (for Epoch Collapse text display). */
+  setNarrativePanel(panel) {
+    this._narrativePanel = panel;
+  }
+
+  /**
+   * Trigger the Epoch Collapse animation.
+   * Called by main.js when energy reaches absoluteCap.
+   */
+  startEpochCollapse() {
+    if (this._collapseTriggered || this._collapseAnim.isRunning()) return;
+    this._collapseTriggered = true;
+    const ho = this.canvasConfig?.homeObject;
+    const sx = ho ? ho.worldX : 0;
+    const sy = ho ? ho.worldY : 0;
+    this._collapseAnim.start(sx, sy);
+  }
+
+  /** Reset collapse state (after prestige). */
+  resetCollapse() {
+    this._collapseTriggered = false;
+    if (this._collapseAnim.isRunning()) {
+      this._collapseAnim.continue(); // stops the animation
+    }
+    // Reset visual overrides
+    this._orbitalDisplay.setSpeedMultiplier(1);
+    this._orbitalDisplay.setRadiusScale(1);
+    this.particleSystem.setVacuumMode(null, null, 0);
+    if (this._narrativePanel) this._narrativePanel.hide();
   }
 
   /**

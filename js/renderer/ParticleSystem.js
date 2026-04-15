@@ -25,6 +25,8 @@ export class ParticleSystem {
     // Background scroll velocity (world px/s) — applied to all non-homing particles
     this._worldScrollVx = 0;
     this._worldScrollVy = 0;
+    // Vacuum mode: all particles pulled toward a single target
+    this._vacuumTarget = null; // { x, y, strength }
   }
 
   /** Initialize particle arrays for each region. */
@@ -183,7 +185,23 @@ export class ParticleSystem {
           p._pushTimer = Math.max(0, p._pushTimer - dt);
         }
 
-        if (p.homing) {
+        // --- Vacuum mode overrides all normal movement ---
+        if (this._vacuumTarget) {
+          const vt = this._vacuumTarget;
+          const dx = vt.x - p.x;
+          const dy = vt.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 5) {
+            // Mark for removal
+            p._vacuumAbsorbed = true;
+          } else {
+            // Accelerate quadratically as strength increases
+            const pullSpeed = 60 + 400 * vt.strength * vt.strength;
+            p.x += (dx / dist) * pullSpeed * dt;
+            p.y += (dy / dist) * pullSpeed * dt;
+            p.brightness = Math.min(1, 0.5 + 0.5 * vt.strength);
+          }
+        } else if (p.homing) {
           // Beacon mote: drift toward homeX/homeY, immune to world scroll and gravity
           const dx = p.homeX - p.x;
           const dy = p.homeY - p.y;
@@ -235,7 +253,8 @@ export class ParticleSystem {
       }
 
       // --- Absorption: remove attracted particles that have reached the target ---
-      if (attraction) {
+      // Skip normal absorption during vacuum mode to avoid spawning replacements
+      if (attraction && !this._vacuumTarget) {
         const absorbed = [];
         const aParms = entry.attractionParams || { conversionRate: 1, speedMultiplier: 1 };
         for (let i = 0; i < entry.particles.length; i++) {
@@ -272,8 +291,18 @@ export class ParticleSystem {
         }
       }
 
+      // --- Vacuum mode: remove particles that reached the target ---
+      if (this._vacuumTarget) {
+        for (let i = entry.particles.length - 1; i >= 0; i--) {
+          if (entry.particles[i]._vacuumAbsorbed) {
+            entry.particles.splice(i, 1);
+          }
+        }
+      }
+
       // Gradually spawn toward target density (1-2 per frame)
-      if (entry.targetDensity > entry.particles.length) {
+      // (skip spawning during vacuum — we want particles to vanish)
+      if (!this._vacuumTarget && entry.targetDensity > entry.particles.length) {
         const toSpawn = Math.min(2, entry.targetDensity - entry.particles.length);
         const types = entry.config.particleTypes;
         for (let i = 0; i < toSpawn; i++) {
@@ -475,6 +504,21 @@ export class ParticleSystem {
   setWorldScroll(vx, vy) {
     this._worldScrollVx = vx;
     this._worldScrollVy = vy;
+  }
+
+  /**
+   * Epoch Collapse vacuum mode — all particles in all regions are pulled
+   * toward a single point with increasing strength.
+   * @param {number|null} x — world X (null to disable)
+   * @param {number|null} y — world Y
+   * @param {number} strength — 0 (off) to 1 (full pull)
+   */
+  setVacuumMode(x, y, strength) {
+    if (x == null || strength <= 0) {
+      this._vacuumTarget = null;
+    } else {
+      this._vacuumTarget = { x, y, strength };
+    }
   }
 
   /** Update the homing target for all beacon particles (used when player position changes). */

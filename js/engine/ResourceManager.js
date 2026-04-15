@@ -4,18 +4,22 @@
  */
 
 export class ResourceManager {
-  /** @type {import('../core/EventBus.js?v=64b5ed7').EventBus} */
+  /** @type {import('../core/EventBus.js?v=2243215').EventBus} */
   #eventBus;
   /** @type {Map<string, object>} resource definitions keyed by id */
   #definitions = new Map();
   /** @type {Map<string, object>} live resource states keyed by id */
   #states = new Map();
-  /** @type {import('./UpgradeSystem.js?v=64b5ed7').UpgradeSystem | null} */
+  /** @type {import('./UpgradeSystem.js?v=2243215').UpgradeSystem | null} */
   #upgradeSystem = null;
   /** @type {Map<string, number>} milestone rate bonuses keyed by resource id */
   #rateBonuses = new Map();
   /** @type {Map<string, number>} persistent cap bonuses (e.g. cosmic echo) keyed by resource id */
   #capBonuses = new Map();
+  /** @type {Map<string, number>} dynamic run caps set by prestige (overrides def.cap as base) */
+  #dynamicCaps = new Map();
+  /** @type {Map<string, number>} persistent rate multipliers (e.g. prestige Quantum Resonance) */
+  #persistentRateMultipliers = new Map();
   /** @type {number} combined click multiplier from upgrades */
   #clickMultiplier = 1;
   /** @type {number[]} timestamps of recent clicks for combo detection */
@@ -26,7 +30,7 @@ export class ResourceManager {
   #comboTimer = null;
 
   /**
-   * @param {import('../core/EventBus.js?v=64b5ed7').EventBus} EventBus
+   * @param {import('../core/EventBus.js?v=2243215').EventBus} EventBus
    */
   constructor(EventBus) {
     this.#eventBus = EventBus;
@@ -243,6 +247,11 @@ export class ResourceManager {
 
   // ── Queries ───────────────────────────────────────────────────────────
 
+  /** @returns {object|undefined} Resource definition for the given id */
+  getDefinition(id) {
+    return this.#definitions.get(id);
+  }
+
   /** @returns {object|undefined} ResourceState for the given id */
   get(id) {
     return this.#states.get(id);
@@ -287,6 +296,24 @@ export class ResourceManager {
     if (state) state.generationEnabled = bool;
   }
 
+  /**
+   * Set the dynamic run cap for a resource, overriding the definition's base cap.
+   * Clamped to absoluteCap if defined. Survives recalculateRates(); cleared on reset().
+   * @param {string} id
+   * @param {number} value
+   */
+  setCurrentCap(id, value) {
+    const def = this.#definitions.get(id);
+    const absoluteCap = def?.absoluteCap ?? Infinity;
+    this.#dynamicCaps.set(id, Math.min(value, absoluteCap));
+    const state = this.#states.get(id);
+    if (state && state.cap !== null) {
+      state.cap = Math.min(value, absoluteCap);
+    }
+    this.recalculateRates();
+    this.#eventBus.emit('resource:cap:changed', { resourceId: id, cap: state?.cap });
+  }
+
   increaseCap(id, amount) {
     const state = this.#states.get(id);
     if (state && state.cap !== null) state.cap += amount;
@@ -313,6 +340,18 @@ export class ResourceManager {
   applyCapBonus(id, amount) {
     const current = this.#capBonuses.get(id) || 0;
     this.#capBonuses.set(id, current + amount);
+    this.recalculateRates();
+  }
+
+  /**
+   * Set a persistent rate multiplier for a resource (e.g. prestige bonuses).
+   * Replaces any previous multiplier for this resource. Applied in recalculateRates
+   * after base rate is set but before upgrade effects.
+   * @param {string} id — resource id
+   * @param {number} mult — multiplier (1.0 = no change, 1.25 = +25%)
+   */
+  applyPersistentRateMultiplier(id, mult) {
+    this.#persistentRateMultipliers.set(id, mult);
     this.recalculateRates();
   }
 
@@ -357,15 +396,22 @@ export class ResourceManager {
       : [];
 
     // 1. Reset every resource rate to its definition's initialRate and cap
+    //    Use dynamic cap if set by prestige, otherwise fall back to definition cap.
     for (const [id, state] of this.#states) {
       const def = this.#definitions.get(id);
       if (def) {
         state.passiveRatePerSec = def.initialRate;
-        state.cap = def.cap;
+        state.cap = this.#dynamicCaps.has(id) ? this.#dynamicCaps.get(id) : def.cap;
       }
     }
 
     this.#clickMultiplier = 1;
+
+    // 1b. Persistent rate multipliers (prestige bonuses like Quantum Resonance)
+    for (const [id, mult] of this.#persistentRateMultipliers) {
+      const state = this.#states.get(id);
+      if (state && !state.derived) state.passiveRatePerSec *= mult;
+    }
 
     // 2. Additive rate effects
     for (const effect of effects) {
@@ -414,6 +460,15 @@ export class ResourceManager {
       if (state && state.cap !== null) state.cap += bonus;
     }
 
+    // 6c. Clamp all caps to absoluteCap if defined
+    for (const [id, state] of this.#states) {
+      if (state.cap === null) continue;
+      const def = this.#definitions.get(id);
+      if (def?.absoluteCap != null) {
+        state.cap = Math.min(state.cap, def.absoluteCap);
+      }
+    }
+
     // 7. Click multiplier from upgrades
     for (const effect of effects) {
       if (effect.effectType === 'clickMultiplier') {
@@ -447,6 +502,13 @@ export class ResourceManager {
     return obj;
   }
 
+  /** @returns {object} dynamic cap map as plain object */
+  getDynamicCaps() {
+    const obj = {};
+    for (const [id, cap] of this.#dynamicCaps) obj[id] = cap;
+    return obj;
+  }
+
   /** Restore rate bonuses from save data (does not trigger recalculation). */
   loadRateBonuses(bonuses) {
     if (!bonuses) return;
@@ -460,6 +522,29 @@ export class ResourceManager {
     if (!bonuses) return;
     for (const [id, bonus] of Object.entries(bonuses)) {
       this.#capBonuses.set(id, bonus);
+    }
+  }
+
+  /** Restore dynamic caps from save data (does not trigger recalculation). */
+  loadDynamicCaps(caps) {
+    if (!caps) return;
+    for (const [id, cap] of Object.entries(caps)) {
+      this.#dynamicCaps.set(id, cap);
+    }
+  }
+
+  /** @returns {object} persistent rate multipliers as plain object */
+  getPersistentRateMultipliers() {
+    const obj = {};
+    for (const [id, mult] of this.#persistentRateMultipliers) obj[id] = mult;
+    return obj;
+  }
+
+  /** Restore persistent rate multipliers from save data (does not trigger recalculation). */
+  loadPersistentRateMultipliers(mults) {
+    if (!mults) return;
+    for (const [id, mult] of Object.entries(mults)) {
+      this.#persistentRateMultipliers.set(id, mult);
     }
   }
 
@@ -482,6 +567,8 @@ export class ResourceManager {
     this.#definitions.clear();
     this.#rateBonuses.clear();
     this.#capBonuses.clear();
+    this.#dynamicCaps.clear();
+    this.#persistentRateMultipliers.clear();
     this.#clickMultiplier = 1;
     this.#clickTimestamps = [];
     this.#comboActive = false;

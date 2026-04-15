@@ -3,7 +3,7 @@
  * handling for Aeons save data.
  */
 
-import { SaveMigrator } from './SaveMigrator.js?v=64b5ed7';
+import { SaveMigrator } from './SaveMigrator.js?v=2243215';
 
 const STORAGE_KEY = 'aeons_save_v1';
 const AUTO_SAVE_INTERVAL_MS = 60_000;
@@ -15,7 +15,7 @@ export class SaveSystem {
   #autoSaveTimer = null;
 
   /**
-   * @param {import('./EventBus.js?v=64b5ed7').EventBus} eventBus
+   * @param {import('./EventBus.js?v=2243215').EventBus} eventBus
    * @param {*} resourceManager
    * @param {*} upgradeSystem
    * @param {*} milestoneSystem
@@ -23,7 +23,7 @@ export class SaveSystem {
    * @param {*} epochSystem
    * @param {object} gameState — mutable reference
    */
-  constructor(eventBus, resourceManager, upgradeSystem, milestoneSystem, starManager, epochSystem, gameState, moteController, darkMatterSystem, protonSynthesisEngine, fusionEngine, moleculeEngine, prestigeSystem) {
+  constructor(eventBus, resourceManager, upgradeSystem, milestoneSystem, starManager, epochSystem, gameState, moteController, darkMatterSystem, protonSynthesisEngine, fusionEngine, moleculeEngine, prestigeSystem, quarkEngine, subatomicEngine) {
     this.eventBus = eventBus;
     this.resourceManager = resourceManager;
     this.upgradeSystem = upgradeSystem;
@@ -37,6 +37,8 @@ export class SaveSystem {
     this.fusionEngine = fusionEngine || null;
     this.moleculeEngine = moleculeEngine || null;
     this.prestigeSystem = prestigeSystem || null;
+    this.quarkEngine = quarkEngine || null;
+    this.subatomicEngine = subatomicEngine || null;
   }
 
   // ── Serialisation helpers ────────────────────────────────────────────
@@ -50,6 +52,8 @@ export class SaveSystem {
       resourceStates: this.resourceManager.getStates(),
       rateBonuses: typeof this.resourceManager.getRateBonuses === 'function' ? this.resourceManager.getRateBonuses() : {},
       capBonuses: typeof this.resourceManager.getCapBonuses === 'function' ? this.resourceManager.getCapBonuses() : {},
+      dynamicCaps: typeof this.resourceManager.getDynamicCaps === 'function' ? this.resourceManager.getDynamicCaps() : {},
+      persistentRateMultipliers: typeof this.resourceManager.getPersistentRateMultipliers === 'function' ? this.resourceManager.getPersistentRateMultipliers() : {},
       upgradeStates: this.upgradeSystem.getStates(),
       milestoneStates: this.milestoneSystem.getStates(),
       starStates: this.starManager.getStates(),
@@ -60,6 +64,8 @@ export class SaveSystem {
       fusionEngine: this.fusionEngine ? this.fusionEngine.getState() : null,
       moleculeEngine: this.moleculeEngine ? this.moleculeEngine.getState() : null,
       prestige: this.prestigeSystem ? this.prestigeSystem.getState() : null,
+      quarkEngine: this.quarkEngine ? this.quarkEngine.getState() : null,
+      subatomicEngine: this.subatomicEngine ? this.subatomicEngine.getState() : null,
     };
   }
 
@@ -120,9 +126,13 @@ export class SaveSystem {
 
       // Restore module states
       Object.assign(this.gameState, data.gameState);
+      // collapseInProgress is transient — never resume a partial collapse from save
+      this.gameState.collapseInProgress = false;
       this.resourceManager.loadStates(data.resourceStates);
       if (typeof this.resourceManager.loadRateBonuses === 'function') this.resourceManager.loadRateBonuses(data.rateBonuses);
       if (typeof this.resourceManager.loadCapBonuses === 'function') this.resourceManager.loadCapBonuses(data.capBonuses);
+      if (typeof this.resourceManager.loadDynamicCaps === 'function') this.resourceManager.loadDynamicCaps(data.dynamicCaps);
+      if (typeof this.resourceManager.loadPersistentRateMultipliers === 'function') this.resourceManager.loadPersistentRateMultipliers(data.persistentRateMultipliers);
       // Load canvas config BEFORE upgrades so that the renderer's canvasConfig.homeObject
       // is already set when upgrade:purchased fires for upg_gravitationalPull.
       await this.epochSystem.loadEpoch(this.gameState.epochId);
@@ -147,6 +157,12 @@ export class SaveSystem {
       }
       if (this.prestigeSystem && data.prestige) {
         this.prestigeSystem.loadState(data.prestige);
+      }
+      if (this.quarkEngine && data.quarkEngine) {
+        this.quarkEngine.loadState(data.quarkEngine);
+      }
+      if (this.subatomicEngine && data.subatomicEngine) {
+        this.subatomicEngine.loadState(data.subatomicEngine);
       }
 
       // Offline progress

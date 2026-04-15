@@ -4,47 +4,52 @@
  */
 
 // === Core Imports ===
-import { ErrorReporter } from './core/ErrorReporter.js?v=64b5ed7';
-import { LogBuffer } from './core/LogBuffer.js?v=64b5ed7';
-import { EventBus } from './core/EventBus.js?v=64b5ed7';
-import { GameLoop } from './core/GameLoop.js?v=64b5ed7';
-import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=64b5ed7';
-import { SaveSystem } from './core/SaveSystem.js?v=64b5ed7';
-import { UpdateChecker } from './core/UpdateChecker.js?v=64b5ed7';
+import { ErrorReporter } from './core/ErrorReporter.js?v=2243215';
+import { LogBuffer } from './core/LogBuffer.js?v=2243215';
+import { EventBus } from './core/EventBus.js?v=2243215';
+import { GameLoop } from './core/GameLoop.js?v=2243215';
+import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=2243215';
+import { SaveSystem } from './core/SaveSystem.js?v=2243215';
+import { UpdateChecker } from './core/UpdateChecker.js?v=2243215';
 
 // === Engine Imports ===
-import { ResourceManager } from './engine/ResourceManager.js?v=64b5ed7';
-import { UpgradeSystem } from './engine/UpgradeSystem.js?v=64b5ed7';
-import { MilestoneSystem } from './engine/MilestoneSystem.js?v=64b5ed7';
-import { StarManager } from './engine/StarManager.js?v=64b5ed7';
-import { EpochSystem } from './engine/EpochSystem.js?v=64b5ed7';
-import { MoteController } from './engine/MoteController.js?v=64b5ed7';
-import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=64b5ed7';
-import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=64b5ed7';
-import { AutoBuySystem } from './engine/AutoBuySystem.js?v=64b5ed7';
-import { FusionEngine } from './engine/FusionEngine.js?v=64b5ed7';
-import { MoleculeEngine } from './engine/MoleculeEngine.js?v=64b5ed7';
-import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=64b5ed7';
+import { ResourceManager } from './engine/ResourceManager.js?v=2243215';
+import { UpgradeSystem } from './engine/UpgradeSystem.js?v=2243215';
+import { MilestoneSystem } from './engine/MilestoneSystem.js?v=2243215';
+import { StarManager } from './engine/StarManager.js?v=2243215';
+import { EpochSystem } from './engine/EpochSystem.js?v=2243215';
+import { MoteController } from './engine/MoteController.js?v=2243215';
+import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=2243215';
+import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=2243215';
+import { AutoBuySystem } from './engine/AutoBuySystem.js?v=2243215';
+import { FusionEngine } from './engine/FusionEngine.js?v=2243215';
+import { MoleculeEngine } from './engine/MoleculeEngine.js?v=2243215';
+import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=2243215';
 
 // === Renderer Imports ===
-import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=64b5ed7';
+import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=2243215';
 
 // === UI Imports ===
-import { ResourcePanel } from './ui/ResourcePanel.js?v=64b5ed7';
-import { UpgradePanel } from './ui/UpgradePanel.js?v=64b5ed7';
-import { MilestoneNotification } from './ui/MilestoneNotification.js?v=64b5ed7';
-import { ChroniclePanel } from './ui/ChroniclePanel.js?v=64b5ed7';
-import { SettingsPanel } from './ui/SettingsPanel.js?v=64b5ed7';
-import { OfflineProgress } from './ui/OfflineProgress.js?v=64b5ed7';
-import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=64b5ed7';
-import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=64b5ed7';
-import { StatsPanel } from './ui/StatsPanel.js?v=64b5ed7';
-import { GoalWidget } from './ui/GoalWidget.js?v=64b5ed7';
-import { MobileTabBar } from './ui/MobileTabBar.js?v=64b5ed7';
-import { FeedbackPanel } from './ui/FeedbackPanel.js?v=64b5ed7';
-import { FusionLabPanel } from './ui/FusionLabPanel.js?v=64b5ed7';
-import { PrestigeSystem } from './engine/PrestigeSystem.js?v=64b5ed7';
-import { PrestigePanel } from './ui/PrestigePanel.js?v=64b5ed7';
+import { ResourcePanel } from './ui/ResourcePanel.js?v=2243215';
+import { UpgradePanel } from './ui/UpgradePanel.js?v=2243215';
+import { MilestoneNotification } from './ui/MilestoneNotification.js?v=2243215';
+import { ChroniclePanel } from './ui/ChroniclePanel.js?v=2243215';
+import { SettingsPanel } from './ui/SettingsPanel.js?v=2243215';
+import { OfflineProgress } from './ui/OfflineProgress.js?v=2243215';
+import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=2243215';
+import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=2243215';
+import { StatsPanel } from './ui/StatsPanel.js?v=2243215';
+import { GoalWidget } from './ui/GoalWidget.js?v=2243215';
+import { MobileTabBar } from './ui/MobileTabBar.js?v=2243215';
+import { FeedbackPanel } from './ui/FeedbackPanel.js?v=2243215';
+import { FusionLabPanel } from './ui/FusionLabPanel.js?v=2243215';
+import { PrestigeSystem } from './engine/PrestigeSystem.js?v=2243215';
+import { PrestigePanel } from './ui/PrestigePanel.js?v=2243215';
+import { NarrativePanel } from './ui/NarrativePanel.js?v=2243215';
+import { QuarkEngine } from './engine/QuarkEngine.js?v=2243215';
+import { QuarkPanel } from './ui/QuarkPanel.js?v=2243215';
+import { SubatomicEngine } from './engine/SubatomicEngine.js?v=2243215';
+import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=2243215';
 
 // === Game State ===
 let gameState = {
@@ -52,6 +57,10 @@ let gameState = {
   pathChoice: null,
   residualBonuses: [],
   aeonCount: 0,
+  prestigeCount: 0,
+  collapsedOnce: false,
+  collapseInProgress: false,
+  collapseCount: 0,
   totalRealTime: 0,
   cosmicEchoCount: 0,
   settings: {
@@ -76,7 +85,9 @@ const protonSynthesisEngine = new ProtonSynthesisEngine(resourceManager);
 protonSynthesisEngine.setUpgradeSystem(upgradeSystem);
 fusionEngine.setUpgradeSystem(upgradeSystem);
 
-const prestigeSystem = new PrestigeSystem(EventBus, upgradeSystem, milestoneSystem, darkMatterSystem);
+const prestigeSystem = new PrestigeSystem(EventBus, upgradeSystem, resourceManager);
+const quarkEngine = new QuarkEngine(EventBus);
+const subatomicEngine = new SubatomicEngine(EventBus, resourceManager, upgradeSystem, quarkEngine);
 
 // Cross-wire systems that need references to each other
 resourceManager.setUpgradeSystem(upgradeSystem);
@@ -85,7 +96,7 @@ darkMatterSystem.setResourceManager(resourceManager);
 darkMatterSystem.setMilestoneSystem(milestoneSystem);
 darkMatterSystem.setPrestigeSystem(prestigeSystem);
 
-const saveSystem = new SaveSystem(EventBus, resourceManager, upgradeSystem, milestoneSystem, starManager, epochSystem, gameState, moteController, darkMatterSystem, protonSynthesisEngine, fusionEngine, moleculeEngine, prestigeSystem);
+const saveSystem = new SaveSystem(EventBus, resourceManager, upgradeSystem, milestoneSystem, starManager, epochSystem, gameState, moteController, darkMatterSystem, protonSynthesisEngine, fusionEngine, moleculeEngine, prestigeSystem, quarkEngine, subatomicEngine);
 
 const autoBuySystem = new AutoBuySystem(EventBus, upgradeSystem);
 
@@ -103,6 +114,8 @@ const goalWidget = new GoalWidget(EventBus, milestoneSystem, resourceManager);
 const mobileTabBar = new MobileTabBar(EventBus);
 const fusionLabPanel = new FusionLabPanel(EventBus, upgradeSystem, protonSynthesisEngine, fusionEngine, moleculeEngine, resourceManager);
 const prestigePanel = new PrestigePanel(EventBus, prestigeSystem);
+const quarkPanel = new QuarkPanel(EventBus, quarkEngine);
+const particleForgePanel = new ParticleForgePanel(subatomicEngine, resourceManager, EventBus);
 const feedbackPanel = new FeedbackPanel(() => ({
   resources: resourceManager.getAll(),
   upgrades:  upgradeSystem.getStates(),
@@ -143,6 +156,24 @@ async function bootstrap() {
   feedbackPanel.init();
   fusionLabPanel.init();
   prestigePanel.init();
+
+  // Narrative panel for Epoch Collapse story text
+  const narrativePanel = new NarrativePanel(EventBus);
+  narrativePanel.init();
+  canvasRenderer.setNarrativePanel(narrativePanel);
+
+  // Quark panel (visible after first Epoch Collapse)
+  quarkPanel.init();
+
+  // Particle Forge panel (visible after 2nd Epoch Collapse)
+  particleForgePanel.init();
+
+  // Wire quark color changes to orbital display
+  EventBus.on('quarks:colorChanged', ({ color }) => {
+    if (canvasRenderer._orbitalDisplay) {
+      canvasRenderer._orbitalDisplay.setQuarkColor(color);
+    }
+  });
 
   // --- Particle Storm state (tracks absorption bonus end time) ---
   let _particleStormEndTime = 0;
@@ -318,18 +349,19 @@ async function bootstrap() {
     }
   }
 
-  // --- Show prestige button once DM is collected ---
-  EventBus.on('darkMatter:collected', () => {
-    const toggleBtn = document.getElementById('prestige-toggle');
-    if (toggleBtn && resourceManager.get('darkMatter')?.currentValue >= 1) {
-      toggleBtn.style.display = '';
-    }
+  // --- Show prestige button once energy reaches cap ---
+  EventBus.on('resource:updated', (data) => {
+    if (data?.resourceId === 'energy') syncPrestigeButtonVisibility();
   });
 
   // --- Prestige execution ---
-  EventBus.on('prestige:execute', async ({ count, dmBanked, bonusNodes }) => {
+  EventBus.on('prestige:execute', async ({ count, aeonsEarned, aeonTotal, peakEnergy }) => {
     // Hide prestige overlay during reset
     prestigePanel.hide();
+
+    // Update gameState
+    gameState.aeonCount = aeonTotal;
+    gameState.prestigeCount = count;
 
     // Full reset of in-run systems
     resourceManager.reset();
@@ -344,15 +376,15 @@ async function bootstrap() {
     // Reload epoch data
     await epochSystem.loadEpoch('epoch1');
 
-    // Apply prestige run bonuses (pre-purchase upgrades, seed resources, etc.)
-    prestigeSystem.applyRunBonuses(resourceManager, upgradeSystem);
+    // Apply prestige run bonuses (cap, seed energy, free upgrades, rate multipliers)
+    prestigeSystem.applyRunBonuses(resourceManager, upgradeSystem, peakEnergy);
 
-    // Spawn prestige bonus DM nodes (after reload so void bounds are set)
+    // Spawn DM nodes for visual flavor (reduced set post-prestige)
     const voidRegion = canvasRenderer.canvasConfig?.regions?.find(r => r.regionId === 'void');
     if (voidRegion) darkMatterSystem.setVoidBounds(voidRegion.worldBounds);
     darkMatterSystem.activate();
     const params = darkMatterSystem._getParams();
-    for (let i = 0; i < (bonusNodes ?? 10); i++) {
+    for (let i = 0; i < 10; i++) {
       darkMatterSystem._spawnNode(params);
     }
 
@@ -360,7 +392,50 @@ async function bootstrap() {
     syncFusionLabVisibility();
     syncPrestigeButtonVisibility();
 
-    console.log(`[Prestige] Run ${count} complete. DM banked: ${dmBanked}, bonus nodes: ${bonusNodes}`);
+    console.log(`[Prestige] Run ${count} complete. +${aeonsEarned} Aeons (total: ${aeonTotal})`);
+  });
+
+  // --- Epoch Collapse complete (narrative [Continue] clicked) ---
+  EventBus.on('collapse:complete', () => {
+    gameState.collapseCount = (gameState.collapseCount || 0) + 1;
+    const collapseNum = gameState.collapseCount;
+    console.log(`[EpochCollapse] Collapse #${collapseNum} complete — awarding Epoch Echo`);
+
+    // Mark as collapsed (backward compat)
+    gameState.collapsedOnce = true;
+    gameState.cosmicEchoCount = (gameState.cosmicEchoCount || 0) + 1;
+
+    // Award Epoch Echo in prestige system
+    prestigeSystem.awardEpochEcho();
+
+    if (collapseNum === 1) {
+      // 1st Collapse: unlock quarks
+      prestigeSystem.purchaseUpgrade('prs_quarkSight');
+      quarkEngine.unlock();
+    } else if (collapseNum === 2) {
+      // 2nd Collapse: auto-grant the full echo chain then unlock subatomic
+      // Force-grant any missing prerequisites so Deep Structure can be purchased
+      for (const echoId of ['prs_quarkSight', 'prs_chromaticField', 'prs_flavourResonance', 'prs_deepStructure']) {
+        if (prestigeSystem.getLevel(echoId) < 1) {
+          prestigeSystem.forceGrantUpgrade(echoId);
+        }
+      }
+      subatomicEngine.unlock();
+      particleForgePanel.show();
+      // Switch orbital display to subatomic mode
+      if (canvasRenderer._orbitalDisplay) {
+        canvasRenderer._orbitalDisplay.setMode('subatomic');
+      }
+    }
+
+    // Reset collapse animation state
+    canvasRenderer.resetCollapse();
+    gameState.collapseInProgress = false;
+
+    // Trigger prestige reset — the prestige:execute handler does the full reset
+    prestigeSystem.executePrestige();
+
+    console.log(`[EpochCollapse] Post-collapse prestige complete. Echoes: ${gameState.cosmicEchoCount}`);
   });
 
 
@@ -421,6 +496,21 @@ async function bootstrap() {
     fusionEngine.tick(dt);
     moleculeEngine.tick(dt);
     protonSynthesisEngine.tick(dt);
+    prestigeSystem.trackPeakEnergy();
+    quarkEngine.tick(resourceManager.get('energy')?.currentValue ?? 0);
+    subatomicEngine.tick(dt);
+    if (subatomicEngine.isUnlocked()) {
+      particleForgePanel.refresh();
+      // Update orbital display with subatomic counts
+      const od = canvasRenderer._orbitalDisplay;
+      if (od && od.getMode() === 'subatomic') {
+        od.setSubatomicCounts(
+          Math.floor(resourceManager.get('proton')?.currentValue ?? 0),
+          Math.floor(resourceManager.get('neutron')?.currentValue ?? 0),
+          Math.floor(resourceManager.get('electron')?.currentValue ?? 0),
+        );
+      }
+    }
     gameState.totalRealTime += dt;
 
     // --- Energy Resonance: dynamic mote genesis & attraction multiplier ---
@@ -432,8 +522,12 @@ async function bootstrap() {
       const resonanceMult = resonanceLevel > 0
         ? 1 + resonanceLevel * mag * (energy / (energy + SOFT_CAP))
         : 1;
-      proceduralMoteGenerator.setGenerationRate(_baseGenerationRate * resonanceMult);
-      canvasRenderer.setResonanceMult(resonanceMult);
+      // Subatomic bonuses: proton boosts energy rate, electron boosts attract radius
+      const subBonuses = subatomicEngine.getPassiveBonuses();
+      const energyRateMult = resonanceMult * (1 + subBonuses.energyRateBonus);
+      const attractMult = resonanceMult * (1 + subBonuses.attractRadiusBonus);
+      proceduralMoteGenerator.setGenerationRate(_baseGenerationRate * energyRateMult);
+      canvasRenderer.setResonanceMult(attractMult);
     }
 
     // --- Dark matter node update ---
@@ -450,6 +544,18 @@ async function bootstrap() {
           const { sx, sy } = canvasRenderer.camera?.worldToScreen(node.x, node.y) ?? { sx: 0, sy: 0 };
           canvasRenderer.spawnFloatingNumber(label, sx, sy - 12);
         }
+      }
+    }
+
+    // --- Epoch Collapse trigger: auto-fire when energy reaches absoluteCap ---
+    // 1st collapse: collapseCount 0 → 1 (unlocks quarks)
+    // 2nd collapse: collapseCount 1 → 2 (unlocks subatomic, requires quark + Deep Structure)
+    if (!gameState.collapseInProgress && gameState.collapseCount < 2) {
+      const energyRes = resourceManager.get('energy');
+      const energyDef = resourceManager.getDefinition('energy');
+      if (energyRes && energyRes.currentValue >= (energyDef?.absoluteCap ?? Infinity)) {
+        gameState.collapseInProgress = true;
+        canvasRenderer.startEpochCollapse();
       }
     }
 
@@ -589,9 +695,22 @@ async function bootstrap() {
     }
   }
 
-  // Apply prestige run bonuses after load (if any past prestiges exist)
+  // Apply persistent prestige bonuses after load (cap, rate multipliers — no re-seeding)
   if (prestigeSystem.getCount() > 0) {
-    prestigeSystem.applyRunBonuses(resourceManager, upgradeSystem);
+    prestigeSystem.applyPersistentBonuses(resourceManager);
+  }
+
+  // Restore subatomic UI state on load
+  if (subatomicEngine.isUnlocked()) {
+    particleForgePanel.show();
+    if (canvasRenderer._orbitalDisplay) {
+      canvasRenderer._orbitalDisplay.setMode('subatomic');
+    }
+  }
+
+  // Restore quark panel visibility if quarks are unlocked
+  if (quarkEngine.isUnlocked()) {
+    quarkPanel.show?.();
   }
 
   // Show Fusion Lab panel if protonForge was already purchased
@@ -650,6 +769,9 @@ async function bootstrap() {
       proceduralMoteGenerator,
       darkMatterSystem,
       protonSynthesisEngine,
+      prestigeSystem,
+      quarkEngine,
+      subatomicEngine,
       eventBus: EventBus,
       gameState,
     };
@@ -669,8 +791,16 @@ function showBanner(id, message, type) {
 function syncPrestigeButtonVisibility() {
   const toggleBtn = document.getElementById('prestige-toggle');
   if (!toggleBtn) return;
-  const dm = resourceManager.get('darkMatter')?.currentValue ?? 0;
-  toggleBtn.style.display = dm >= 1 ? '' : 'none';
+  // Hide prestige button during Epoch Collapse animation
+  if (gameState.collapseInProgress) {
+    toggleBtn.style.display = 'none';
+    return;
+  }
+  // Show prestige button once player has reached energy cap at least once, or has aeons
+  const energy = resourceManager.get('energy');
+  const hasPrestiged = prestigeSystem.getCount() > 0;
+  const canPrestige = prestigeSystem.canPrestige();
+  toggleBtn.style.display = (hasPrestiged || canPrestige) ? '' : 'none';
 }
 
 function syncFusionLabVisibility() {
