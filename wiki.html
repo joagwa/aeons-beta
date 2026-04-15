@@ -228,7 +228,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit <code>c7a99ed</code> (Balance fixes, engine rates, stats CSS, full docs update).</p>
+Last updated with commit <code>ded8e73</code> (Gate synthesis upgrades behind 1st Epoch Collapse).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -385,7 +385,7 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <tr><td>1,000,000</td><td>×1.60</td></tr>
 </tbody></table></div>
 <h3 id="proton-synthesis-energy-hydrogen">Proton Synthesis (Energy → Hydrogen)</h3>
-<p>Replaces the old energy → mass conversion. Unlocked by purchasing <strong>Proton Forge</strong>.</p>
+<p>Replaces the old energy → mass conversion. Unlocked by purchasing <strong>Proton Forge</strong> (hidden until 1st Epoch Collapse).</p>
 <p>A <strong>rate slider</strong> in the Fusion Lab panel (0–100%) controls how much energy per second flows into hydrogen production.</p>
 <pre><code>H/s = protonForgeRate × sliderFraction × energyAvailable</code></pre>
 <ul>
@@ -814,12 +814,12 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, pure expone
 
 ### Group B — Synthesis
 
-Unlocked after Proton Forge. Energy and hydrogen costs. All multi-level upgrades: 10 levels, pure exponential cost scaling.
+Unlocked after 1st Epoch Collapse (hidden until `collapseCount &gt;= 1`). Energy and hydrogen costs. All multi-level upgrades: 10 levels, pure exponential cost scaling.
 
 | ID | Name | Levels | Cost | Effect | Prereq |
 |----|------|--------|------|--------|--------|
-| upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider (no milestone required) | — |
-| upg_quantumNucleogenesis | Quantum Nucleogenesis | 10 | 250E × 3× | ×1.8 H production rate/level | protonForge |
+| upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | **hidden until 1st Collapse** |
+| upg_quantumNucleogenesis | Quantum Nucleogenesis | 10 | 250E × 3× | ×1.8 H production rate/level | protonForge, **hidden until 1st Collapse** |
 | upg_energyDensity | Energy Density | 10 | 100H × 3× | ×0.80 energy per H (−20%)/level | protonForge |
 | upg_quantumReservoir | Quantum Reservoir | 10 | 200H × 3× | +8,000 × level² energy cap | protonForge |
 | upg_particleRefinement | Particle Refinement | 10 | 100H × 3× | Higher mote quality tiers | ms_firstAtom |

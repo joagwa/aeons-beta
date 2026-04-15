@@ -424,6 +424,7 @@ const tier1Upgrades = [
     effectTarget: 'protonSynthesis',
     effectMagnitude: 1,
     requiresMilestone: null,
+    hidden: true,
     mechanic: '⚙ Unlocks the Fusion Lab panel and energy → hydrogen synthesis slider',
   },
   {
@@ -442,6 +443,7 @@ const tier1Upgrades = [
     effectTarget: 'protonSynthesis',
     effectMagnitude: 1.8,
     requiresMilestone: null,
+    hidden: true,
     mechanic: '⚙ ×1.8 hydrogen synthesis rate per level (10 levels)',
   },
   {

@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=a41dea8').EventBus} */
+  /** @type {import('../core/EventBus.js?v=94ce1d0').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=a41dea8').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=94ce1d0').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=a41dea8').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=94ce1d0').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -128,6 +128,9 @@ export class UpgradeSystem {
       return false;
     }
 
+    // Hidden upgrades cannot be purchased (rules-level lock)
+    if (def.hidden && state.level === 0) return false;
+
     const maxLevel = def.maxLevel || 1;
     if (state.level >= maxLevel) return false; // fully maxed
 
@@ -205,8 +208,8 @@ export class UpgradeSystem {
     const def = this.#definitions.get(upgradeId);
     const state = this.#states.get(upgradeId);
     if (!def || !state) return false;
+    if (state.level > 0) return true;   // owned upgrades always visible
     if (def.hidden) return false;
-    if (state.level > 0) return true;
     if (def.costRecipe) {
       const costRes = this.#resourceManager.get(def.costRecipe[0].resourceId);
       return costRes ? costRes.visible : false;
