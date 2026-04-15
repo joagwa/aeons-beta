@@ -182,6 +182,7 @@ export class SettingsPanel {
         autoBuyCheck.checked = false;
       }
       autoBuyRow.style.display = debugCheck.checked ? '' : 'none';
+      speedRow.style.display = debugCheck.checked ? '' : 'none';
       const msg = debugCheck.checked 
         ? '🔧 Debug mode ON (5x click, +50/+10 resources)' 
         : '🔧 Debug mode OFF (production settings)';
@@ -197,6 +198,37 @@ export class SettingsPanel {
     debugGroup.appendChild(debugLabel);
     debugGroup.appendChild(debugNote);
     debugGroup.appendChild(autoBuyRow);
+
+    // --- Speed multiplier (only visible when debug is enabled) ---
+    const speedRow = document.createElement('div');
+    speedRow.style.marginTop = '10px';
+    speedRow.style.display = window.AEONS_DEBUG ? '' : 'none';
+    const speedLabel = document.createElement('label');
+    speedLabel.className = 'settings-checkbox-label';
+    speedLabel.textContent = 'Tick Speed: ';
+    const speedSelect = document.createElement('select');
+    speedSelect.style.marginLeft = '8px';
+    speedSelect.style.padding = '4px';
+    const speedOptions = [
+      { value: 1, label: '1x (normal)' },
+      { value: 10, label: '10x' },
+      { value: 100, label: '100x' },
+      { value: 1000, label: '1000x' },
+    ];
+    for (const opt of speedOptions) {
+      const option = document.createElement('option');
+      option.value = String(opt.value);
+      option.textContent = opt.label;
+      option.selected = (window.AEONS_SPEED_MULT ?? 1) === opt.value;
+      speedSelect.appendChild(option);
+    }
+    speedSelect.addEventListener('change', () => {
+      window.AEONS_SPEED_MULT = Number(speedSelect.value);
+      console.log(`🔧 Tick speed: ${speedSelect.value}x`);
+    });
+    speedLabel.appendChild(speedSelect);
+    speedRow.appendChild(speedLabel);
+    debugGroup.appendChild(speedRow);
 
     this.body.appendChild(debugGroup);
     this._debugCheck = debugCheck;

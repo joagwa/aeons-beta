@@ -12,11 +12,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=d97716d').EventBus} */
+  /** @type {import('../core/EventBus.js?v=940d1cc').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=d97716d').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=940d1cc').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=d97716d').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=940d1cc').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
@@ -212,6 +212,12 @@ export class PrestigeSystem {
     if (this.getLevel('prs_moteInheritance') >= 1) {
       const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
       if (cur < 1) upgradeSystem.forceLevel('upg_gravitationalPull', 1);
+    }
+
+    // After first prestige, unlock cosmic drift (movement) passively
+    if (this.#count >= 1) {
+      const cur = upgradeSystem.getLevel('upg_cosmicDrift') ?? 0;
+      if (cur < 1) upgradeSystem.forceLevel('upg_cosmicDrift', 1);
     }
   }
 

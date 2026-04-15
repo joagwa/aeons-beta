@@ -34,8 +34,11 @@ function frame(timestamp) {
   accumulator += dt;
   while (accumulator >= tickInterval) {
     accumulator -= tickInterval;
+    // Apply dev speed multiplier if set
+    const speedMult = window.AEONS_SPEED_MULT ?? 1;
+    const adjustedDt = tickInterval * speedMult;
     for (let i = 0; i < tickCallbacks.length; i++) {
-      tickCallbacks[i](tickInterval);
+      tickCallbacks[i](adjustedDt);
     }
   }
 
