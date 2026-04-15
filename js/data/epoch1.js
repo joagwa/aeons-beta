@@ -359,7 +359,7 @@ const tier1Upgrades = [
     name: 'Cosmic Drift',
     description: 'Awaken your mote\'s ability to navigate the void. Use WASD or arrow keys.',
     category: 'tier1',
-    baseCost: 50,
+    baseCost: 30,
     costResource: 'energy',
     scalingFactor: 1.0,
     tier: 1,
