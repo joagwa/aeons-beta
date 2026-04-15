@@ -228,7 +228,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit <code>d2005aa</code> (Phase G-H — Subatomic System &amp; Documentation).</p>
+Last updated with commit <code>c7a99ed</code> (Balance fixes, engine rates, stats CSS, full docs update).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -596,7 +596,7 @@ The **Fusion Lab** (toolbar button ⚗️, appears after buying Proton Forge) pr
 | C/O split slider | % of red-giant He reactions → C vs → O |
 | Molecule on/off toggles | Enable/disable each molecule synthesis recipe |
 
-Sections are only visible once their prerequisite upgrade has been purchased.
+Sections are only visible once their prerequisite upgrade has been purchased. Live rate displays update every 0.5s showing effective throughput (e.g. "1.50 He/s (−6.0 H/s)").
 
 ---
 
@@ -671,7 +671,7 @@ Six quark flavours with individual passive bonuses on energy gain:
 | Charm | #44ff88 | 0.018 | +% absorption per mote |
 | Strange | #cc44ff | 0.012 | +% energy cap |
 | Top | #ffd700 | 0.010 | +% EM Bond attraction radius |
-| Bottom | #44dddd | 0.008 | -% upgrade costs |
+| Bottom | #44dddd | 0.020 | -% upgrade costs |
 
 **Allocation**: 6 sliders summing to 100%. Default: 100% Up.
 
@@ -768,14 +768,14 @@ Some key upgrades have a `hardScalingStart` level, beyond which costs increase a
 </code></pre>
 <p>cost(level) = normalCost(hardScalingStart) × hardScaling^(level - hardScalingStart)</p>
 <pre><code>
-| Upgrade | hardScalingStart | hardScaling |
-|---------|-----------------|-------------|
-| EM Bond | 5 | 5.0 |
-| Quantum Fluctuation | 5 | 6.0 |
-| Vacuum Harvesting | 5 | 4.0 |
-| Mote Genesis | 5 | 4.5 |
+| Upgrade | hardScalingStart | hardScaling | L10 Cost |
+|---------|-----------------|-------------|----------|
+| EM Bond | 5 | 5.0 | ~759K |
+| Quantum Fluctuation | 5 | 3.0 | ~7.6M |
+| Vacuum Harvesting | 5 | 2.8 | ~8.4M |
+| Mote Genesis | 5 | 4.5 | ~295K |
 
-L6–L10 are intentionally unreachable pre-Collapse. Quark bonuses (especially Bottom: -% upgrade costs) make them achievable post-Collapse.
+L6–L10 are intentionally unreachable pre-Collapse. Quark bonuses (especially Bottom: -% upgrade costs, strength 0.020) make them achievable post-Collapse. With 100% Bottom allocation + Flavour Resonance, costs drop ~21%.
 
 ### Effect Scaling Rules
 
@@ -802,7 +802,7 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, pure expone
 |----|------|--------|------|--------|
 | upg_gravitationalPull | Electromagnetic Bond | 10 | 1E × 3× | Unlock + grow attraction radius (300→6000 over 10 lvls) |
 | upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×2.0 spawn rate/level |
-| upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 8× | ×2.0 absorption/level (passive only) — steep cost |
+| upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 5× | ×2.0 absorption/level (passive only) — steep cost |
 | upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | ×(1 + level×0.25×E/(E+200)) to mote genesis &amp; attraction (soft-cap 200 energy, up to ×3.5 at L10) |
 | upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | +400 × level² energy cap — cost equals current cap each time |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |

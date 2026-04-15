@@ -363,6 +363,26 @@ html, body {
   min-width: 2px;
 }
 
+#stats-panel {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel-bg, rgba(10, 10, 30, 0.85));
+  overflow: hidden;
+}
+
+#stats-body {
+  padding: 6px 10px 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+#stats-body.collapsed {
+  max-height: 0;
+  padding: 0 10px;
+  overflow: hidden;
+}
+
 .stats-row {
   display: flex;
   justify-content: space-between;

@@ -13,7 +13,7 @@ const FLAVOURS = [
   { id: 'charm',   color: '#44ff88', strength: 0.018 }, // +% absorption per mote
   { id: 'strange',  color: '#cc44ff', strength: 0.012 }, // +% energy cap
   { id: 'top',     color: '#ffd700', strength: 0.010 }, // +% EM Bond attraction radius
-  { id: 'bottom',  color: '#44dddd', strength: 0.008 }, // -% upgrade costs
+  { id: 'bottom',  color: '#44dddd', strength: 0.020 }, // -% upgrade costs
 ];
 
 export class QuarkEngine {

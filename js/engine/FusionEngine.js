@@ -9,9 +9,9 @@
  */
 
 export class FusionEngine {
-  /** @type {import('../core/EventBus.js?v=2243215').EventBus} */
+  /** @type {import('../core/EventBus.js?v=e8a46bb').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=2243215').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=e8a46bb').ResourceManager} */
   #resourceManager;
   /** @type {Map<string, string>} starId → current stage */
   #starStages = new Map();
@@ -23,7 +23,7 @@ export class FusionEngine {
   #ironYieldMult = 1.0;
   /** @type {Set<string>} elements that have been produced at least once */
   #firstProduced = new Set();
-  /** @type {import('./UpgradeSystem.js?v=2243215').UpgradeSystem|null} */
+  /** @type {import('./UpgradeSystem.js?v=e8a46bb').UpgradeSystem|null} */
   #upgradeSystem = null;
   /** @type {number} 0-1 throttle for H→He reaction */
   #hToHeThrottle = 1.0;
@@ -142,7 +142,7 @@ export class FusionEngine {
 
   /**
    * Re-read all fusion-related upgrade effects and update multipliers.
-   * @param {import('./UpgradeSystem.js?v=2243215').UpgradeSystem} upgradeSystem
+   * @param {import('./UpgradeSystem.js?v=e8a46bb').UpgradeSystem} upgradeSystem
    */
   recalculateMults(upgradeSystem) {
     let hMult = 1.0;
@@ -166,6 +166,28 @@ export class FusionEngine {
     for (const star of starStates) {
       this.#starStages.set(star.id, star.stage);
     }
+  }
+
+  /** Current effective rates for all fusion reactions (units/s). */
+  getCurrentRates() {
+    const fusionUnlocked   = !this.#upgradeSystem || this.#upgradeSystem.getLevel('upg_fusionIgnition') >= 1;
+    const redGiantUnlocked = !this.#upgradeSystem || this.#upgradeSystem.getLevel('upg_redGiantCatalyst') >= 1;
+    const hasStarStage = (stage) => [...this.#starStages.values()].includes(stage);
+
+    const heRate = (fusionUnlocked && hasStarStage('main_sequence'))
+      ? FusionEngine.#BASE_HE_PER_SEC * this.#hFusionMult * this.#hToHeThrottle : 0;
+    const cRate = (redGiantUnlocked && hasStarStage('red_giant'))
+      ? FusionEngine.#BASE_C_PER_SEC * this.#heFusionMult * this.#cOSplit : 0;
+    const oRate = (redGiantUnlocked && hasStarStage('red_giant'))
+      ? FusionEngine.#BASE_O_PER_SEC * this.#heFusionMult * (1 - this.#cOSplit) : 0;
+
+    return {
+      hConsumed: heRate * 4,
+      heProduced: heRate,
+      heConsumed: cRate * 3 + oRate * 4,
+      cProduced: cRate,
+      oProduced: oRate,
+    };
   }
 
   getState() {

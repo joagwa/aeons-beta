@@ -6,11 +6,11 @@
  */
 
 export class MoleculeEngine {
-  /** @type {import('./ResourceManager.js?v=2243215').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=e8a46bb').ResourceManager} */
   #resourceManager;
   /** @type {Set<string>} molecule IDs produced at least once */
   #firstProduced = new Set();
-  /** @type {import('../core/EventBus.js?v=2243215').EventBus} */
+  /** @type {import('../core/EventBus.js?v=e8a46bb').EventBus} */
   #eventBus;
   /** @type {Map<string, boolean>} molecule ID → enabled */
   #enabled = new Map();
@@ -73,6 +73,18 @@ export class MoleculeEngine {
         this.#eventBus.emit('molecule:first', { molId });
       }
     }
+  }
+
+  /** Current effective rates for all molecule recipes (units/s). */
+  getCurrentRates() {
+    const rates = {};
+    for (const [molId, recipe] of Object.entries(MoleculeEngine.RECIPES)) {
+      if (!this.isEnabled(molId)) { rates[molId] = 0; continue; }
+      const molState = this.#resourceManager.get(molId);
+      if (!molState || !molState.visible) { rates[molId] = 0; continue; }
+      rates[molId] = recipe.ratePerSec;
+    }
+    return rates;
   }
 
   getState() {
