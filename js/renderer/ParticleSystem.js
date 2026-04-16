@@ -27,6 +27,11 @@ export class ParticleSystem {
     this._worldScrollVy = 0;
     // Vacuum mode: all particles pulled toward a single target
     this._vacuumTarget = null; // { x, y, strength }
+    // Last known viewport dimensions (updated each draw call) — used by recycle logic
+    this._viewW = 0;
+    this._viewH = 0;
+    // Cached screen diagonal (2× for recycle threshold) — recomputed each draw call
+    this._recycleMinDistSq = 0;
   }
 
   /** Initialize particle arrays for each region. */
@@ -318,33 +323,35 @@ export class ParticleSystem {
   }
 
   /**
-   * Remove the furthest 10% of motes from a region to prevent hitting mote limits
-   * while exploring with an infinite canvas.
+   * Remove motes that are more than twice the screen diagonal away from the character.
+   * This prevents hitting mote limits on an infinite canvas while keeping nearby motes intact.
    */
   _recycleFurthestMotes(entry, charX, charY) {
     const particles = entry.particles;
     if (particles.length < 2) return;
 
-    // Calculate distance for each particle
-    const withDist = particles.map((p, i) => {
+    // Use cached threshold (set each draw call); fall back to 2× 1200 px if not yet computed
+    const minDistSq = this._recycleMinDistSq > 0 ? this._recycleMinDistSq : 4 * 1200 * 1200;
+
+    // Remove particles that are beyond the threshold (iterate backwards to preserve indices)
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
       const dx = p.x - charX;
       const dy = p.y - charY;
-      const distSq = dx * dx + dy * dy;
-      return { index: i, distSq };
-    });
-
-    // Sort by distance descending (furthest first)
-    withDist.sort((a, b) => b.distSq - a.distSq);
-
-    // Remove top 10% (furthest) by removing from highest index to lowest
-    const removeCount = Math.max(1, Math.ceil(particles.length * 0.1));
-    for (let i = removeCount - 1; i >= 0; i--) {
-      particles.splice(withDist[i].index, 1);
+      if (dx * dx + dy * dy > minDistSq) {
+        particles.splice(i, 1);
+      }
     }
   }
 
   /** Draw visible particles on the main context. Glow particles on glow context. */
   draw(ctx, camera, viewW, viewH) {
+    // Keep viewport dimensions current so the recycle logic has an up-to-date threshold
+    this._viewW = viewW;
+    this._viewH = viewH;
+    // Cache 2× screen-diagonal squared for _recycleFurthestMotes
+    const diagSq = viewW * viewW + viewH * viewH;
+    this._recycleMinDistSq = diagSq > 0 ? 4 * diagSq : 4 * 1200 * 1200;
     for (const [, entry] of this.regions) {
       const bri = entry.params.brightness;
       for (const p of entry.particles) {

@@ -270,7 +270,13 @@ export class OrbitalEnergyDisplay {
   }
 
   _computeCounts(energy) {
-    return TIERS.map((_, t) => Math.floor(energy / Math.pow(10, t)) % 10);
+    // Once any higher tier is active the lower tier retains a full ring of 10 motes
+    // (e.g. at 11 energy: tier 0 shows 10 motes, tier 1 shows 1 mote).
+    return TIERS.map((_, t) => {
+      const higherTiers = Math.floor(energy / Math.pow(10, t + 1));
+      if (higherTiers > 0) return 10;
+      return Math.floor(energy / Math.pow(10, t)) % 10;
+    });
   }
 
   _redistributeAngles(tierIndex, count) {
