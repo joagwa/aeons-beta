@@ -1,4 +1,4 @@
-/**
+﻿/**
  * OrbitalEnergyDisplay — renders motes orbiting the player representing current energy.
  * Energy is displayed in base-10: each tier shows the corresponding digit as orbiting motes.
  * Each tier orbits on a distinct inclined plane, projecting a 3D multi-ring appearance.
@@ -37,14 +37,13 @@ export class OrbitalEnergyDisplay {
   constructor() {
     this._energy = 0;
     this._counts = new Array(TIERS.length).fill(0);
-    this._angles = TIERS.map(() => []); // per-tier array of mote angles
-    this._targetAngles = TIERS.map(() => []); // target angles for gradual spacing
-    this._spacingOutTime = TIERS.map(() => 0); // timer for each tier's spacing-out phase
-    this._flashTimers = new Array(TIERS.length).fill(0); // brief flash on tier rollover
-    this._speedMultiplier = 1;  // Epoch Collapse spin-up
-    this._radiusScale = 1;      // Epoch Collapse radius collapse (0 = all at center)
-    this._quarkColor = null;    // Quark-blended color override (null = use tier default white)
-    this._mode = 'energy';      // 'energy' or 'subatomic'
+    this._angles = TIERS.map(() => []);     // actual rendered angle per mote
+    this._tierPhase = new Array(TIERS.length).fill(0); // co-rotating slot-0 reference per tier
+    this._flashTimers = new Array(TIERS.length).fill(0);
+    this._speedMultiplier = 1;
+    this._radiusScale = 1;
+    this._quarkColor = null;
+    this._mode = 'energy';
     this._subatomicCounts = { proton: 0, neutron: 0, electron: 0 };
   }
 
@@ -61,40 +60,49 @@ export class OrbitalEnergyDisplay {
   update(dt, currentEnergy) {
     const e = Math.max(0, Math.floor(currentEnergy));
     const newCounts = this._computeCounts(e);
+    const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
 
     for (let t = 0; t < TIERS.length; t++) {
+      // Tier reference phase always advances at full speed
+      this._tierPhase[t] += TIERS[t].speed * this._speedMultiplier * dt;
+
       const prev = this._counts[t];
       const next = newCounts[t];
-
       if (prev !== next) {
         this._redistributeAngles(t, next);
         this._counts[t] = next;
-        // Start spacing-out phase for this tier (1 second duration)
-        this._spacingOutTime[t] = 1.0;
-        // Flash on the next tier when this tier rolls from 9 → 0
         if (prev > 0 && next === 0 && t + 1 < TIERS.length) {
           this._flashTimers[t + 1] = Math.min(1, (this._flashTimers[t + 1] || 0) + 0.5);
         }
       }
 
-      // Gradually space out motes if in spacing phase
-      if (this._spacingOutTime[t] > 0) {
-        this._spacingOutTime[t] = Math.max(0, this._spacingOutTime[t] - dt);
-        const progress = 1 - (this._spacingOutTime[t] / 1.0); // 0 → 1 over 1 second
-        for (let i = 0; i < this._angles[t].length; i++) {
-          // Interpolate from current angle toward target
-          const curr = this._angles[t][i];
-          const targ = this._targetAngles[t][i];
-          const angleDiff = targ - curr;
-          // Shortest path around circle
-          const normalized = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
-          this._angles[t][i] = curr + normalized * progress;
-        }
+      const count = this._counts[t];
+      if (count === 0) continue;
+
+      // Apply full rotation to every mote
+      for (let i = 0; i < count; i++) {
+        this._angles[t][i] += TIERS[t].speed * this._speedMultiplier * dt;
       }
 
-      // Apply normal rotation after spacing-out
-      for (let i = 0; i < this._angles[t].length; i++) {
-        this._angles[t][i] += TIERS[t].speed * this._speedMultiplier * dt;
+      if (count < 2) continue; // single mote needs no spacing correction
+
+      // Ideal evenly-spaced slots co-rotating with _tierPhase
+      const step = (Math.PI * 2) / count;
+      const ideals = Array.from({ length: count }, (_, i) => this._tierPhase[t] + i * step);
+
+      // Match each mote (sorted by normalised angle) to its corresponding sorted ideal slot.
+      // Sorted pairing prevents motes crossing each other to reach targets.
+      const sortedMoteIdx = [...Array(count).keys()].sort((a, b) => norm(this._angles[t][a]) - norm(this._angles[t][b]));
+      const sortedIdeals  = [...ideals].sort((a, b) => norm(a) - norm(b));
+
+      // Spring correction: each mote gets a nudge toward its assigned ideal slot.
+      // Rate 2.5 rad/s/rad means a 1-radian gap closes in ~0.5 s without stopping rotation.
+      const springK = 2.5;
+      for (let i = 0; i < count; i++) {
+        const mi = sortedMoteIdx[i];
+        let diff = sortedIdeals[i] - this._angles[t][mi];
+        diff = Math.atan2(Math.sin(diff), Math.cos(diff)); // shortest arc
+        this._angles[t][mi] += diff * springK * dt;
       }
     }
 
@@ -228,48 +236,34 @@ export class OrbitalEnergyDisplay {
 
     if (count === 0) {
       this._angles[tierIndex] = [];
-      this._targetAngles[tierIndex] = [];
       return;
     }
 
     if (existing.length === 0) {
-      // First mote(s) on this tier — initialize with even spacing
-      const base = tierIndex * Math.PI * 0.4;
-      this._angles[tierIndex] = Array.from({ length: count }, (_, i) => base + (i / count) * Math.PI * 2);
-      this._targetAngles[tierIndex] = [...this._angles[tierIndex]];
+      // First mote(s): evenly spaced from current tier phase
+      const step = (Math.PI * 2) / count;
+      this._angles[tierIndex] = Array.from({ length: count }, (_, i) => this._tierPhase[tierIndex] + i * step);
       return;
     }
 
     if (count > existing.length) {
-      // Adding mote(s): insert each new one at the midpoint of the largest current gap,
-      // so existing motes keep their positions and animation doesn't restart.
+      // Insert new mote(s) at the midpoint of the largest angular gap
       const newAngles = [...existing];
       while (newAngles.length < count) {
         const sorted = [...newAngles].sort((a, b) => a - b);
         let maxGap = 0;
-        let insertAngle = sorted[0] + Math.PI; // fallback
+        let insertAngle = sorted[0] + Math.PI;
         for (let i = 0; i < sorted.length; i++) {
           const next = sorted[(i + 1) % sorted.length];
           const gap = (next - sorted[i] + Math.PI * 2) % (Math.PI * 2);
-          if (gap > maxGap) {
-            maxGap = gap;
-            insertAngle = sorted[i] + gap / 2;
-          }
+          if (gap > maxGap) { maxGap = gap; insertAngle = sorted[i] + gap / 2; }
         }
         newAngles.push(insertAngle);
       }
       this._angles[tierIndex] = newAngles;
-      
-      // Compute target angles: evenly spaced around the circle
-      const base = tierIndex * Math.PI * 0.4;
-      this._targetAngles[tierIndex] = Array.from({ length: count }, (_, i) => base + (i / count) * Math.PI * 2);
     } else {
-      // Removing mote(s): drop from the end — keep remaining positions intact
+      // Removing motes: keep the first count positions
       this._angles[tierIndex] = existing.slice(0, count);
-      
-      // Recompute evenly-spaced targets for remaining motes
-      const base = tierIndex * Math.PI * 0.4;
-      this._targetAngles[tierIndex] = Array.from({ length: count }, (_, i) => base + (i / count) * Math.PI * 2);
     }
   }
 

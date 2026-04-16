@@ -4,13 +4,13 @@
  */
 
 export class ResourceManager {
-  /** @type {import('../core/EventBus.js?v=f0dd23a').EventBus} */
+  /** @type {import('../core/EventBus.js?v=8bf03cd').EventBus} */
   #eventBus;
   /** @type {Map<string, object>} resource definitions keyed by id */
   #definitions = new Map();
   /** @type {Map<string, object>} live resource states keyed by id */
   #states = new Map();
-  /** @type {import('./UpgradeSystem.js?v=f0dd23a').UpgradeSystem | null} */
+  /** @type {import('./UpgradeSystem.js?v=8bf03cd').UpgradeSystem | null} */
   #upgradeSystem = null;
   /** @type {Map<string, number>} milestone rate bonuses keyed by resource id */
   #rateBonuses = new Map();
@@ -30,7 +30,7 @@ export class ResourceManager {
   #comboTimer = null;
 
   /**
-   * @param {import('../core/EventBus.js?v=f0dd23a').EventBus} EventBus
+   * @param {import('../core/EventBus.js?v=8bf03cd').EventBus} EventBus
    */
   constructor(EventBus) {
     this.#eventBus = EventBus;

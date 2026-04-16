@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=f0dd23a').EventBus} */
+  /** @type {import('../core/EventBus.js?v=8bf03cd').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=f0dd23a').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=8bf03cd').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=f0dd23a').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=8bf03cd').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
