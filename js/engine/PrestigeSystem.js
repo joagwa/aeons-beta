@@ -12,11 +12,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=940d1cc').EventBus} */
+  /** @type {import('../core/EventBus.js?v=c26d7b0').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=940d1cc').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=c26d7b0').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=940d1cc').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=c26d7b0').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
@@ -39,6 +39,7 @@ export class PrestigeSystem {
     memory: [
       { id: 'prs_primalMemory', name: 'Primal Memory', cost: 1, maxLevel: 1, description: 'Start next run with 50% of last run peak energy' },
       { id: 'prs_echoChamber',  name: 'Echo Chamber',  cost: 2, maxLevel: 1, description: '+1 bonus Aeon on each future prestige', requires: 'prs_primalMemory' },
+      { id: 'prs_aeonAutomaton', name: 'Aeon Automaton', cost: 10, maxLevel: 1, description: 'Auto-purchase Phase 1 energy upgrades for you', requires: 'prs_echoChamber' },
     ],
   };
 
@@ -82,7 +83,9 @@ export class PrestigeSystem {
   canPrestige() {
     const energy = this.#resourceManager?.get('energy');
     if (!energy) return false;
-    return energy.currentValue >= energy.cap && energy.cap > 0;
+    // Check against maximum potential energy cap (considering all available upgrades)
+    const maxCap = this.getMaxPotentialEnergyCap();
+    return energy.currentValue >= maxCap && maxCap > 0;
   }
 
   /** How many Aeons the next prestige would award. */
@@ -103,6 +106,57 @@ export class PrestigeSystem {
     if (level >= 5) return 10000000;
     return 500 * Math.pow(10, level + 1);
   }
+
+  /**
+   * Calculate maximum achievable energy cap if player purchases all affordable upgrades.
+   * Considers:
+   * - All currently-purchased prestige cap upgrades (Expanded Vacuum)
+   * - All purchasable regular upgrades that increase energy cap (capIncrease, capMultiplier)
+   * 
+   * Used to determine true prestige checkpoint (player has maxed out progression potential).
+   */
+  getMaxPotentialEnergyCap() {
+    if (!this.#resourceManager || !this.#upgradeSystem) {
+      return 500;
+    }
+
+    // Start with base cap from Expanded Vacuum prestige upgrades
+    const expandedLevel = this.getLevel('prs_expandedVacuum');
+    let baseCap = expandedLevel >= 5 ? 10000000 : 500 * Math.pow(10, expandedLevel);
+
+    // List of energy cap upgrades to consider (in order of priority)
+    const capUpgradeIds = [
+      'upg_quantumCapacitor',      // ×1.2 per level
+      'upg_quantumReservoir',       // ×1.15 per level (needs hydrogen)
+      'upg_hydrologicalCycle',      // ×1.12 per level (needs multi-resources)
+    ];
+
+    // For each cap upgrade, calculate max level we could afford and apply it
+    let resultCap = baseCap;
+    for (const upgradeId of capUpgradeIds) {
+      const upgrade = this.#upgradeSystem.getDefinition(upgradeId);
+      if (!upgrade) continue;
+
+      const currentLevel = this.#upgradeSystem.getLevel(upgradeId);
+      const maxLevelPossible = upgrade.maxLevel ?? 10;
+
+      // Apply capMultiplier for this upgrade at max level
+      if (upgrade.effectType === 'capMultiplier') {
+        // Calculate what max level would give: magnitude ^ (maxLevelPossible - currentLevel)
+        const additionalLevels = maxLevelPossible - currentLevel;
+        const multiplierFactor = Math.pow(upgrade.effectMagnitude, additionalLevels);
+        resultCap *= multiplierFactor;
+      } else if (upgrade.effectType === 'capIncrease') {
+        // Legacy support (shouldn't happen after recent conversion)
+        for (let lvl = currentLevel + 1; lvl <= maxLevelPossible; lvl++) {
+          resultCap += upgrade.effectMagnitude * lvl * lvl; // quadratic scaling
+        }
+      }
+    }
+
+    return resultCap;
+  }
+
 
   // ── Track peak energy each tick ───────────────────────────────────────
 
@@ -139,6 +193,16 @@ export class PrestigeSystem {
   }
 
   // ── Upgrade purchasing ────────────────────────────────────────────────
+
+  /**
+   * Get the definition object for an upgrade by id.
+   * @param {string} id
+   * @return {object|undefined}
+   */
+  getUpgradeDefinition(id) {
+    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
+    return allUpgrades.find(u => u.id === id);
+  }
 
   canAffordUpgrade(id) {
     const allUpgrades = PrestigeSystem.ALL_UPGRADES;
@@ -196,9 +260,10 @@ export class PrestigeSystem {
    * Apply bonuses at the start of a new run (after prestige reset).
    * @param {object} resourceManager
    * @param {object} upgradeSystem
+   * @param {object} moteController
    * @param {number} [peakEnergyOverride] — peak energy from the prestige event
    */
-  applyRunBonuses(resourceManager, upgradeSystem, peakEnergyOverride) {
+  applyRunBonuses(resourceManager, upgradeSystem, moteController, peakEnergyOverride) {
     // Apply persistent bonuses (cap, rate multiplier)
     this.applyPersistentBonuses(resourceManager, upgradeSystem);
 
@@ -208,16 +273,23 @@ export class PrestigeSystem {
       resourceManager.add('energy', Math.floor(peak * 0.5));
     }
 
-    // Mote Inheritance — start with EM Bond L1
-    if (this.getLevel('prs_moteInheritance') >= 1) {
+    // Auto-unlock EM Bond L1 after first prestige (always, not just for Mote Inheritance)
+    if (this.#count === 1) {
       const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
       if (cur < 1) upgradeSystem.forceLevel('upg_gravitationalPull', 1);
     }
 
-    // After first prestige, unlock cosmic drift (movement) passively
+    // Mote Inheritance — start with EM Bond L1 on all subsequent prestige
+    if (this.#count > 1 && this.getLevel('prs_moteInheritance') >= 1) {
+      const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
+      if (cur < 1) upgradeSystem.forceLevel('upg_gravitationalPull', 1);
+    }
+
+    // After first prestige, auto-grant movement via the upgrade system
+    // (fires upgrade:purchased which MoteController handles to enable movement)
     if (this.#count >= 1) {
-      const cur = upgradeSystem.getLevel('upg_cosmicDrift') ?? 0;
-      if (cur < 1) upgradeSystem.forceLevel('upg_cosmicDrift', 1);
+      const curDrift = upgradeSystem.getLevel('upg_cosmicDrift') ?? 0;
+      if (curDrift < 1) upgradeSystem.forceLevel('upg_cosmicDrift', 1);
     }
   }
 

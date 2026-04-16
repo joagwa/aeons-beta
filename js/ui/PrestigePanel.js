@@ -11,7 +11,7 @@
  * Upgrade nodes rendered as HTML over the canvas.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=940d1cc';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=c26d7b0';
 
 const AEON_BRANCHES = {
   expansion:   { label: 'Expansion',  color: '#ffd700' },
@@ -24,15 +24,17 @@ const ECHO_BRANCHES = {
 };
 
 export class PrestigePanel {
-  constructor(EventBus, prestigeSystem) {
+  constructor(EventBus, prestigeSystem, moteController = null) {
     this.bus = EventBus;
     this.prestigeSystem = prestigeSystem;
+    this.moteController = moteController;
     this.overlay = null;
     this.canvas  = null;
     this.ctx     = null;
     this._stars  = [];
     this._animId = null;
     this._visible = false;
+    this._inPurgatory = false; // true when prestige executed but menu still open
   }
 
   // ── Init ──────────────────────────────────────────────────────────────
@@ -50,11 +52,15 @@ export class PrestigePanel {
     const closeBtn = this.overlay.querySelector('#prestige-close');
     if (closeBtn) closeBtn.addEventListener('click', () => this.hide());
 
-    // Prestige button
+    // Prestige button — enter purgatory (execute but keep menu open)
     const prestigeBtn = this.overlay.querySelector('#prestige-action-btn');
     if (prestigeBtn) prestigeBtn.addEventListener('click', () => {
       if (this.prestigeSystem.canPrestige()) {
+        // Execute prestige (reset happens now)
         this.prestigeSystem.executePrestige();
+        // Enter purgatory state (menu stays open, game is in limbo)
+        this._inPurgatory = true;
+        this.bus.emit('prestige:purgatory:enter');
       }
     });
 
@@ -76,16 +82,33 @@ export class PrestigePanel {
     this._renderHeader();
     this._renderTree();
     this._startAnimation();
+    // Block player input when prestige panel opens
+    if (this.moteController) {
+      this.moteController.blockAllInput();
+    }
   }
 
   hide() {
     if (!this.overlay) return;
+    
+    // If exiting purgatory, complete the post-reset sequence
+    if (this._inPurgatory) {
+      this._inPurgatory = false;
+      this.bus.emit('prestige:purgatory:exit');
+    }
+    
     this._visible = false;
     this.overlay.classList.add('hidden');
     this._stopAnimation();
+    // Unblock player input when prestige panel closes
+    if (this.moteController) {
+      this.moteController.unblockAllInput();
+    }
   }
 
   isVisible() { return this._visible; }
+
+  isInPurgatory() { return this._inPurgatory; }
 
   // ── Star-field ────────────────────────────────────────────────────────
 
@@ -152,10 +175,20 @@ export class PrestigePanel {
 
     const btn = this.overlay?.querySelector('#prestige-action-btn');
     if (btn) {
-      const canPrestige = ps.canPrestige();
-      btn.disabled = !canPrestige;
-      btn.textContent = canPrestige ? `Prestige (+${reward} Aeon${reward > 1 ? 's' : ''})` : 'Reach energy cap to prestige';
-      btn.title = canPrestige ? 'Reset this run and earn Aeons' : 'Fill your energy to the cap first';
+      if (this._inPurgatory) {
+        // In purgatory — show that prestige is complete
+        btn.disabled = true;
+        btn.textContent = '✓ Prestige Complete — Exit to Begin';
+        btn.title = 'You are in purgatory. Close this menu to start your next run.';
+        btn.style.opacity = '0.7';
+      } else {
+        // Pre-prestige — show prestige option
+        const canPrestige = ps.canPrestige();
+        btn.disabled = !canPrestige;
+        btn.textContent = canPrestige ? `Prestige (+${reward} Aeon${reward > 1 ? 's' : ''})` : 'Reach energy cap to prestige';
+        btn.title = canPrestige ? 'Reset this run and earn Aeons' : 'Fill your energy to the cap first';
+        btn.style.opacity = '1';
+      }
     }
   }
 

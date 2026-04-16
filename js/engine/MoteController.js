@@ -1,7 +1,10 @@
 /**
  * MoteController — Manages the player mote's world position, angle, and velocity.
- * Unlocked via the 'upg_cosmicDrift' upgrade, with speed/turn/tractor beam upgrades.
- * Emits 'mote:moved' on the EventBus each tick when enabled.
+ * Movement is unlocked by purchasing the Cosmic Drift upgrade (1 energy) in every run.
+ * After the first prestige it is also auto-granted via PrestigeSystem.applyRunBonuses.
+ * Speed is a flat 40 px/sec.
+ * Supports keyboard (WASD/arrows) and touch (drag) input.
+ * Emits 'mote:moved' on the EventBus each tick.
  */
 
 export class MoteController {
@@ -10,7 +13,7 @@ export class MoteController {
     this.worldX = 2000;
     this.worldY = 2500;
     this.angle = -Math.PI / 2; // visual facing angle, derived from velocity
-    this.maxSpeed = 0;
+    this.maxSpeed = 40; // flat movement speed when enabled (half of previous max 80)
     this.tractorBeamRange = 0;
     this.tractorBeamStrength = 1.0;
 
@@ -20,7 +23,8 @@ export class MoteController {
 
     // Movement input state (WASD = up/down/left/right in world space)
     this._input = { up: false, down: false, left: false, right: false };
-    this._enabled = false;
+    this._enabled = false; // unlocked as passive on first prestige
+    this._inputBlocked = false; // blocks all input except when prestige panel is hidden
 
     // Universe bounds (set from canvas config)
     this._boundsW = 4000;
@@ -88,12 +92,12 @@ export class MoteController {
   }
 
   /**
-   * Reset all movement state for a prestige run. Does NOT re-attach event listeners.
+   * Reset all movement state for a prestige run.
    * Call this before loadEpoch, then set worldX/worldY to the new home object position.
    */
   resetForPrestige() {
-    this._enabled = false;
-    this.maxSpeed = 0;
+    this._enabled = false; // disabled on prestige, re-enable if tier >= 1
+    this.maxSpeed = 40; // flat speed when enabled
     this.tractorBeamRange = 0;
     this.tractorBeamStrength = 1.0;
     this._vx = 0;
@@ -259,7 +263,7 @@ export class MoteController {
   // ── Keyboard handlers ───────────────────────────────────────────────
 
   _handleKeyDown(e) {
-    if (!this._enabled) return;
+    if (!this._enabled || this._inputBlocked) return;
     switch (e.key) {
       case 'w': case 'W': case 'ArrowUp':    this._input.up    = true; break;
       case 's': case 'S': case 'ArrowDown':   this._input.down  = true; break;
@@ -269,6 +273,7 @@ export class MoteController {
   }
 
   _handleKeyUp(e) {
+    if (this._inputBlocked) return;
     switch (e.key) {
       case 'w': case 'W': case 'ArrowUp':    this._input.up    = false; break;
       case 's': case 'S': case 'ArrowDown':   this._input.down  = false; break;
@@ -280,7 +285,7 @@ export class MoteController {
   // ── Virtual joystick pointer handlers ───────────────────────────────
 
   _handlePointerDown(e) {
-    if (!this._enabled || !e.isPrimary) return;
+    if (!this._enabled || !e.isPrimary || this._inputBlocked) return;
     // Cache canvas offset so we don't call getBoundingClientRect() every frame
     const rect = this._canvas.getBoundingClientRect();
     this._joystickCanvasLeft = rect.left;
@@ -313,17 +318,10 @@ export class MoteController {
   _onUpgrade(data) {
     switch (data.upgradeId) {
       case 'upg_cosmicDrift':
+        // Movement upgrade purchased — enable player control
         this._enabled = true;
-        this.maxSpeed = 80;
-        // Show controls hint for 10 seconds
-        this._hintShowTime = performance.now() + 10_000;
+        this._hintShowTime = performance.now() + 10_000; // show hint for 10s
         this._lastMoveTime = performance.now();
-        break;
-      case 'upg_ionThrust':
-        this.maxSpeed = 80 + (data.level || 1) * 30;
-        break;
-      case 'upg_maneuveringJets':
-        // No-op for direct movement model — kept for save compatibility
         break;
       case 'upg_eventHorizon':
         this.tractorBeamRange = 120 + (data.level || 1) * 60;
@@ -334,12 +332,13 @@ export class MoteController {
 
   /**
    * Returns whether the controls hint should be visible, and its alpha (0..1).
+   * Shows for 10s after unlocking, then reappears on 30+ second idle.
    */
   getHintState() {
     if (!this._enabled) return { visible: false, alpha: 0 };
     const now = performance.now();
 
-    // Show for 10s after unlock
+    // Show for 10s after first prestige unlock
     if (now < this._hintShowTime) {
       const remaining = this._hintShowTime - now;
       const alpha = remaining < 2000 ? remaining / 2000 : 1;
@@ -354,6 +353,25 @@ export class MoteController {
     }
 
     return { visible: false, alpha: 0 };
+  }
+
+  /**
+   * Block all movement input (called when prestige dialog appears).
+   * Prevents accidental player actions during prestige decision.
+   */
+  blockAllInput() {
+    this._inputBlocked = true;
+    this._input = { up: false, down: false, left: false, right: false };
+    this._vx = 0;
+    this._vy = 0;
+    this._joystickActive = false;
+  }
+
+  /**
+   * Unblock all movement input (called when prestige dialog closes or prestige executes).
+   */
+  unblockAllInput() {
+    this._inputBlocked = false;
   }
 
   // ── Serialisation ───────────────────────────────────────────────────

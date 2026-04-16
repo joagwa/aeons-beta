@@ -4,13 +4,13 @@
  */
 
 export class ResourceManager {
-  /** @type {import('../core/EventBus.js?v=940d1cc').EventBus} */
+  /** @type {import('../core/EventBus.js?v=c26d7b0').EventBus} */
   #eventBus;
   /** @type {Map<string, object>} resource definitions keyed by id */
   #definitions = new Map();
   /** @type {Map<string, object>} live resource states keyed by id */
   #states = new Map();
-  /** @type {import('./UpgradeSystem.js?v=940d1cc').UpgradeSystem | null} */
+  /** @type {import('./UpgradeSystem.js?v=c26d7b0').UpgradeSystem | null} */
   #upgradeSystem = null;
   /** @type {Map<string, number>} milestone rate bonuses keyed by resource id */
   #rateBonuses = new Map();
@@ -30,7 +30,7 @@ export class ResourceManager {
   #comboTimer = null;
 
   /**
-   * @param {import('../core/EventBus.js?v=940d1cc').EventBus} EventBus
+   * @param {import('../core/EventBus.js?v=c26d7b0').EventBus} EventBus
    */
   constructor(EventBus) {
     this.#eventBus = EventBus;
@@ -451,6 +451,14 @@ export class ResourceManager {
       if (effect.effectType === 'capIncrease') {
         const state = this.#states.get(effect.effectTarget);
         if (state && state.cap !== null) state.cap += effect.effectMagnitude;
+      }
+    }
+
+    // 6a. Cap multipliers from upgrades (percentage-based, proportional to base cap)
+    for (const effect of effects) {
+      if (effect.effectType === 'capMultiplier') {
+        const state = this.#states.get(effect.effectTarget);
+        if (state && state.cap !== null) state.cap *= effect.effectMagnitude;
       }
     }
 

@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aeons: The Grand Unfolding — Developer Tutorial</title>
+  <style>
+  :root {
+    --bg: #0a0a0f;
+    --bg-panel: #12121a;
+    --bg-panel-alt: #1a1a2e;
+    --accent: #a0c4ff;
+    --accent2: #ffffff;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --text-bright: #ffffff;
+    --border: #2a2a3e;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-main: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; color: var(--accent2); }
+
+  .page-wrapper { display: flex; min-height: 100vh; }
+  nav#sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav#sidebar .nav-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  nav#sidebar ul { list-style: none; }
+  nav#sidebar > ul { padding-left: 0; }
+  nav#sidebar ul li { margin: 3px 0; }
+  nav#sidebar ul li a {
+    display: block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-size: 13px;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav#sidebar ul li a:hover { color: var(--text); background: var(--bg-panel-alt); text-decoration: none; }
+  nav#sidebar ul li.indent a { padding-left: 20px; font-size: 12px; }
+  nav#sidebar .nav-back { margin-bottom: 16px; }
+  nav#sidebar .nav-back a { font-size: 13px; color: var(--accent); }
+
+  main { flex: 1; max-width: 860px; padding: 40px 48px; min-width: 0; }
+
+  h1 { font-size: 2rem; color: var(--accent2); border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin-bottom: 24px; }
+  h2 { font-size: 1.5rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 36px 0 16px; }
+  h3 { font-size: 1.15rem; color: var(--text-bright); margin: 24px 0 10px; }
+  h4 { font-size: 1rem; color: var(--accent); margin: 20px 0 8px; }
+  h5, h6 { font-size: 0.9rem; color: var(--text-dim); margin: 16px 0 6px; }
+
+  p { margin: 10px 0; }
+  strong { color: var(--text-bright); }
+  em { color: var(--text-dim); font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+  code {
+    background: var(--bg-panel-alt);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  pre {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  pre code { background: none; padding: 0; color: var(--accent2); font-size: 0.85em; }
+
+  .table-wrapper { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+  th, td { border: 1px solid var(--border); padding: 7px 12px; text-align: left; }
+  th { background: var(--bg-panel-alt); color: var(--accent); font-weight: 600; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+  ul, ol { margin: 10px 0 10px 24px; }
+  li { margin: 4px 0; }
+
+  blockquote {
+    border-left: 3px solid var(--accent);
+    background: var(--bg-panel);
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+    color: var(--text-dim);
+  }
+  blockquote strong { color: var(--accent2); }
+
+  @media (max-width: 768px) {
+    nav#sidebar { display: none; }
+    main { padding: 20px 16px; }
+    h1 { font-size: 1.5rem; }
+  }
+
+  @media print {
+    nav#sidebar { display: none; }
+    .page-wrapper { display: block; }
+    main { max-width: 100%; padding: 20px; }
+    body { background: #fff; color: #000; font-size: 11pt; }
+    a { color: #000; }
+    h1 { color: #000; border-bottom: 2px solid #000; }
+    h2 { color: #333; border-bottom: 1px solid #aaa; }
+    h3, h4 { color: #000; }
+    code { background: #f0f0f0; color: #000; border: 1px solid #ccc; }
+    pre { background: #f8f8f8; border: 1px solid #ccc; page-break-inside: avoid; }
+    pre code { color: #000; }
+    blockquote { border-left: 3px solid #555; background: #f8f8f8; color: #333; }
+    table { page-break-inside: avoid; }
+    th { background: #eee; color: #000; }
+    h2, h3 { page-break-after: avoid; }
+    p, li { orphans: 3; widows: 3; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+  <nav id="sidebar">
+    <div class="nav-back"><a href="./index.html">← Back to Game</a></div>
+    <div class="nav-title">Aeons: The Grand Unfolding</div>
+    <ul>
+  <li><a href="#welcome">Welcome</a></li>
+  <li><a href="#prerequisites">Prerequisites</a></li>
+  <li><a href="#running-the-game-locally">Running Locally</a></li>
+  <li><a href="#game-overview">Game Overview</a></li>
+  <li><a href="#codebase-layout">Codebase Layout</a></li>
+  <li><a href="#architecture-overview">Architecture</a>
+    <ul>
+      <li class="indent"><a href="#technology-stack">Technology Stack</a></li>
+      <li class="indent"><a href="#layered-design">Layered Design</a></li>
+      <li class="indent"><a href="#html-foundation">HTML Foundation</a></li>
+    </ul>
+  </li>
+  <li><a href="#core-systems">Core Systems</a>
+    <ul>
+      <li class="indent"><a href="#eventbus">EventBus</a></li>
+      <li class="indent"><a href="#gameloop">GameLoop</a></li>
+      <li class="indent"><a href="#resourcemanager">ResourceManager</a></li>
+      <li class="indent"><a href="#upgradesystem">UpgradeSystem</a></li>
+      <li class="indent"><a href="#milestonesystem">MilestoneSystem</a></li>
+      <li class="indent"><a href="#savesystem">SaveSystem</a></li>
+    </ul>
+  </li>
+  <li><a href="#data-layer-epoch1js">Data Layer</a>
+    <ul>
+      <li class="indent"><a href="#resource-definitions">Resources</a></li>
+      <li class="indent"><a href="#upgrade-definitions">Upgrades</a></li>
+      <li class="indent"><a href="#milestone-definitions">Milestones</a></li>
+    </ul>
+  </li>
+  <li><a href="#rendering">Rendering</a>
+    <ul>
+      <li class="indent"><a href="#canvasrenderer">CanvasRenderer</a></li>
+      <li class="indent"><a href="#camera">Camera</a></li>
+      <li class="indent"><a href="#particlesystem">ParticleSystem</a></li>
+      <li class="indent"><a href="#orbitalenergydisplay">OrbitalEnergyDisplay</a></li>
+    </ul>
+  </li>
+  <li><a href="#game-engines">Game Engines</a>
+    <ul>
+      <li class="indent"><a href="#darkmattersystem">DarkMatterSystem</a></li>
+      <li class="indent"><a href="#prestigesystem">PrestigeSystem</a></li>
+      <li class="indent"><a href="#fusionengine">FusionEngine</a></li>
+      <li class="indent"><a href="#quarkengine">QuarkEngine</a></li>
+    </ul>
+  </li>
+  <li><a href="#ui-panels">UI Panels</a></li>
+  <li><a href="#testing">Testing</a></li>
+  <li><a href="#cicd-pipelines">CI / CD</a></li>
+  <li><a href="#how-to-guides">How To…</a>
+    <ul>
+      <li class="indent"><a href="#add-a-new-resource">Add a Resource</a></li>
+      <li class="indent"><a href="#add-a-new-upgrade">Add an Upgrade</a></li>
+      <li class="indent"><a href="#add-a-new-milestone">Add a Milestone</a></li>
+      <li class="indent"><a href="#add-a-new-ui-panel">Add a UI Panel</a></li>
+      <li class="indent"><a href="#write-a-unit-test">Write a Unit Test</a></li>
+    </ul>
+  </li>
+  <li><a href="#developer-tools">Developer Tools</a></li>
+  <li><a href="#source-of-truth-boundaries">Source-of-Truth</a></li>
+  <li><a href="#exporting-to-pdf">Exporting to PDF</a></li>
+</ul>
+
+  </nav>
+  <main>
+    <h1 id="aeons-the-grand-unfolding-developer-tutorial">Aeons: The Grand Unfolding — Developer Tutorial</h1>
+<blockquote>
+<p><strong>Welcome, new team member!</strong> This guide explains how the game works, how the code is organised, and how to make common changes. Read it from top to bottom on your first day, then use it as a reference afterwards.</p>
+<p><strong>To export as PDF:</strong> open <code>tutorial.html</code> in any modern browser and press <strong>Ctrl+P</strong> (or ⌘+P on Mac) → set destination to <em>Save as PDF</em> → Save.</p>
+</blockquote>
+<hr>
+<h2 id="welcome">Welcome</h2>
+<p><em>Aeons: The Grand Unfolding</em> is a browser-based incremental (idle) game built entirely in <strong>vanilla JavaScript</strong> with zero external runtime dependencies. There is no build step, no bundler, and no framework. What you see in the repo is exactly what runs in the browser.</p>
+<p>The game follows the player character through the birth and evolution of the universe — from absorbing raw quantum energy motes in the void, through stellar fusion, elemental chemistry, and eventually quark physics and subatomic matter. Progress is gated by upgrades, milestones, and periodic prestige resets that carry permanent bonuses forward.</p>
+<hr>
+<h2 id="prerequisites">Prerequisites</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>Tool</th><th>Purpose</th><th>Required version</th></tr></thead>
+<tbody>
+<tr><td><strong>Git</strong></td><td>version control</td><td>any recent</td></tr>
+<tr><td><strong>Python 3</strong></td><td>local dev server</td><td>3.x (for <code>python -m http.server</code>)</td></tr>
+<tr><td><strong>Node.js</strong></td><td>running build scripts and tests</td><td>≥ 18</td></tr>
+<tr><td><strong>npm</strong></td><td>installing Playwright for tests</td><td>bundled with Node</td></tr>
+<tr><td><strong>Browser</strong></td><td>playing and debugging</td><td>Chrome or Firefox (latest)</td></tr>
+</tbody></table></div>
+<p>A code editor with JavaScript support is strongly recommended. The <code>.vscode/</code> folder contains workspace settings.</p>
+<hr>
+<h2 id="running-the-game-locally">Running the Game Locally</h2>
+<p>ES Modules require a server — browsers block <code>import</code> statements from <code>file://</code> URLs due to CORS restrictions.</p>
+<h3 id="option-1-python-recommended-zero-setup">Option 1 — Python (recommended, zero setup)</h3>
+<pre><code class="language-bash">cd /path/to/IncrementalGame
+python -m http.server 8080
+# Open: http://localhost:8080</code></pre>
+<h3 id="option-2-vs-code-live-server">Option 2 — VS Code Live Server</h3>
+<ol>
+<li>Install the <strong>Live Server</strong> extension.</li>
+<li>Right-click <code>index.html</code> → <strong>Open with Live Server</strong>.</li>
+<li>The browser opens at <code>http://127.0.0.1:5500</code> and auto-reloads on file save.</li>
+</ol>
+<h3 id="option-3-nodejs-serve">Option 3 — Node.js serve</h3>
+<pre><code class="language-bash">npx serve . -p 8080</code></pre>
+<blockquote>
+<p>There is <strong>no build step</strong> — no <code>npm run build</code>, no compiled output. Edit a <code>.js</code> file and reload the browser. Cache-busting query strings (<code>?v=SHA</code>) are added automatically by the deploy workflows.</p>
+</blockquote>
+<hr>
+<h2 id="game-overview">Game Overview</h2>
+<p>Understanding the game loop helps you understand the code.</p>
+<h3 id="phase-1-energy-the-void">Phase 1 — Energy (the void)</h3>
+<p>The player starts as a particle in empty space. A single glowing beacon mote drifts toward the player from the right. When it makes contact, the player earns <strong>1 energy</strong> — enough to buy the first upgrade, <strong>Cosmic Drift</strong>, which unlocks movement.</p>
+<p>Once <strong>Electromagnetic Bond</strong> is purchased (cost: 10 energy), the void fills with ambient motes that are passively pulled toward the player. Each absorbed mote awards energy. Energy is capped at 500 initially; upgrades raise the cap up to 10,000,000.</p>
+<p>Visual progression: energy is displayed as orbiting motes around the player character — one mote per unit, organised into 7 tiers by order of magnitude (see <a href="#orbitalenergydisplay">Orbital Energy Display</a>).</p>
+<h3 id="phase-2-prestige-aeons">Phase 2 — Prestige / Aeons</h3>
+<p>When the current energy cap is fully reached, a "Void Saturated" prompt appears. Pressing it enters the <strong>Prestige</strong> panel. The player earns <strong>Aeons</strong> (a meta-currency) proportional to peak energy, spends them on permanent cross-run upgrades, then starts a new run with a higher energy cap.</p>
+<p>After the first prestige, <strong>Dark Matter nodes</strong> spawn in the void; the player must navigate to them to collect Dark Matter, which feeds into synthesis chains.</p>
+<h3 id="phase-3-epoch-collapse-quarks">Phase 3 — Epoch Collapse &amp; Quarks</h3>
+<p>At 10,000,000 energy the game automatically triggers an <strong>Epoch Collapse</strong> cinematic — all particles are drawn into the player, the screen flashes, and the quark phase begins. The player now allocates percentages across six quark flavours (up, down, strange, charm, bottom, top), each giving a different passive multiplier. Orbital motes shift colour to blend the quark palette.</p>
+<h3 id="phase-4-subatomic">Phase 4 — Subatomic</h3>
+<p>After a second Epoch Collapse, the <strong>Particle Forge</strong> opens. Quarks are consumed to synthesise protons, neutrons, and electrons. These become the new orbital display — replacing energy motes with particle rings.</p>
+<hr>
+<h2 id="codebase-layout">Codebase Layout</h2>
+<pre><code>IncrementalGame/
+│
+├── index.html              # The only HTML file. Defines all DOM structure.
+├── style.css               # All styles. Uses CSS custom properties for theming.
+│
+├── js/
+│   ├── main.js             # Entry point. Imports and wires all systems, runs bootstrap().
+│   │
+│   ├── core/               # Infrastructure (no game logic)
+│   │   ├── EventBus.js         # Pub/sub singleton
+│   │   ├── GameLoop.js         # requestAnimationFrame driver + fixed-tick accumulator
+│   │   ├── NumberFormatter.js  # formatNumber() + notation mode
+│   │   ├── SaveSystem.js       # localStorage save/load/export/import
+│   │   ├── SaveMigrator.js     # Schema version migrations
+│   │   ├── LogBuffer.js        # Circular in-memory log for error reporting
+│   │   ├── ErrorReporter.js    # Uncaught error capture + remote reporting
+│   │   ├── MassFormatter.js    # Physical mass display (atomic weights)
+│   │   └── UpdateChecker.js    # Polls version.json every 5 min for updates
+│   │
+│   ├── engine/             # Game logic (no DOM, no canvas)
+│   │   ├── ResourceManager.js      # Resource state, passive generation, caps
+│   │   ├── UpgradeSystem.js        # Upgrade shop: purchase, cost, prerequisites
+│   │   ├── MilestoneSystem.js      # Condition evaluation, rewards, chronicle log
+│   │   ├── EpochSystem.js          # Loads epoch config, manages transitions
+│   │   ├── StarManager.js          # Star lifecycle (main sequence → red giant → supernova)
+│   │   ├── MoteController.js       # Player position, velocity, input (WASD / touch)
+│   │   ├── ProceduralMoteGenerator.js  # Decides spawn rate and quality of ambient motes
+│   │   ├── DarkMatterSystem.js     # DM node spawning, waves, collection
+│   │   ├── AutoBuySystem.js        # Aeon Automaton: auto-purchases phase 1 upgrades
+│   │   ├── FusionEngine.js         # H→He (main sequence), He→C/O (red giant), Fe burst
+│   │   ├── MoleculeEngine.js       # Passive molecule synthesis (H₂O, CO₂, CH₄, Fe₂O₃)
+│   │   ├── ProtonSynthesisEngine.js # Quark → proton/neutron/electron conversion
+│   │   ├── PrestigeSystem.js       # Aeons, Epoch Echoes, prestige upgrade tree
+│   │   ├── QuarkEngine.js          # Quark allocation state and colour blending
+│   │   └── SubatomicEngine.js      # Subatomic particle counts, orbital mode switch
+│   │
+│   ├── renderer/           # Canvas drawing (no game logic)
+│   │   ├── CanvasRenderer.js       # Master renderer — orchestrates all visual layers
+│   │   ├── Camera.js               # World-to-screen transform, pan
+│   │   ├── ParticleSystem.js       # Ambient void mote physics + drawing
+│   │   ├── OrbitalEnergyDisplay.js # Orbiting motes around player (7-tier energy display)
+│   │   ├── RegionManager.js        # Canvas region activation and fade-in
+│   │   ├── SpriteManager.js        # Pixel sprite definitions and drawing
+│   │   ├── FloatingNumbers.js      # Animated +N values on absorption
+│   │   ├── Minimap.js              # Inset minimap (shows player + DM nodes)
+│   │   └── EpochCollapseAnimation.js # Epoch Collapse cinematic
+│   │
+│   ├── ui/                 # DOM panels and overlays
+│   │   ├── ResourcePanel.js        # Left panel — resource list with rates
+│   │   ├── UpgradePanel.js         # Upgrade shop cards
+│   │   ├── StatsPanel.js           # Stats panel (rates, counts, efficiencies)
+│   │   ├── ChroniclePanel.js       # Scrolling milestone history log
+│   │   ├── PrestigePanel.js        # Prestige upgrade tree overlay
+│   │   ├── QuarkPanel.js           # Quark allocation sliders
+│   │   ├── ParticleForgePanel.js   # Proton/neutron/electron synthesis controls
+│   │   ├── FusionLabPanel.js       # Stellar fusion status and controls
+│   │   ├── ResidualBonusPanel.js   # Legacy / cosmic echo display
+│   │   ├── GoalWidget.js           # "Next Goal" progress bar widget
+│   │   ├── MilestoneNotification.js # Slide-in toast on milestone trigger
+│   │   ├── SettingsPanel.js        # Settings modal (notation, save, export)
+│   │   ├── OfflineProgress.js      # Offline gains modal on load
+│   │   ├── NarrativePanel.js       # Epoch Collapse story text overlay
+│   │   ├── EpochTransitionOverlay.js # Full-screen epoch transition
+│   │   ├── MobileTabBar.js         # Bottom tab bar for mobile
+│   │   └── FeedbackPanel.js        # Bug report / feedback form
+│   │
+│   └── data/               # All game content (balance data, no logic)
+│       ├── epoch1.js           # Resources, upgrades, milestones for Epoch 1
+│       └── epoch1-canvas.js    # Canvas region configs, world layout, sprite defs
+│
+├── tests/
+│   ├── helpers/
+│   │   └── game-helpers.js     # setupGame() and convenience wrappers for tests
+│   ├── unit/                   # Unit tests (run with npm run test:unit)
+│   ├── e2e/                    # End-to-end tests
+│   └── ui/                     # UI tests (desktop, tablet, phone viewports)
+│
+├── scripts/
+│   ├── syntax-check.js         # Walks js/ and runs node --check on every .js file
+│   ├── build-wiki.js           # Converts WIKI.md → wiki.html
+│   ├── build-tutorial.js       # Converts TUTORIAL.md → tutorial.html
+│   └── lib/
+│       └── md-to-html.js       # Shared Markdown → HTML converter used by both builders
+│
+├── .github/
+│   ├── copilot-instructions.md # AI coding assistant instructions
+│   └── workflows/
+│       ├── unit-tests.yml          # Runs on PRs to master
+│       ├── deploy-to-pages.yml     # Deploys master to production GitHub Pages
+│       └── deploy-beta-to-pages.yml # Deploys beta branch to beta Pages
+│
+├── WIKI.md                 # Player-facing game mechanics reference
+├── TUTORIAL.md             # This file — developer guide
+├── CHANGELOG.md            # Notable changes per commit
+├── IMPLEMENTATION_PLAN.md  # High-level roadmap
+├── playwright.config.js    # Test runner configuration
+└── package.json            # devDependencies (Playwright only)</code></pre>
+<hr>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<h3 id="technology-stack">Technology Stack</h3>
+<div class="table-wrapper"><table>
+<thead><tr><th>Concern</th><th>Choice</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td>Language</td><td>Vanilla JS (ES2022)</td><td>No transpilation; direct browser execution</td></tr>
+<tr><td>Modules</td><td>ES native <code>import</code>/<code>export</code></td><td>Browser-native, no bundler needed</td></tr>
+<tr><td>Styling</td><td>CSS3 with custom properties</td><td>Theming and responsive layout without preprocessors</td></tr>
+<tr><td>Canvas</td><td>HTML5 Canvas 2D API</td><td>Particle system, orbital display, DM waves</td></tr>
+<tr><td>Persistence</td><td><code>localStorage</code></td><td>Zero backend; works offline</td></tr>
+<tr><td>Testing</td><td>Playwright</td><td>In-browser unit tests via real Chromium</td></tr>
+<tr><td>CI/CD</td><td>GitHub Actions</td><td>Free for public repos; direct Pages deployment</td></tr>
+<tr><td>External deps</td><td><strong>None</strong></td><td>Simpler, smaller, always works</td></tr>
+</tbody></table></div>
+<h3 id="layered-design">Layered Design</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│  index.html  +  style.css          (presentation skeleton)  │
+├─────────────────────────────────────────────────────────────┤
+│  js/ui/       DOM panels, overlays                          │
+│               Listen to EventBus; never call engine direct  │
+├─────────────────────────────────────────────────────────────┤
+│  js/renderer/ Canvas drawing                                │
+│               Reads engine state; emits no events           │
+├─────────────────────────────────────────────────────────────┤
+│  js/engine/   Game logic (pure state machines)              │
+│               Emits events via EventBus; no DOM access      │
+├─────────────────────────────────────────────────────────────┤
+│  js/data/     Content (resources, upgrades, milestones)     │
+│               Plain JS objects — no imports, no logic       │
+├─────────────────────────────────────────────────────────────┤
+│  js/core/     Infrastructure (EventBus, GameLoop, Save…)    │
+│               Imported by all layers; depends on nothing    │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+<p><strong>The golden rule:</strong> data flows <em>downward</em> through the layers. UI listens to EventBus events emitted by engines. Engines never touch the DOM. The data layer contains only plain objects.</p>
+<h3 id="html-foundation">HTML Foundation</h3>
+<p><code>index.html</code> has two visual layers stacked with CSS:</p>
+<pre><code class="language-html">&lt;div id="game-container"&gt;
+
+  &lt;!-- Layer 1: canvas — game world --&gt;
+  &lt;div id="canvas-wrapper"&gt;
+    &lt;canvas id="main-canvas"&gt;&lt;/canvas&gt;   &lt;!-- game world, particles, player --&gt;
+    &lt;canvas id="glow-canvas"&gt;&lt;/canvas&gt;   &lt;!-- separate bloom/glow pass --&gt;
+    &lt;div id="prestige-prompt"&gt;...&lt;/div&gt;  &lt;!-- "Void Saturated" CTA overlay --&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Layer 2: UI panels — HTML overlaid on top --&gt;
+  &lt;div id="ui-layer"&gt;
+    &lt;div id="stats-panel"&gt;...&lt;/div&gt;
+    &lt;div id="resource-panel"&gt;...&lt;/div&gt;
+    &lt;div id="upgrade-panel"&gt;...&lt;/div&gt;
+    ...
+  &lt;/div&gt;
+
+  &lt;!-- Mobile tab bar --&gt;
+  &lt;nav id="mobile-tab-bar"&gt;...&lt;/nav&gt;
+
+  &lt;!-- Toolbar buttons (desktop) --&gt;
+  &lt;div id="toolbar"&gt;...&lt;/div&gt;
+
+  &lt;!-- Full-screen overlays (prestige, settings, feedback) --&gt;
+  &lt;div id="prestige-overlay"&gt;...&lt;/div&gt;
+  &lt;div id="settings-modal"&gt;...&lt;/div&gt;
+  ...
+
+&lt;/div&gt;
+&lt;script type="module" src="js/main.js?v=6"&gt;&lt;/script&gt;</code></pre>
+<p>The <code>&lt;script type="module"&gt;</code> attribute is what enables ES module <code>import</code>/<code>export</code> syntax in the browser. All system wiring happens inside <code>js/main.js</code>.</p>
+<hr>
+<h2 id="core-systems">Core Systems</h2>
+<h3 id="eventbus">EventBus</h3>
+<p><strong>File:</strong> <code>js/core/EventBus.js</code></p>
+<p>The EventBus is the primary communication channel between systems. It is a synchronous pub/sub singleton — listeners fire immediately in registration order when an event is emitted.</p>
+<pre><code class="language-js">// Subscribe
+EventBus.on('resource:updated', ({ resourceId, newValue, delta }) =&gt; {
+  console.log(`${resourceId} is now ${newValue}`);
+});
+
+// Publish
+EventBus.emit('resource:updated', {
+  resourceId: 'energy',
+  newValue: 42,
+  delta: 1,
+  ratePerSec: 5,
+});
+
+// Unsubscribe
+EventBus.off('resource:updated', myCallback);</code></pre>
+<p><strong>Key events used across the codebase:</strong></p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Event</th><th>Emitter</th><th>Payload</th></tr></thead>
+<tbody>
+<tr><td><code>resource:updated</code></td><td>ResourceManager</td><td><code>{ resourceId, newValue, delta, ratePerSec }</code></td></tr>
+<tr><td><code>upgrade:purchased</code></td><td>UpgradeSystem</td><td><code>{ upgradeId, level, definition }</code></td></tr>
+<tr><td><code>upgrade:affordable</code></td><td>UpgradeSystem</td><td><code>{ upgradeId, canAfford }</code></td></tr>
+<tr><td><code>milestone:triggered</code></td><td>MilestoneSystem</td><td><code>{ milestoneId, definition }</code></td></tr>
+<tr><td><code>particle:absorbed</code></td><td>CanvasRenderer</td><td><code>{ quality, x, y }</code></td></tr>
+<tr><td><code>prestige:execute</code></td><td>PrestigeSystem</td><td><code>{ count, aeonsEarned, aeonTotal, peakEnergy }</code></td></tr>
+<tr><td><code>prestige:purgatory:enter</code></td><td>PrestigePanel</td><td>—</td></tr>
+<tr><td><code>prestige:purgatory:exit</code></td><td>PrestigePanel</td><td>—</td></tr>
+<tr><td><code>collapse:start</code></td><td>main.js</td><td>—</td></tr>
+<tr><td><code>collapse:complete</code></td><td>main.js</td><td>—</td></tr>
+<tr><td><code>quarks:colorChanged</code></td><td>QuarkEngine</td><td><code>{ color }</code></td></tr>
+<tr><td><code>dm:nodeCollected</code></td><td>DarkMatterSystem</td><td><code>{ x, y, value }</code></td></tr>
+</tbody></table></div>
+<blockquote>
+<p><strong>Never bypass the EventBus.</strong> If system A needs to trigger behaviour in system B, it emits an event. System B subscribes. This prevents circular imports and tight coupling.</p>
+</blockquote>
+<h3 id="gameloop">GameLoop</h3>
+<p><strong>File:</strong> <code>js/core/GameLoop.js</code></p>
+<p>The GameLoop runs via <code>requestAnimationFrame</code> and provides two callback registrations:</p>
+<ul>
+<li><strong><code>onTick(cb)</code></strong> — fires at a fixed rate (default <strong>20 Hz / 50 ms</strong>). Used for game logic: resource generation, milestone checks, particle physics. Receives <code>dt</code> in seconds.</li>
+<li><strong><code>onFrame(cb)</code></strong> — fires at full rAF rate (typically 60 fps). Used for canvas rendering. Receives a <code>DOMHighResTimeStamp</code>.</li>
+</ul>
+<p>The tick accumulator pattern decouples simulation rate from render rate:</p>
+<pre><code class="language-js">// Internal loop (simplified):
+accumulator += wallDelta;
+while (accumulator &gt;= tickInterval) {
+  accumulator -= tickInterval;
+  const adjustedDt = tickInterval * (window.AEONS_SPEED_MULT ?? 1);
+  for (const cb of tickCallbacks) cb(adjustedDt);
+}</code></pre>
+<p><code>AEONS_SPEED_MULT</code> is the dev speed multiplier (1×/10×/100×/1000×). Setting it affects only the <code>adjustedDt</code> passed to tick callbacks, so all game logic sees the multiplied time but real-world elapsed time is unchanged.</p>
+<pre><code class="language-js">// To register callbacks (done once in main.js):
+GameLoop.onTick((dt) =&gt; resourceManager.tick(dt));
+GameLoop.onFrame((timestamp) =&gt; canvasRenderer.onFrame(timestamp));
+GameLoop.start();</code></pre>
+<h3 id="resourcemanager">ResourceManager</h3>
+<p><strong>File:</strong> <code>js/engine/ResourceManager.js</code></p>
+<p>Owns all resource state. A resource has a <strong>definition</strong> (from epoch1.js, static) and a <strong>state</strong> (live, mutated each tick).</p>
+<p><strong>Resource state object:</strong></p>
+<pre><code class="language-js">{
+  id: 'energy',
+  currentValue: 0,          // current amount
+  passiveRatePerSec: 5,     // passive generation per second
+  cap: 500,                 // soft cap (currentValue won't exceed this)
+  displayLabel: 'Energy',
+  visible: true,
+  derived: false,           // true = calculated from other resources, not generated
+}</code></pre>
+<p><strong>Key methods:</strong></p>
+<pre><code class="language-js">resourceManager.get('energy')          // → resource state object
+resourceManager.add('energy', 10)      // add amount (respects cap)
+resourceManager.set('energy', 0)       // force-set (used for reset)
+resourceManager.getAll()               // → array of all resource states
+resourceManager.tick(dt)               // advances passive generation
+resourceManager.recalculateRates()     // re-reads all upgrade effects
+resourceManager.applyCapBonus('energy', 500)   // add persistent cap bonus</code></pre>
+<p><strong>Rate calculation</strong> happens in <code>recalculateRates()</code>. It queries <code>upgradeSystem.getPurchasedEffects()</code> and applies each effect according to its <code>effectType</code>:</p>
+<ul>
+<li><code>rateMultiplier</code> — multiplies the passive rate</li>
+<li><code>absorptionMultiplier</code> — applied per-mote when a particle is absorbed</li>
+<li><code>capMultiplier</code> — multiplies the resource cap</li>
+</ul>
+<h3 id="upgradesystem">UpgradeSystem</h3>
+<p><strong>File:</strong> <code>js/engine/UpgradeSystem.js</code></p>
+<p>Manages the upgrade shop: definitions, purchase logic, prerequisite validation, cost scaling.</p>
+<p><strong>Upgrade definition (from epoch1.js):</strong></p>
+<pre><code class="language-js">{
+  id: 'upg_gravitationalPull',
+  name: 'Electromagnetic Bond',
+  baseCost: 10,              // cost of level 1
+  costResource: 'energy',   // which resource is spent
+  maxLevel: 10,             // how many times purchasable
+  costScaling: 3.0,         // multiplier per level (exponential)
+  hardScalingStart: 5,      // level at which steeper scaling kicks in
+  hardScaling: 5.0,         // multiplier for levels &gt; hardScalingStart
+  prerequisites: ['upg_cosmicDrift'],   // must be purchased first
+  requiresMilestone: null,  // optional milestone gate
+  effectType: 'unlock',
+  effectTarget: 'attraction',
+  effectMagnitude: 1,
+}</code></pre>
+<p><strong>Cost formula:</strong></p>
+<pre><code>cost(level) = baseCost × costScaling^(level - 1)   // levels 1..hardScalingStart
+cost(level) = cost(hardScalingStart) × hardScaling^(level - hardScalingStart)  // above threshold</code></pre>
+<p><strong>Key methods:</strong></p>
+<pre><code class="language-js">upgradeSystem.canPurchase('upg_gravitationalPull')   // → boolean
+upgradeSystem.getLockReason('upg_gravitationalPull') // → string or null
+upgradeSystem.purchase('upg_gravitationalPull')      // → boolean (success)
+upgradeSystem.getCost('upg_gravitationalPull')        // → number
+upgradeSystem.getLevel('upg_gravitationalPull')       // → 0..maxLevel
+upgradeSystem.forceLevel('upg_cosmicDrift', 1)        // bypass cost check (used post-prestige)</code></pre>
+<p>When purchased, the upgrade emits <code>upgrade:purchased</code> on the EventBus. All systems that care about an upgrade's effect subscribe to this event.</p>
+<h3 id="milestonesystem">MilestoneSystem</h3>
+<p><strong>File:</strong> <code>js/engine/MilestoneSystem.js</code></p>
+<p>Milestones are one-shot events that fire when a condition is met. They drive the narrative, unlock UI elements, and apply rewards.</p>
+<p><strong>Milestone definition (from epoch1.js):</strong></p>
+<pre><code class="language-js">{
+  id: 'ms_gasCloud',
+  title: 'The Gas Cloud Stirs',
+  flavourText: 'Dust and debris coalesce...',
+  conditionType: 'resource_threshold',
+  conditionTarget: 'mass',
+  conditionValue: 100,
+  reward: { type: 'unlockResource', target: 'darkMatter' },
+}</code></pre>
+<p><code>MilestoneSystem.check()</code> is called every tick. It evaluates each un-triggered milestone and fires if its condition is met. When triggered, it emits <code>milestone:triggered</code> on the EventBus, which the MilestoneNotification UI catches to show a toast.</p>
+<h3 id="savesystem">SaveSystem</h3>
+<p><strong>File:</strong> <code>js/core/SaveSystem.js</code></p>
+<p>Persists all game state to <code>localStorage</code> under the key <code>aeons_save_v1</code>. Auto-saves every 60 seconds.</p>
+<p><strong>Save payload structure:</strong></p>
+<pre><code class="language-js">{
+  schemaVersion: 3,          // used by SaveMigrator for backward compatibility
+  savedAt: Date.now(),
+  gameState: { ... },        // aeonCount, prestigeCount, collapsedOnce, …
+  resourceStates: { ... },   // currentValue, passiveRatePerSec, cap per resource
+  upgradeStates: { ... },    // purchased, level per upgrade
+  milestoneStates: { ... },  // triggered per milestone
+  quarkState: { ... },       // allocation percentages
+  prestigeState: { ... },    // banked aeons, purchased prestige upgrades
+  ...
+}</code></pre>
+<p><strong>Save encoding:</strong> Uses <code>TextEncoder</code>/<code>TextDecoder</code> → <code>btoa</code> for UTF-8-safe Base64. This handles Unicode chars in resource labels (e.g. H₂O).</p>
+<p><strong>Migrations</strong> (<code>SaveMigrator.js</code>): when a save is loaded with an older <code>schemaVersion</code>, migration functions update it to the current schema before use. Always increment <code>CURRENT_VERSION</code> and add a migration function when adding new save fields.</p>
+<pre><code class="language-js">// Pattern for a new save field:
+// In SaveMigrator.js:
+4: (data) =&gt; {
+  if (!data.myNewField) data.myNewField = defaultValue;
+  return data;
+}</code></pre>
+<hr>
+<h2 id="data-layer-epoch1js">Data Layer: epoch1.js</h2>
+<p><strong>File:</strong> <code>js/data/epoch1.js</code></p>
+<p>This is the <strong>single source of truth</strong> for all Epoch 1 game content. It exports three arrays: <code>resources</code>, <code>upgrades</code> (grouped), and <code>milestones</code>. The engine files contain <em>no</em> hard-coded balance values — everything comes from here.</p>
+<h3 id="resource-definitions">Resource Definitions</h3>
+<pre><code class="language-js">{
+  id: 'energy',
+  displayLabel: 'Energy',
+  epochId: 'epoch1',
+  initialValue: 0,
+  initialRate: 0,
+  cap: 500,            // starting soft cap
+  absoluteCap: 10000000, // highest possible cap (for prestige prompt)
+  unit: '',
+  description: 'Raw quantum energy',
+  visible: true,
+  derived: false,      // false = passively generated; true = computed from others
+}</code></pre>
+<h3 id="upgrade-definitions">Upgrade Definitions</h3>
+<pre><code class="language-js">{
+  id: 'upg_moteGeneration',
+  epochId: 'epoch1',
+  name: 'Mote Genesis',
+  description: 'Amplifies ambient mote spawn rate.',
+  category: 'tier1',
+  baseCost: 5,
+  costResource: 'energy',
+  maxLevel: 10,
+  costScaling: 2.0,
+  tier: 1,
+  prerequisites: ['upg_gravitationalPull'],
+  effectType: 'spawnRate',     // handled in main.js upgrade:purchased listener
+  effectTarget: 'void',
+  effectMagnitude: 2.0,        // ×2.0 spawn rate per level
+  requiresMilestone: null,
+  mechanic: '⚙ ×2.0 spawn rate per level',
+}</code></pre>
+<p><strong>Effect types used in the codebase:</strong></p>
+<div class="table-wrapper"><table>
+<thead><tr><th>effectType</th><th>Handler location</th><th>What it does</th></tr></thead>
+<tbody>
+<tr><td><code>unlock</code></td><td>MoteController / PrestigeSystem</td><td>Enables a feature</td></tr>
+<tr><td><code>absorptionMultiplier</code></td><td>ResourceManager.recalculateRates</td><td>×N energy per absorbed mote</td></tr>
+<tr><td><code>rateMultiplier</code></td><td>ResourceManager.recalculateRates</td><td>×N passive rate</td></tr>
+<tr><td><code>spawnRate</code></td><td>main.js upgrade:purchased listener</td><td>Adjusts mote spawn rate</td></tr>
+<tr><td><code>capMultiplier</code></td><td>ResourceManager.recalculateRates</td><td>×N resource cap</td></tr>
+<tr><td><code>attractionRadius</code></td><td>CanvasRenderer via EventBus</td><td>Grows particle attraction zone</td></tr>
+</tbody></table></div>
+<h3 id="milestone-definitions">Milestone Definitions</h3>
+<pre><code class="language-js">{
+  id: 'ms_firstAtom',
+  epochId: 'epoch1',
+  title: 'First Hydrogen Atom',
+  flavourText: 'A proton captures an electron...',
+  conditionType: 'resource_threshold',
+  conditionTarget: 'hydrogen',
+  conditionValue: 1,
+  reward: { type: 'unlockResource', target: 'hydrogen' },
+  isEpochTransitionTrigger: false,
+}</code></pre>
+<p><strong>Condition types:</strong></p>
+<div class="table-wrapper"><table>
+<thead><tr><th>conditionType</th><th>Checks</th></tr></thead>
+<tbody>
+<tr><td><code>resource_threshold</code></td><td><code>resource.currentValue &gt;= conditionValue</code></td></tr>
+<tr><td><code>upgrade_purchased</code></td><td>upgrade level &gt; 0</td></tr>
+<tr><td><code>game_state</code></td><td>arbitrary predicate evaluated in MilestoneSystem</td></tr>
+<tr><td><code>star_cycle</code></td><td>star has completed N cycles</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="rendering">Rendering</h2>
+<h3 id="canvasrenderer">CanvasRenderer</h3>
+<p><strong>File:</strong> <code>js/renderer/CanvasRenderer.js</code></p>
+<p>The master renderer orchestrates all visual layers. It registers an <code>onFrame</code> callback with the GameLoop and draws everything each animation frame.</p>
+<p><strong>Draw order each frame:</strong></p>
+<ol>
+<li>Clear both canvases</li>
+<li>Draw space dust background (parallax)</li>
+<li>Draw region backgrounds (void gradient)</li>
+<li>Draw dark matter node halos</li>
+<li>Draw DM gravity waves</li>
+<li>Draw ambient particles (ParticleSystem)</li>
+<li>Draw dark matter nodes</li>
+<li>Draw the player "home object" (player character + attraction rings + orbital motes)</li>
+<li>Draw DM reflected ripples</li>
+<li>Draw floating numbers (+energy values)</li>
+<li>Draw minimap (inset, top-right)</li>
+<li>Draw glow pass (bloom canvas)</li>
+<li>Draw dev speed indicator (if active)</li>
+</ol>
+<p><strong>The player character</strong> is drawn at the camera centre (world coordinates <code>moteController.worldX/Y</code>). The orbital energy motes orbit around this same point.</p>
+<h3 id="camera">Camera</h3>
+<p><strong>File:</strong> <code>js/renderer/Camera.js</code></p>
+<p>A simple 2D pan-only camera. The game world is flat (no zoom).</p>
+<pre><code class="language-js">// World to screen:
+const { sx, sy } = camera.worldToScreen(worldX, worldY);
+// sx = worldX - camera.x   (no scaling)
+// sy = worldY - camera.y</code></pre>
+<p>The camera follows the player: <code>camera.x = moteController.worldX - canvas.width/2</code>.</p>
+<h3 id="particlesystem">ParticleSystem</h3>
+<p><strong>File:</strong> <code>js/renderer/ParticleSystem.js</code></p>
+<p>Manages up to ~250 ambient void motes. Each particle has position, velocity, quality level (0–4), and a lifetime. Particles outside the attraction zone wander randomly; inside, they decelerate toward the player following a <strong>quartic speed falloff</strong> (<code>t^4</code> where <code>t = 1 - dist/radius</code>), creating a natural fast-inner / slow-outer effect.</p>
+<p>When a particle reaches the player (within contact radius ~10 px), it emits <code>particle:absorbed</code> and is removed. <code>main.js</code> handles this event and adds energy.</p>
+<h3 id="orbitalenergydisplay">OrbitalEnergyDisplay</h3>
+<p><strong>File:</strong> <code>js/renderer/OrbitalEnergyDisplay.js</code></p>
+<p>Draws the 7-tier orbital mote ring around the player. Each tier corresponds to a power of 10 in current energy. Motes per tier = the leading decimal digit at that order of magnitude (1–9).</p>
+<p><strong>Insertion</strong> of new motes uses a <strong>largest-gap algorithm</strong> — new motes are placed at the midpoint of the biggest angular gap in the existing ring, so the animation never restarts.</p>
+<p><strong>Speed values</strong> (radians/second):</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Tier</th><th>Threshold</th><th>Speed</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>1</td><td>4.0</td></tr>
+<tr><td>1</td><td>10</td><td>3.0</td></tr>
+<tr><td>2</td><td>100</td><td>2.2</td></tr>
+<tr><td>3</td><td>1,000</td><td>1.6</td></tr>
+<tr><td>4</td><td>10,000</td><td>1.1</td></tr>
+<tr><td>5</td><td>100,000</td><td>0.7</td></tr>
+<tr><td>6</td><td>1,000,000</td><td>0.44</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="game-engines">Game Engines</h2>
+<h3 id="darkmattersystem">DarkMatterSystem</h3>
+<p><strong>File:</strong> <code>js/engine/DarkMatterSystem.js</code></p>
+<p>Unlocked at milestone <code>ms_gasCloud</code>. Spawns invisible DM nodes at random void positions. Each node pulses gravity waves (expanding circles at 360 px/s, sized to just reach the player). When a wave front hits the player, a <strong>reflected ripple</strong> travels back toward the node in a 60° cone.</p>
+<p>Player collects a node by physically moving within the <strong>collection radius</strong> (default 60 px, increased by <code>prs_dmSiphon</code> prestige upgrade).</p>
+<h3 id="prestigesystem">PrestigeSystem</h3>
+<p><strong>File:</strong> <code>js/engine/PrestigeSystem.js</code></p>
+<p>Manages two prestige currencies:</p>
+<ul>
+<li><strong>Aeons</strong> — earned on each prestige, scales with peak energy. Used for meta-upgrades (rate bonuses, cap expansion, automation).</li>
+<li><strong>Epoch Echoes</strong> — awarded by Epoch Collapses. Used for quark and subatomic upgrades.</li>
+</ul>
+<p><strong>Prestige flow:</strong></p>
+<pre><code>Player clicks "Ascend to the Void"
+  → PrestigePanel.executePrestige() emits prestige:execute
+    → main.js stores pendingPrestigeData
+  → PrestigePanel emits prestige:purgatory:enter
+    → main.js resets all run systems, reloads epoch
+    → PrestigeSystem.applyRunBonuses() grants free upgrades, seed energy, movement unlock
+  → Player closes prestige menu
+    → PrestigePanel emits prestige:purgatory:exit
+      → main.js unblocks input, starts new run</code></pre>
+<p>The <strong>purgatory state</strong> (<code>gameState.prestigePurgatory = true</code>) keeps the game reset but doesn't start the new run until the player closes the prestige menu. This allows the player to spend Aeons before committing to the next run.</p>
+<h3 id="fusionengine">FusionEngine</h3>
+<p><strong>File:</strong> <code>js/engine/FusionEngine.js</code></p>
+<p>Runs hydrogen-to-helium fusion in active stars:</p>
+<ul>
+<li><strong>Main sequence</strong> (H → He): runs when a star is in <code>main_sequence</code> stage</li>
+<li><strong>Red giant</strong> (He → C/O): runs when a star reaches <code>red_giant</code> stage</li>
+<li><strong>Supernova</strong> (Fe burst): runs when a star collapses</li>
+</ul>
+<p>FusionEngine is ticked by the GameLoop and checks upgrade levels to scale reaction rates.</p>
+<h3 id="quarkengine">QuarkEngine</h3>
+<p><strong>File:</strong> <code>js/engine/QuarkEngine.js</code></p>
+<p>After the first Epoch Collapse, the player allocates 100% of "quark charge" across six flavours. Each flavour gives a passive multiplier. QuarkEngine computes a blended colour from allocations and emits <code>quarks:colorChanged</code> so the orbital display updates mote colours.</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Quark</th><th>Colour</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td>Up</td><td><code>#ff6666</code></td><td>+% energy absorption rate</td></tr>
+<tr><td>Down</td><td><code>#6666ff</code></td><td>+% mote spawn rate</td></tr>
+<tr><td>Strange</td><td><code>#66ff66</code></td><td>+% dark matter collection</td></tr>
+<tr><td>Charm</td><td><code>#ffcc44</code></td><td>+% fusion rate</td></tr>
+<tr><td>Bottom</td><td><code>#cc44ff</code></td><td>+% molecule synthesis</td></tr>
+<tr><td>Top</td><td><code>#ffd700</code></td><td>+% EM Bond attraction radius</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="ui-panels">UI Panels</h2>
+<p>Each UI panel is a class that:</p>
+<ol>
+<li>Takes a reference to <code>EventBus</code> (and sometimes engine instances) in its constructor</li>
+<li>Has an <code>init()</code> method that queries DOM elements and subscribes to relevant EventBus events</li>
+<li>Renders itself by updating DOM when it receives events</li>
+</ol>
+<p><strong>Anatomy of a typical panel:</strong></p>
+<pre><code class="language-js">export class ResourcePanel {
+  #eventBus;
+  #resourceManager;
+  #listEl;
+
+  constructor(EventBus) {
+    this.#eventBus = EventBus;
+  }
+
+  setResourceManager(rm) {
+    this.#resourceManager = rm;
+  }
+
+  init() {
+    this.#listEl = document.getElementById('resource-list');
+
+    // Subscribe to resource updates — re-render on every change
+    this.#eventBus.on('resource:updated', ({ resourceId }) =&gt; {
+      this.#renderResource(resourceId);
+    });
+  }
+
+  #renderResource(id) {
+    const state = this.#resourceManager.get(id);
+    // ... update DOM ...
+  }
+}</code></pre>
+<p><strong>Key rule:</strong> UI panels must never call engine methods directly to modify game state. They should only <em>read</em> state (via engine getters) and <em>listen</em> to events.</p>
+<hr>
+<h2 id="testing">Testing</h2>
+<h3 id="overview">Overview</h3>
+<p>Tests use <strong>Playwright</strong> running against a real Chromium browser. The game serves on <code>http://localhost:8080</code> (via <code>python -m http.server 8080</code>, managed automatically by <code>playwright.config.js</code>).</p>
+<p>Tests are split into three projects:</p>
+<ul>
+<li><strong>unit</strong> — in <code>tests/unit/</code> — test individual systems in isolation</li>
+<li><strong>e2e</strong> — in <code>tests/e2e/</code> — full game flow scenarios</li>
+<li><strong>ui</strong> — in <code>tests/ui/</code> — layout and interaction on desktop/tablet/phone viewports</li>
+</ul>
+<h3 id="running-tests">Running Tests</h3>
+<pre><code class="language-bash"># All unit tests only (fast, ~20s)
+npm run test:unit
+
+# All tests (slow — includes e2e and UI tests across 3 viewports)
+npm test
+
+# Syntax check only (instant)
+npm run lint</code></pre>
+<blockquote>
+<p><strong>Local tip:</strong> avoid running <code>npm test</code> (full suite) locally — it is slow. Run <code>npm run test:unit</code> and <code>npm run lint</code> instead. The full suite runs automatically on GitHub Actions for PRs to <code>master</code>.</p>
+</blockquote>
+<h3 id="the-windowaeons-global">The <code>window.aeons</code> Global</h3>
+<p>In test mode (<code>window.AEONS_DEBUG = true</code>), <code>main.js</code> exposes all system instances on <code>window.aeons</code>:</p>
+<pre><code class="language-js">window.aeons = {
+  resourceManager, upgradeSystem, milestoneSystem,
+  starManager, epochSystem, saveSystem, moteController,
+  darkMatterSystem, canvasRenderer, fusionEngine,
+  moleculeEngine, protonSynthesisEngine, prestigeSystem,
+  quarkEngine, subatomicEngine, eventBus, gameState,
+};</code></pre>
+<h3 id="game-helpers-api">Game Helpers API</h3>
+<p><strong>File:</strong> <code>tests/helpers/game-helpers.js</code></p>
+<p>Every test starts with:</p>
+<pre><code class="language-js">import { test, expect } from '@playwright/test';
+import { setupGame } from '../helpers/game-helpers.js';
+
+test.describe('My Feature', () =&gt; {
+  let g;
+
+  test.beforeEach(async ({ page }) =&gt; {
+    g = await setupGame(page);
+    // setupGame: clears localStorage, sets AEONS_DEBUG=true, loads the page,
+    // waits for window.aeons to be available
+  });
+
+  test('energy starts at zero', async () =&gt; {
+    const energy = await g.getResource('energy');
+    expect(energy.value).toBe(0);
+  });
+});</code></pre>
+<p><strong>Available helpers:</strong></p>
+<pre><code class="language-js">g.getResource('energy')             // → { value, rate, cap, visible }
+g.setResource('energy', 999)        // force-set a value
+g.purchaseUpgrade('upg_cosmicDrift') // → { success, reason? }
+g.getUpgrade('upg_cosmicDrift')      // → { level, canPurchase, cost, ... }
+g.triggerMilestone('ms_gasCloud')    // force-trigger a milestone
+g.getMilestone('ms_gasCloud')        // → milestone state
+g.runTicks(100, 0.05)                // run 100 ticks at dt=0.05s
+g.simulateSeconds(30)               // run 30 seconds of ticks
+g.getGameState()                     // → gameState object
+g.exportSave() / g.importSave(str)  // save round-trip testing</code></pre>
+<h3 id="writing-a-unit-test">Writing a Unit Test</h3>
+<pre><code class="language-js">// tests/unit/my-feature.test.js
+import { test, expect } from '@playwright/test';
+import { setupGame } from '../helpers/game-helpers.js';
+
+test.describe('Electromagnetic Bond', () =&gt; {
+  let g;
+
+  test.beforeEach(async ({ page }) =&gt; {
+    g = await setupGame(page);
+  });
+
+  test('unlocks attraction after purchase', async () =&gt; {
+    // Give enough energy to buy both prerequisites
+    await g.setResource('energy', 100);
+
+    // Buy Cosmic Drift first (prerequisite)
+    await g.purchaseUpgrade('upg_cosmicDrift');
+
+    // Buy EM Bond
+    const result = await g.purchaseUpgrade('upg_gravitationalPull');
+    expect(result.success).toBe(true);
+
+    // Verify the upgrade state
+    const upg = await g.getUpgrade('upg_gravitationalPull');
+    expect(upg.level).toBe(1);
+  });
+
+  test('costs scale exponentially', async () =&gt; {
+    await g.setResource('energy', 999999);
+    await g.purchaseUpgrade('upg_cosmicDrift');
+
+    const costs = [];
+    for (let i = 0; i &lt; 5; i++) {
+      const upg = await g.getUpgrade('upg_gravitationalPull');
+      costs.push(upg.cost);
+      await g.purchaseUpgrade('upg_gravitationalPull');
+    }
+
+    // Each cost should be ~3× the previous (costScaling: 3.0)
+    for (let i = 1; i &lt; costs.length; i++) {
+      expect(costs[i] / costs[i - 1]).toBeCloseTo(3.0, 0);
+    }
+  });
+});</code></pre>
+<hr>
+<h2 id="cicd-pipelines">CI/CD Pipelines</h2>
+<h3 id="unit-testsyml">unit-tests.yml</h3>
+<p>Runs on every <strong>pull request to <code>master</code></strong>:</p>
+<ol>
+<li>Syntax check (<code>node scripts/syntax-check.js</code>) — instant JS parse check</li>
+<li>Install Playwright browsers</li>
+<li>Run unit tests (<code>npm run test:unit</code>)</li>
+</ol>
+<p>PRs cannot merge if this fails.</p>
+<h3 id="deploy-to-pagesyml">deploy-to-pages.yml</h3>
+<p>Runs on every <strong>push to <code>master</code></strong> (when game files change):</p>
+<ol>
+<li>Generates <code>version.json</code> with the short git SHA and build timestamp</li>
+<li>Processes <code>index.html</code> — injects SHA cache-busters, WORKER_URL, public repo name</li>
+<li>Runs <code>build-wiki.js</code> → generates <code>wiki.html</code></li>
+<li>Runs <code>build-tutorial.js</code> → generates <code>tutorial.html</code></li>
+<li>Deploys everything to the public GitHub Pages repo</li>
+</ol>
+<p>The <code>tutorial.html</code> and <code>wiki.html</code> are always regenerated from their <code>.md</code> sources on each deploy, so they stay in sync with the game code.</p>
+<h3 id="deploy-beta-to-pagesyml">deploy-beta-to-pages.yml</h3>
+<p>Same as above but for the <strong><code>beta</code> branch</strong>, deploys to a separate beta Pages repo, adds a <code>[BETA sha]</code> banner to the page title and body.</p>
+<hr>
+<h2 id="how-to-guides">How To Guides</h2>
+<h3 id="add-a-new-resource">Add a New Resource</h3>
+<p><strong>Step 1 — Define it in <code>js/data/epoch1.js</code>:</strong></p>
+<pre><code class="language-js">// In the resources array:
+{
+  id: 'plasma',
+  displayLabel: 'Plasma',
+  epochId: 'epoch1',
+  initialValue: 0,
+  initialRate: 0,
+  cap: null,        // null = uncapped
+  unit: '',
+  description: 'Superheated ionised matter.',
+  visible: false,   // hidden until a milestone reveals it
+  derived: false,
+}</code></pre>
+<p><strong>Step 2 — Reveal it via a milestone reward:</strong></p>
+<pre><code class="language-js">// In the milestones array:
+{
+  id: 'ms_plasmaDiscovered',
+  conditionType: 'resource_threshold',
+  conditionTarget: 'energy',
+  conditionValue: 5000,
+  reward: { type: 'unlockResource', target: 'plasma' },
+  ...
+}</code></pre>
+<p><strong>Step 3 — Generate it somewhere.</strong> Either set <code>initialRate &gt; 0</code>, or add an upgrade that changes the rate, or generate it in an engine's <code>tick()</code> method:</p>
+<pre><code class="language-js">// Example: generate 0.1 plasma/sec when an upgrade is active
+resourceManager.add('plasma', 0.1 * dt);</code></pre>
+<p><strong>That's it.</strong> ResourceManager initialises all resources from the epoch config automatically. ResourcePanel renders all visible resources.</p>
+<hr>
+<h3 id="add-a-new-upgrade">Add a New Upgrade</h3>
+<p><strong>Step 1 — Add to <code>js/data/epoch1.js</code>:</strong></p>
+<pre><code class="language-js">// In tier1Upgrades (or whichever tier array):
+{
+  id: 'upg_plasmaIgnition',
+  epochId: 'epoch1',
+  name: 'Plasma Ignition',
+  description: 'Ionise absorbed motes into plasma.',
+  category: 'tier1',
+  baseCost: 1000,
+  costResource: 'energy',
+  maxLevel: 5,
+  costScaling: 4.0,
+  tier: 2,
+  prerequisites: ['upg_vacuumHarvesting'],
+  effectType: 'spawnRate',      // or a custom type you define
+  effectTarget: 'plasma',
+  effectMagnitude: 2.0,
+  requiresMilestone: 'ms_plasmaDiscovered',
+  mechanic: '⚙ ×2.0 plasma per level',
+}</code></pre>
+<p><strong>Step 2 — Handle the effect.</strong> If your <code>effectType</code> is already handled (e.g. <code>absorptionMultiplier</code> in <code>ResourceManager.recalculateRates()</code>), nothing else is needed. For a new effect type:</p>
+<pre><code class="language-js">// In main.js, inside the upgrade:purchased event listener:
+if (data.upgradeId === 'upg_plasmaIgnition') {
+  const level = upgradeSystem.getLevel('upg_plasmaIgnition') || 0;
+  // apply effect...
+}</code></pre>
+<p>Or add a handler in <code>ResourceManager.recalculateRates()</code> if it is a continuous rate effect:</p>
+<pre><code class="language-js">// In ResourceManager.recalculateRates():
+case 'plasmaMultiplier':
+  plasmaRate *= Math.pow(def.effectMagnitude, state.level);
+  break;</code></pre>
+<p><strong>Step 3 — Write a test</strong> (see <a href="#write-a-unit-test">Write a Unit Test</a>).</p>
+<hr>
+<h3 id="add-a-new-milestone">Add a New Milestone</h3>
+<p><strong>Step 1 — Add to <code>js/data/epoch1.js</code>:</strong></p>
+<pre><code class="language-js">{
+  id: 'ms_firstPlasma',
+  epochId: 'epoch1',
+  title: 'The Plasma Threshold',
+  flavourText: 'Matter reaches a new state of existence — charged particles stream free of their atomic bonds.',
+  conditionType: 'resource_threshold',
+  conditionTarget: 'plasma',
+  conditionValue: 1,
+  reward: { type: 'rateBonus', target: 'plasma', amount: 0.5 },
+  isEpochTransitionTrigger: false,
+}</code></pre>
+<p><strong>Step 2 — No code change needed</strong> for standard condition types. <code>MilestoneSystem.check()</code> evaluates all un-triggered milestones every tick.</p>
+<p><strong>Step 3 — If using a custom condition,</strong> add the evaluation in <code>MilestoneSystem.check()</code>:</p>
+<pre><code class="language-js">case 'plasma_threshold':
+  triggered = this.#resourceManager.get('plasma')?.currentValue &gt;= milestone.conditionValue;
+  break;</code></pre>
+<hr>
+<h3 id="add-a-new-ui-panel">Add a New UI Panel</h3>
+<p><strong>Step 1 — Add HTML to <code>index.html</code>:</strong></p>
+<pre><code class="language-html">&lt;!-- Inside #ui-layer --&gt;
+&lt;div id="plasma-panel" class="panel collapsible-panel hidden"&gt;
+  &lt;div id="plasma-panel-header" class="panel-header-collapsible"&gt;
+    &lt;h2 class="panel-title"&gt;🔥 Plasma&lt;/h2&gt;
+    &lt;span class="collapse-icon"&gt;▲&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div id="plasma-body" class="panel-body-collapsible"&gt;
+    &lt;div id="plasma-content"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+<p><strong>Step 2 — Create <code>js/ui/PlasmaPanel.js</code>:</strong></p>
+<pre><code class="language-js">export class PlasmaPanel {
+  #eventBus;
+  #contentEl;
+
+  constructor(EventBus) {
+    this.#eventBus = EventBus;
+  }
+
+  init() {
+    this.#contentEl = document.getElementById('plasma-content');
+
+    // Show/hide based on milestone
+    this.#eventBus.on('milestone:triggered', ({ milestoneId }) =&gt; {
+      if (milestoneId === 'ms_plasmaDiscovered') {
+        document.getElementById('plasma-panel').classList.remove('hidden');
+      }
+    });
+
+    // Re-render when plasma changes
+    this.#eventBus.on('resource:updated', ({ resourceId }) =&gt; {
+      if (resourceId === 'plasma') this.#render();
+    });
+  }
+
+  #render() {
+    this.#contentEl.textContent = '...';
+  }
+}</code></pre>
+<p><strong>Step 3 — Wire it in <code>js/main.js</code>:</strong></p>
+<pre><code class="language-js">import { PlasmaPanel } from './ui/PlasmaPanel.js';
+// ...
+const plasmaPanel = new PlasmaPanel(EventBus);
+// ... inside bootstrap():
+plasmaPanel.init();</code></pre>
+<hr>
+<h3 id="write-a-unit-test">Write a Unit Test</h3>
+<p>See the full <a href="#testing">Testing</a> section for the test structure. Quick checklist:</p>
+<ol>
+<li>Create <code>tests/unit/my-feature.test.js</code></li>
+<li>Import <code>setupGame</code> from <code>../helpers/game-helpers.js</code></li>
+<li>Call <code>setupGame(page)</code> in <code>beforeEach</code> to get a fresh game instance</li>
+<li>Use <code>g.setResource()</code> to set up preconditions without waiting for natural progression</li>
+<li>Assert expected outcomes with <code>expect()</code></li>
+<li>Run <code>npm run test:unit</code> to verify</li>
+</ol>
+<hr>
+<h2 id="developer-tools">Developer Tools</h2>
+<h3 id="speed-multiplier">Speed Multiplier</h3>
+<p>A dev speed multiplier is available from the Settings panel (⚙ → Developer):</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Setting</th><th><code>window.AEONS_SPEED_MULT</code></th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td>1× (normal)</td><td>1</td><td>Real time</td></tr>
+<tr><td>10×</td><td>10</td><td>10× faster ticks</td></tr>
+<tr><td>100×</td><td>100</td><td>100× faster ticks</td></tr>
+<tr><td>1000×</td><td>1000</td><td>1000× faster ticks</td></tr>
+</tbody></table></div>
+<p>This is implemented in <code>GameLoop.js</code> — the speed multiplier scales <code>dt</code> passed to tick callbacks, so resource generation, fusion, milestone checks, and DM wave timing all accelerate proportionally.</p>
+<h3 id="console-devtools-tricks">Console / DevTools Tricks</h3>
+<pre><code class="language-js">// Inspect all resource states
+window.aeons.resourceManager.getAll()
+
+// Add energy instantly
+window.aeons.resourceManager.add('energy', 99999)
+
+// Force a milestone
+window.aeons.milestoneSystem.forceTrigger('ms_gasCloud')
+
+// Force-purchase an upgrade (bypasses cost)
+window.aeons.upgradeSystem.forceLevel('upg_gravitationalPull', 10)
+
+// Inspect upgrade state
+window.aeons.upgradeSystem.getAll().map(e =&gt; ({
+  id: e.definition.id,
+  level: e.state.level,
+  cost: window.aeons.upgradeSystem.getCost(e.definition.id)
+}))
+
+// View raw save data
+JSON.parse(localStorage.getItem('aeons_save_v1'))
+
+// Clear save (fresh start on reload)
+localStorage.removeItem('aeons_save_v1')
+
+// Run at 200 Hz (10× faster)
+window.AEONS_SPEED_MULT = 10
+
+// Count particles
+window.aeons.canvasRenderer.particleSystem.getCount()
+
+// Inspect player position
+window.aeons.moteController.worldX
+window.aeons.moteController.worldY</code></pre>
+<p>All <code>console.debug()</code> calls use module-name prefixes (<code>[ResourceManager]</code>, <code>[MilestoneSystem]</code>, etc.). Filter by prefix in the DevTools console to reduce noise.</p>
+<hr>
+<h2 id="source-of-truth-boundaries">Source-of-Truth Boundaries</h2>
+<p>Understanding where things should live prevents confusion and prevents the same data from drifting across files.</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>What</th><th>Lives in</th><th>Not in</th></tr></thead>
+<tbody>
+<tr><td>Resource definitions (id, cap, label)</td><td><code>js/data/epoch1.js</code></td><td>Engine files</td></tr>
+<tr><td>Upgrade definitions (cost, effect, prereqs)</td><td><code>js/data/epoch1.js</code></td><td>Engine files</td></tr>
+<tr><td>Milestone conditions and rewards</td><td><code>js/data/epoch1.js</code></td><td>Engine files</td></tr>
+<tr><td>Canvas regions, world layout, spawn zones</td><td><code>js/data/epoch1-canvas.js</code></td><td>Renderer files</td></tr>
+<tr><td>Balance numbers (costs, rates, magnitudes)</td><td><code>js/data/epoch1.js</code></td><td>Anywhere else</td></tr>
+<tr><td>Infrastructure (EventBus, GameLoop, Save)</td><td><code>js/core/</code></td><td>UI or engine files</td></tr>
+<tr><td>Game logic, state machines</td><td><code>js/engine/</code></td><td>UI, renderer, or data files</td></tr>
+<tr><td>Canvas drawing</td><td><code>js/renderer/</code></td><td>Engine or UI files</td></tr>
+<tr><td>DOM manipulation</td><td><code>js/ui/</code></td><td>Engine or renderer files</td></tr>
+<tr><td>Game mechanics reference</td><td><code>WIKI.md</code></td><td>Code comments</td></tr>
+<tr><td>Developer guide</td><td><code>TUTORIAL.md</code></td><td>Code comments</td></tr>
+<tr><td>Notable changes</td><td><code>CHANGELOG.md</code></td><td>Other files</td></tr>
+</tbody></table></div>
+<hr>
+<h2 id="exporting-to-pdf">Exporting to PDF</h2>
+<p><code>tutorial.html</code> (generated from this file) includes <code>@media print</code> CSS rules that produce a clean, readable black-on-white PDF:</p>
+<ol>
+<li>Open <code>tutorial.html</code> in <strong>Chrome</strong> or <strong>Firefox</strong></li>
+<li>Press <strong>Ctrl+P</strong> (Windows/Linux) or <strong>⌘+P</strong> (Mac)</li>
+<li>Set <strong>Destination</strong> to <em>Save as PDF</em></li>
+<li>Set <strong>Margins</strong> to <em>Default</em></li>
+<li>Tick <strong>Background graphics</strong> OFF (the dark theme uses backgrounds that don't print well — the print CSS overrides them)</li>
+<li>Click <strong>Save</strong></li>
+</ol>
+<p>The sidebar navigation is hidden in print; all content flows into a single readable column.</p>
+
+  </main>
+</div>
+</body>
+</html>

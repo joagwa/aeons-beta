@@ -103,6 +103,15 @@ export class SettingsPanel {
     wikiLink.className = 'settings-btn settings-btn-link';
     wikiLink.textContent = '📖 Game Wiki';
     wikiGroup.appendChild(wikiLink);
+
+    const tutorialLink = document.createElement('a');
+    tutorialLink.href = './tutorial.html';
+    tutorialLink.target = '_blank';
+    tutorialLink.rel = 'noopener';
+    tutorialLink.className = 'settings-btn settings-btn-link';
+    tutorialLink.textContent = '🛠 Developer Tutorial';
+    wikiGroup.appendChild(tutorialLink);
+
     this.body.appendChild(wikiGroup);
 
     // --- Notation selector ---

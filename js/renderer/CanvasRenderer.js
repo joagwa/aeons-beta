@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=940d1cc';
-import { Camera } from './Camera.js?v=940d1cc';
-import { ParticleSystem } from './ParticleSystem.js?v=940d1cc';
-import { RegionManager } from './RegionManager.js?v=940d1cc';
-import { FloatingNumbers } from './FloatingNumbers.js?v=940d1cc';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=940d1cc';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=940d1cc';
+import { SpriteManager } from './SpriteManager.js?v=c26d7b0';
+import { Camera } from './Camera.js?v=c26d7b0';
+import { ParticleSystem } from './ParticleSystem.js?v=c26d7b0';
+import { RegionManager } from './RegionManager.js?v=c26d7b0';
+import { FloatingNumbers } from './FloatingNumbers.js?v=c26d7b0';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=c26d7b0';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=c26d7b0';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -52,6 +52,7 @@ export class CanvasRenderer {
     this._moteController = null;
     this._gravityBaseRadius = 0; // set when upg_gravitationalPull purchased
     this._pendingGravityLevel = 0; // deferred if canvasConfig not ready on purchase
+    this._effectiveGravityRadius = 0; // computed each frame from base radius + bonuses
 
     // Mass-based gravity scaling state
     this._currentMass = 0;
@@ -72,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=940d1cc').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=c26d7b0').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -332,6 +333,7 @@ export class CanvasRenderer {
         // Mass-based radius expansion: +50% radius per 100 mass, logarithmic scaling
         const massBonus = this._currentMass > 0 ? Math.log10(1 + this._currentMass) * 0.4 : 0;
         const effectiveRadius = (baseRadius + tractorRange + energyBonus) * (1 + massBonus) * this._stormGravityMult * this._resonanceMult;
+        this._effectiveGravityRadius = effectiveRadius;
         this.particleSystem.updateAttractionTargetAll(
           this._moteController.worldX,
           this._moteController.worldY,
@@ -646,6 +648,36 @@ export class CanvasRenderer {
       ctx.arc(sx, sy, radiusOsc, 0, Math.PI * 2);
       ctx.stroke();
       ctx.setLineDash([]);
+      ctx.restore();
+    }
+
+    // Attraction boundary rings — hard zone (fast, inner) and soft zone (slow, outer)
+    if (this._effectiveGravityRadius > 0) {
+      const er = this._effectiveGravityRadius;
+      const now = performance.now();
+      ctx.save();
+
+      // Soft boundary (outer dashed ring) — edge of attraction field
+      const softBreath = 0.06 + Math.sin(now * 0.0015) * 0.02;
+      ctx.globalAlpha = softBreath;
+      ctx.strokeStyle = '#3366cc';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      ctx.arc(sx, sy, er, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Hard boundary (inner solid ring) — fast-pull zone, ~28% of outer radius
+      const hardR = er * 0.28;
+      const hardBreath = 0.12 + Math.sin(now * 0.002) * 0.04;
+      ctx.globalAlpha = hardBreath;
+      ctx.strokeStyle = '#44ccdd';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(sx, sy, hardR, 0, Math.PI * 2);
+      ctx.stroke();
+
       ctx.restore();
     }
 
@@ -1304,7 +1336,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=940d1cc').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=c26d7b0').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

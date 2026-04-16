@@ -5,230 +5,183 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aeons: The Grand Unfolding — Game Wiki</title>
   <style>
-    :root {
-      --bg: #0a0a0f;
-      --bg-panel: #12121a;
-      --bg-panel-alt: #1a1a2e;
-      --accent: #a0c4ff;
-      --accent2: #ffffff;
-      --text: #e0e0e8;
-      --text-dim: #8888a0;
-      --text-bright: #ffffff;
-      --border: #2a2a3e;
-      --success: #4ade80;
-      --warning: #fbbf24;
-      --danger: #f87171;
-      --font-mono: 'Courier New', Courier, monospace;
-      --font-main: system-ui, -apple-system, 'Segoe UI', sans-serif;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-main);
-      font-size: 15px;
-      line-height: 1.7;
-    }
-    a { color: var(--accent); text-decoration: none; }
-    a:hover { text-decoration: underline; color: var(--accent2); }
+  :root {
+    --bg: #0a0a0f;
+    --bg-panel: #12121a;
+    --bg-panel-alt: #1a1a2e;
+    --accent: #a0c4ff;
+    --accent2: #ffffff;
+    --text: #e0e0e8;
+    --text-dim: #8888a0;
+    --text-bright: #ffffff;
+    --border: #2a2a3e;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-main: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; color: var(--accent2); }
 
-    /* ── Layout ── */
-    .page-wrapper {
-      display: flex;
-      min-height: 100vh;
-    }
-    nav#sidebar {
-      width: 260px;
-      flex-shrink: 0;
-      background: var(--bg-panel);
-      border-right: 1px solid var(--border);
-      padding: 24px 16px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-    }
-    nav#sidebar .nav-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-    }
-    nav#sidebar ul { list-style: none; }
-    nav#sidebar > ul { padding-left: 0; }
-    nav#sidebar ul li { margin: 3px 0; }
-    nav#sidebar ul li a {
-      display: block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      color: var(--text-dim);
-      font-size: 13px;
-      transition: color 0.15s, background 0.15s;
-    }
-    nav#sidebar ul li a:hover { color: var(--text); background: var(--bg-panel-alt); text-decoration: none; }
-    nav#sidebar ul li.indent a { padding-left: 20px; font-size: 12px; }
-    nav#sidebar .nav-back {
-      margin-bottom: 16px;
-    }
-    nav#sidebar .nav-back a {
-      font-size: 13px;
-      color: var(--accent);
-    }
+  .page-wrapper { display: flex; min-height: 100vh; }
+  nav#sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav#sidebar .nav-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  nav#sidebar ul { list-style: none; }
+  nav#sidebar > ul { padding-left: 0; }
+  nav#sidebar ul li { margin: 3px 0; }
+  nav#sidebar ul li a {
+    display: block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-size: 13px;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav#sidebar ul li a:hover { color: var(--text); background: var(--bg-panel-alt); text-decoration: none; }
+  nav#sidebar ul li.indent a { padding-left: 20px; font-size: 12px; }
+  nav#sidebar .nav-back { margin-bottom: 16px; }
+  nav#sidebar .nav-back a { font-size: 13px; color: var(--accent); }
 
-    main {
-      flex: 1;
-      max-width: 860px;
-      padding: 40px 48px;
-      min-width: 0;
-    }
+  main { flex: 1; max-width: 860px; padding: 40px 48px; min-width: 0; }
 
-    /* ── Headings ── */
-    h1 {
-      font-size: 2rem;
-      color: var(--accent2);
-      border-bottom: 2px solid var(--accent);
-      padding-bottom: 12px;
-      margin-bottom: 24px;
-    }
-    h2 {
-      font-size: 1.5rem;
-      color: var(--accent);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
-      margin: 36px 0 16px;
-    }
-    h3 {
-      font-size: 1.15rem;
-      color: var(--text-bright);
-      margin: 24px 0 10px;
-    }
-    h4 {
-      font-size: 1rem;
-      color: var(--accent);
-      margin: 20px 0 8px;
-    }
-    h5, h6 {
-      font-size: 0.9rem;
-      color: var(--text-dim);
-      margin: 16px 0 6px;
-    }
+  h1 { font-size: 2rem; color: var(--accent2); border-bottom: 2px solid var(--accent); padding-bottom: 12px; margin-bottom: 24px; }
+  h2 { font-size: 1.5rem; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 6px; margin: 36px 0 16px; }
+  h3 { font-size: 1.15rem; color: var(--text-bright); margin: 24px 0 10px; }
+  h4 { font-size: 1rem; color: var(--accent); margin: 20px 0 8px; }
+  h5, h6 { font-size: 0.9rem; color: var(--text-dim); margin: 16px 0 6px; }
 
-    /* ── Paragraphs & text ── */
-    p { margin: 10px 0; }
-    strong { color: var(--text-bright); }
-    em { color: var(--text-dim); font-style: italic; }
+  p { margin: 10px 0; }
+  strong { color: var(--text-bright); }
+  em { color: var(--text-dim); font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
 
-    /* ── Horizontal rule ── */
-    hr {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 24px 0;
-    }
+  code {
+    background: var(--bg-panel-alt);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  pre {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  pre code { background: none; padding: 0; color: var(--accent2); font-size: 0.85em; }
 
-    /* ── Code ── */
-    code {
-      background: var(--bg-panel-alt);
-      color: var(--accent);
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-family: var(--font-mono);
-      font-size: 0.88em;
-    }
-    pre {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 16px;
-      overflow-x: auto;
-      margin: 12px 0;
-    }
-    pre code {
-      background: none;
-      padding: 0;
-      color: var(--accent2);
-      font-size: 0.85em;
-    }
+  .table-wrapper { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9em; }
+  th, td { border: 1px solid var(--border); padding: 7px 12px; text-align: left; }
+  th { background: var(--bg-panel-alt); color: var(--accent); font-weight: 600; }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
 
-    /* ── Tables ── */
-    .table-wrapper {
-      overflow-x: auto;
-      margin: 12px 0;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      font-size: 0.9em;
-    }
-    th, td {
-      border: 1px solid var(--border);
-      padding: 7px 12px;
-      text-align: left;
-    }
-    th {
-      background: var(--bg-panel-alt);
-      color: var(--accent);
-      font-weight: 600;
-    }
-    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  ul, ol { margin: 10px 0 10px 24px; }
+  li { margin: 4px 0; }
 
-    /* ── Lists ── */
-    ul, ol {
-      margin: 10px 0 10px 24px;
-    }
-    li { margin: 4px 0; }
+  blockquote {
+    border-left: 3px solid var(--accent);
+    background: var(--bg-panel);
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+    color: var(--text-dim);
+  }
+  blockquote strong { color: var(--accent2); }
 
-    /* ── Blockquotes ── */
-    blockquote {
-      border-left: 3px solid var(--accent);
-      background: var(--bg-panel);
-      padding: 12px 16px;
-      margin: 12px 0;
-      border-radius: 0 4px 4px 0;
-      color: var(--text-dim);
-    }
-    blockquote strong { color: var(--accent2); }
+  @media (max-width: 768px) {
+    nav#sidebar { display: none; }
+    main { padding: 20px 16px; }
+    h1 { font-size: 1.5rem; }
+  }
 
-    /* ── Mobile ── */
-    @media (max-width: 768px) {
-      nav#sidebar { display: none; }
-      main { padding: 20px 16px; }
-      h1 { font-size: 1.5rem; }
-    }
-  </style>
+  @media print {
+    nav#sidebar { display: none; }
+    .page-wrapper { display: block; }
+    main { max-width: 100%; padding: 20px; }
+    body { background: #fff; color: #000; font-size: 11pt; }
+    a { color: #000; }
+    h1 { color: #000; border-bottom: 2px solid #000; }
+    h2 { color: #333; border-bottom: 1px solid #aaa; }
+    h3, h4 { color: #000; }
+    code { background: #f0f0f0; color: #000; border: 1px solid #ccc; }
+    pre { background: #f8f8f8; border: 1px solid #ccc; page-break-inside: avoid; }
+    pre code { color: #000; }
+    blockquote { border-left: 3px solid #555; background: #f8f8f8; color: #333; }
+    table { page-break-inside: avoid; }
+    th { background: #eee; color: #000; }
+    h2, h3 { page-break-after: avoid; }
+    p, li { orphans: 3; widows: 3; }
+  }
+</style>
 </head>
 <body>
 <div class="page-wrapper">
   <nav id="sidebar">
     <div class="nav-back"><a href="./index.html">← Back to Game</a></div>
-    <div class="nav-title">Aeons Wiki</div>
+    <div class="nav-title">Aeons: The Grand Unfolding</div>
     <ul>
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#resources">Resources</a></li>
-      <li><a href="#core-mechanics">Core Mechanics</a></li>
-      <li class="indent"><a href="#mote-absorption-energy-generation">Mote Absorption</a></li>
-      <li class="indent"><a href="#clicking">Clicking</a></li>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#resources">Resources</a></li>
+  <li><a href="#core-mechanics">Core Mechanics</a>
+    <ul>
+      <li class="indent"><a href="#mote-absorptionenergy-generation">Mote Absorption</a></li>
       <li class="indent"><a href="#gravity-system">Gravity System</a></li>
       <li class="indent"><a href="#energy--mass-conversion">Energy → Mass</a></li>
       <li class="indent"><a href="#dark-matter-node-system">Dark Matter Nodes</a></li>
       <li class="indent"><a href="#star-lifecycle">Star Lifecycle</a></li>
-      <li><a href="#upgrades">Upgrades</a></li>
-      <li class="indent"><a href="#tier-1-upgrades">Tier 1</a></li>
-      <li class="indent"><a href="#mote-upgrades">Mote Upgrades</a></li>
-      <li class="indent"><a href="#tier-2-upgrades">Tier 2</a></li>
-      <li class="indent"><a href="#tier-3-upgrades">Tier 3</a></li>
-      <li><a href="#milestones">Milestones</a></li>
-      <li><a href="#formulas-reference">Formulas</a></li>
     </ul>
+  </li>
+  <li><a href="#upgrades">Upgrades</a>
+    <ul>
+      <li class="indent"><a href="#group-a--discovery">Group A — Discovery</a></li>
+      <li class="indent"><a href="#group-b--synthesis">Group B — Synthesis</a></li>
+      <li class="indent"><a href="#aeon-upgrade-tree">Prestige Tree</a></li>
+    </ul>
+  </li>
+  <li><a href="#milestones">Milestones</a></li>
+  <li><a href="#orbital-energy-display">Orbital Energy Display</a></li>
+  <li><a href="#prestige">Prestige</a></li>
+  <li><a href="#formulas-reference">Formulas</a></li>
+</ul>
+
   </nav>
   <main>
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit <code>b0b0131</code> (Prestige reset, beacon mote fix, center-screen prestige prompt).</p>
+Last updated with commit (Movement as first upgrade, attraction boundary rings, doubled orbital speeds, smooth mote insertion).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -334,15 +287,21 @@ absorption after Electromagnetic Bond is purchased.</p>
 <h3 id="beacon-phase-pre-electromagnetic-bond">Beacon Phase (pre-Electromagnetic Bond)</h3>
 <p>When the game starts, <strong>no ambient motes are spawned</strong>. Instead, a single glowing <strong>beacon mote</strong> (<code>mote_rare</code> sprite) drifts slowly toward the player from the right side of the screen.</p>
 <p>The <strong>background scrolls</strong> at ~50 px/s (rightward + slight upward drift), implying the player is moving through space.</p>
-<p>When the beacon mote reaches the player (contact radius 40 px), it is absorbed and awards <strong>1 energy</strong>. This is just enough to purchase <strong>Electromagnetic Bond</strong> (cost: 1 energy).</p>
-<p>On purchase:</p>
+<p>When the beacon mote reaches the player (contact radius 40 px), it is absorbed and awards <strong>1 energy</strong>. This is just enough to purchase <strong>Cosmic Drift</strong> (cost: 1 energy) which enables movement, then <strong>Electromagnetic Bond</strong> (cost: 10 energy) to start attracting motes.</p>
+<p>On purchase of Electromagnetic Bond:</p>
 <ul>
 <li>The beacon mote is removed.</li>
 <li>~250 ambient void motes spawn (normal mote genesis begins).</li>
 <li>Background scroll decelerates to a halt (~2 seconds).</li>
 </ul>
 <h3 id="gravity-system">Gravity System</h3>
-<p>Gravity pulls nearby motes toward your particle. It is unlocked by purchasing <strong>Electromagnetic Bond</strong> (<code>upg_gravitationalPull</code>).</p>
+<p>Gravity pulls nearby motes toward your particle. It is unlocked by purchasing <strong>Electromagnetic Bond</strong> (<code>upg_gravitationalPull</code>, cost: 10 energy, requires Cosmic Drift).</p>
+<p><strong>Attraction boundary rings</strong>: Two concentric visual rings surround the player when attraction is active:</p>
+<ul>
+<li><strong>Outer soft ring</strong> (dashed, blue): edge of the full attraction field — motes here drift slowly inward.</li>
+<li><strong>Inner hard ring</strong> (solid, cyan): the inner 28% zone — motes here accelerate rapidly via quartic speed boost.</li>
+</ul>
+<p>Both rings breathe subtly (alpha oscillation) to remain visible without being distracting.</p>
 <p><strong>Attraction radius by upgrade level:</strong></p>
 <div class="table-wrapper"><table>
 <thead><tr><th>EM Bond Level</th><th>Base Radius (px)</th></tr></thead>
@@ -435,13 +394,11 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 </tbody></table></div>
 <p>Combined at full max: ×1,024 × ×81 × ×125 × ×64 × ×25 ≈ ×1.6 billion base rate</p>
 <h3 id="movement">Movement</h3>
-<p>Unlocked by <strong>Cosmic Drift</strong> (requires upg_gravitationalPull / Electromagnetic Bond).</p>
-<p><strong>Desktop:</strong> WASD or arrow keys to navigate. <strong>Mobile / touch:</strong> Touch-drag anywhere on the canvas to move the character toward the drag point. The character follows the touch position smoothly.</p>
-<ul>
-<li><strong>Ion Thrust</strong>: +20 speed per level (max 5 levels)</li>
-<li><strong>Manoeuvring Jets</strong>: +0.8 turn rate per level (max 3 levels)</li>
-</ul>
-<p>Once movement is unlocked, the <strong>Space Dust</strong> parallax layer continues scrolling (it also scrolls during the beacon phase to imply drift).</p>
+<p><strong>Cosmic Drift</strong> (<code>upg_cosmicDrift</code>) — the very first purchasable upgrade (cost: 1 energy).</p>
+<p>Purchase it with the energy from your first beacon mote to unlock full player control at a flat <strong>40 px/sec</strong>. Before purchase, the player auto-drifts slowly through space.</p>
+<p>After the <strong>first prestige</strong>, Cosmic Drift is auto-granted — you start every subsequent run with movement already enabled.</p>
+<p><strong>Desktop:</strong> WASD or arrow keys to navigate.   <strong>Mobile / touch:</strong> Touch-drag anywhere on the canvas to move the character toward the drag point.</p>
+<p>A <strong>controls hint</strong> displays for 10 seconds after unlocking, and reappears if idle for 30+ seconds.</p>
 <h3 id="dark-matter-node-system">Dark Matter Node System</h3>
 <blockquote>
 <p>Activated at <strong>ms_gasCloud</strong>. Nodes appear automatically when achievement thresholds are crossed — no upgrade gate required.</p>
@@ -606,13 +563,25 @@ Two distinct prestige currencies serve two functions within the energy phase:
 
 ### Aeon Prestige (Meta, Player-Triggered)
 
-- **When**: Player manually triggers when energy ≥ current energy cap.
-- **How**: A pulsing "✦ Void Saturated" button appears in the center of the canvas when the cap is reached. Clicking it opens the prestige panel.
+- **When**: Player manually triggers when energy ≥ **maximum potential energy cap** (not just the current run cap).
+- **Maximum Potential Cap**: Calculated by considering all currently-purchased Expanded Vacuum levels and all cap-multiplier upgrades (Quantum Capacitor, Quantum Reservoir, Hydrological Cycle). This ensures you only prestige when you've truly exhausted all available progression paths.
+- **How**: A pulsing "✦ Void Saturated" button appears in the center of the canvas when the cap is reached. Clicking it opens the prestige panel. All player input (movement, clicks) is blocked while the prestige panel is open.
+- **Prestige Transition**: When you click "Prestige", the reset happens **immediately**. However, the prestige menu enters a "purgatory" state and remains visible so you can:
+  - Review the Aeons and Epoch Echoes you earned.
+  - Browse your upgraded tech trees to see what's now available.
+  - Decide which upgrades to purchase before starting your next run.
+  - Close the menu (X button) to officially begin the new run.
+- **During purgatory**: The game is paused (no energy gain, no motes spawning), but canvas animations continue smoothly.
 - **Earns**: 1+ Aeons per run (base 1, +1 per Echo Chamber level).
 - **Resets**: energy, upgrades, milestones, stars (in-run systems); player position snaps to the epoch home; movement and gravity state fully cleared.
 - **Persists**: Aeons total, all purchased Aeon upgrades, Epoch Echoes, quark allocations, subatomic state.
 
 **Cap progression via Expanded Vacuum**: 500 → 5,000 → 50,000 → 500,000 → 5,000,000 → 10,000,000. Requires 4–5 Aeon prestiges to unlock the full 10M ceiling.
+
+**Movement &amp; EM Bond after first prestige**:
+- Cosmic Drift (movement) is auto-granted after your first prestige — movement is free on all subsequent runs.
+- Electromagnetic Bond L1 is auto-unlocked after first prestige as a free perk (no cost). This eliminates the need to use Mote Inheritance just to get back to L1.
+- Mote Inheritance (costs 1 Aeon) still works on subsequent prestiges for players who purchase it.
 
 #### Aeon Upgrade Tree
 
@@ -623,6 +592,14 @@ Two distinct prestige currencies serve two functions within the energy phase:
 | prs_expandedVacuum | Expanded Vacuum | 1 Aeon | 5 | Raise energy cap 10× per level |
 | prs_moteInheritance | Mote Inheritance | 1 Aeon | 1 | Start next run with EM Bond L1 pre-purchased |
 | prs_echoChamber | Echo Chamber | 2 Aeons | 1 | +1 bonus Aeon on each future prestige |
+| prs_aeonAutomaton | Aeon Automaton | 10 Aeons | 1 | Auto-purchase Phase 1 energy upgrades during pure energy phase |
+
+**Aeon Automaton** (requires Echo Chamber):
+- Once purchased, automatically selects and buys the best Phase 1 energy upgrades during your run in the energy-only phase.
+- Upgrade scoring prioritizes rate multipliers (×2 priority) and low cost, ensuring steady progression.
+- One auto-purchase fires every 10 game ticks, so progression remains visible and rewarding.
+- Automation disables at the first Epoch Collapse (when quark phase unlocks).
+- Excellent for speeding up early runs or for AFK testing.
 
 ### Epoch Echo (Story, Auto-Triggered)
 
@@ -728,13 +705,13 @@ The player character is surrounded by orbiting motes that visually represent the
 
 | Tier | Threshold | Radius | Mote Size | Speed | Inclination |
 |------|-----------|--------|-----------|-------|-------------|
-| 0 | 1 (ones) | 50 | 2.0 | 2.0 | 0° |
-| 1 | 10 | 68 | 3.0 | 1.5 | 30° |
-| 2 | 100 | 88 | 4.5 | 1.1 | 50° |
-| 3 | 1,000 | 112 | 6.0 | 0.8 | 70° |
-| 4 | 10,000 | 140 | 8.0 | 0.55 | 80° |
-| 5 | 100,000 | 172 | 10.0 | 0.35 | 45° |
-| 6 | 1,000,000 | 210 | 13.0 | 0.22 | 67° |
+| 0 | 1 (ones) | 50 | 2.0 | 4.0 | 0° |
+| 1 | 10 | 68 | 3.0 | 3.0 | 30° |
+| 2 | 100 | 88 | 4.5 | 2.2 | 50° |
+| 3 | 1,000 | 112 | 6.0 | 1.6 | 70° |
+| 4 | 10,000 | 140 | 8.0 | 1.1 | 80° |
+| 5 | 100,000 | 172 | 10.0 | 0.7 | 45° |
+| 6 | 1,000,000 | 210 | 13.0 | 0.44 | 67° |
 
 Each tier rotates on a different axis (inclination + ascending node), giving a 3D orbital appearance. Motes per tier = leading digit of that decimal place (1–9).
 
@@ -784,10 +761,13 @@ L6–L10 are intentionally unreachable pre-Collapse. Quark bonuses (especially B
 |-------------|---------|-------------------|
 | `rateAdditive` | Linear | `magnitude × N` |
 | `capIncrease` | Quadratic | `magnitude × N²` |
+| `capMultiplier` | Exponential | `magnitude^N` |
 | `rateMultiplier` | Exponential | `magnitude^N` |
 | `clickMultiplier` | Exponential | `magnitude^N` |
 | `absorptionMultiplier` | Exponential | `magnitude^N` |
 | `unlock` | Binary | Unlocks at level 1 |
+
+**Percentage-based caps** (`capMultiplier`): Storage upgrades apply proportional multipliers to the current cap. On prestige when the base cap increases, `capMultiplier` effects re-apply proportionally at the new scale.
 
 **All multi-level upgrades are 10 levels** with `costScaling: 3×` and pure exponential cost growth across all levels.
 
@@ -801,15 +781,13 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, pure expone
 
 | ID | Name | Levels | Cost | Effect |
 |----|------|--------|------|--------|
-| upg_gravitationalPull | Electromagnetic Bond | 10 | 1E × 3× | Unlock + grow attraction radius (300→6000 over 10 lvls) |
+| upg_cosmicDrift | Cosmic Drift | 1 | 1E | Unlock player movement at 40 px/sec |
+| upg_gravitationalPull | Electromagnetic Bond | 10 | 10E × 3× | Unlock + grow attraction radius (600→7000 over 10 lvls). Requires Cosmic Drift. |
 | upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×2.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 5× | ×2.0 absorption/level (passive only) — steep cost |
 | upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | ×(1 + level×0.25×E/(E+200)) to mote genesis &amp; attraction (soft-cap 200 energy, up to ×3.5 at L10) |
-| upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | +400 × level² energy cap — cost equals current cap each time |
+| upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | ×1.2 energy cap/level (proportional growth) — cost equals current cap each time |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
-| upg_cosmicDrift | Cosmic Drift | 1 | 150E | Unlock movement (prereq: EM Bond, no milestone required) |
-| upg_ionThrust | Ion Thrust | 10 | 75E × 3× | +25 speed/level |
-| upg_manoeuvringJets | Manoeuvring Jets | 10 | 60E × 3× | +0.6 turn rate/level |
 
 ---
 
@@ -822,7 +800,7 @@ Unlocked after 1st Epoch Collapse (hidden until `collapseCount &gt;= 1`). Energy
 | upg_protonForge | Proton Forge | 1 | 100E | Unlock H synthesis slider | **hidden until 1st Collapse** |
 | upg_quantumNucleogenesis | Quantum Nucleogenesis | 10 | 250E × 3× | ×1.8 H production rate/level | protonForge, **hidden until 1st Collapse** |
 | upg_energyDensity | Energy Density | 10 | 100H × 3× | ×0.80 energy per H (−20%)/level | protonForge |
-| upg_quantumReservoir | Quantum Reservoir | 10 | 200H × 3× | +8,000 × level² energy cap | protonForge |
+| upg_quantumReservoir | Quantum Reservoir | 10 | 200H × 3× | ×1.15 energy cap/level (proportional growth) | protonForge |
 | upg_particleRefinement | Particle Refinement | 10 | 100H × 3× | Higher mote quality tiers | ms_firstAtom |
 | upg_moteResonance | Mote Resonance | 10 | 500H × 3× | ×2.5 absorption/level | particleRefinement |
 | upg_quantumFlood | Quantum Flood | 10 | 300H × 3× | ×2.5 spawn rate/level | ms_firstAtom |
@@ -999,7 +977,7 @@ The tab bar uses `z-index: 200` with `transform: translateZ(0)` to guarantee it 
 
 ### Touch / Drag Movement
 
-Once **Cosmic Drift** is purchased:
+After purchasing **Cosmic Drift** (or after prestige when it is auto-granted):
 - **Mobile/touch**: Touch-drag on the canvas to steer. The character moves toward the drag point.
 - **Desktop**: Same drag works with mouse click-and-hold.
 - **Keyboard**: WASD / arrow keys (desktop only).

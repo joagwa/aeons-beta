@@ -4,52 +4,52 @@
  */
 
 // === Core Imports ===
-import { ErrorReporter } from './core/ErrorReporter.js?v=940d1cc';
-import { LogBuffer } from './core/LogBuffer.js?v=940d1cc';
-import { EventBus } from './core/EventBus.js?v=940d1cc';
-import { GameLoop } from './core/GameLoop.js?v=940d1cc';
-import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=940d1cc';
-import { SaveSystem } from './core/SaveSystem.js?v=940d1cc';
-import { UpdateChecker } from './core/UpdateChecker.js?v=940d1cc';
+import { ErrorReporter } from './core/ErrorReporter.js?v=c26d7b0';
+import { LogBuffer } from './core/LogBuffer.js?v=c26d7b0';
+import { EventBus } from './core/EventBus.js?v=c26d7b0';
+import { GameLoop } from './core/GameLoop.js?v=c26d7b0';
+import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=c26d7b0';
+import { SaveSystem } from './core/SaveSystem.js?v=c26d7b0';
+import { UpdateChecker } from './core/UpdateChecker.js?v=c26d7b0';
 
 // === Engine Imports ===
-import { ResourceManager } from './engine/ResourceManager.js?v=940d1cc';
-import { UpgradeSystem } from './engine/UpgradeSystem.js?v=940d1cc';
-import { MilestoneSystem } from './engine/MilestoneSystem.js?v=940d1cc';
-import { StarManager } from './engine/StarManager.js?v=940d1cc';
-import { EpochSystem } from './engine/EpochSystem.js?v=940d1cc';
-import { MoteController } from './engine/MoteController.js?v=940d1cc';
-import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=940d1cc';
-import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=940d1cc';
-import { AutoBuySystem } from './engine/AutoBuySystem.js?v=940d1cc';
-import { FusionEngine } from './engine/FusionEngine.js?v=940d1cc';
-import { MoleculeEngine } from './engine/MoleculeEngine.js?v=940d1cc';
-import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=940d1cc';
+import { ResourceManager } from './engine/ResourceManager.js?v=c26d7b0';
+import { UpgradeSystem } from './engine/UpgradeSystem.js?v=c26d7b0';
+import { MilestoneSystem } from './engine/MilestoneSystem.js?v=c26d7b0';
+import { StarManager } from './engine/StarManager.js?v=c26d7b0';
+import { EpochSystem } from './engine/EpochSystem.js?v=c26d7b0';
+import { MoteController } from './engine/MoteController.js?v=c26d7b0';
+import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=c26d7b0';
+import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=c26d7b0';
+import { AutoBuySystem } from './engine/AutoBuySystem.js?v=c26d7b0';
+import { FusionEngine } from './engine/FusionEngine.js?v=c26d7b0';
+import { MoleculeEngine } from './engine/MoleculeEngine.js?v=c26d7b0';
+import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=c26d7b0';
 
 // === Renderer Imports ===
-import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=940d1cc';
+import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=c26d7b0';
 
 // === UI Imports ===
-import { ResourcePanel } from './ui/ResourcePanel.js?v=940d1cc';
-import { UpgradePanel } from './ui/UpgradePanel.js?v=940d1cc';
-import { MilestoneNotification } from './ui/MilestoneNotification.js?v=940d1cc';
-import { ChroniclePanel } from './ui/ChroniclePanel.js?v=940d1cc';
-import { SettingsPanel } from './ui/SettingsPanel.js?v=940d1cc';
-import { OfflineProgress } from './ui/OfflineProgress.js?v=940d1cc';
-import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=940d1cc';
-import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=940d1cc';
-import { StatsPanel } from './ui/StatsPanel.js?v=940d1cc';
-import { GoalWidget } from './ui/GoalWidget.js?v=940d1cc';
-import { MobileTabBar } from './ui/MobileTabBar.js?v=940d1cc';
-import { FeedbackPanel } from './ui/FeedbackPanel.js?v=940d1cc';
-import { FusionLabPanel } from './ui/FusionLabPanel.js?v=940d1cc';
-import { PrestigeSystem } from './engine/PrestigeSystem.js?v=940d1cc';
-import { PrestigePanel } from './ui/PrestigePanel.js?v=940d1cc';
-import { NarrativePanel } from './ui/NarrativePanel.js?v=940d1cc';
-import { QuarkEngine } from './engine/QuarkEngine.js?v=940d1cc';
-import { QuarkPanel } from './ui/QuarkPanel.js?v=940d1cc';
-import { SubatomicEngine } from './engine/SubatomicEngine.js?v=940d1cc';
-import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=940d1cc';
+import { ResourcePanel } from './ui/ResourcePanel.js?v=c26d7b0';
+import { UpgradePanel } from './ui/UpgradePanel.js?v=c26d7b0';
+import { MilestoneNotification } from './ui/MilestoneNotification.js?v=c26d7b0';
+import { ChroniclePanel } from './ui/ChroniclePanel.js?v=c26d7b0';
+import { SettingsPanel } from './ui/SettingsPanel.js?v=c26d7b0';
+import { OfflineProgress } from './ui/OfflineProgress.js?v=c26d7b0';
+import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=c26d7b0';
+import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=c26d7b0';
+import { StatsPanel } from './ui/StatsPanel.js?v=c26d7b0';
+import { GoalWidget } from './ui/GoalWidget.js?v=c26d7b0';
+import { MobileTabBar } from './ui/MobileTabBar.js?v=c26d7b0';
+import { FeedbackPanel } from './ui/FeedbackPanel.js?v=c26d7b0';
+import { FusionLabPanel } from './ui/FusionLabPanel.js?v=c26d7b0';
+import { PrestigeSystem } from './engine/PrestigeSystem.js?v=c26d7b0';
+import { PrestigePanel } from './ui/PrestigePanel.js?v=c26d7b0';
+import { NarrativePanel } from './ui/NarrativePanel.js?v=c26d7b0';
+import { QuarkEngine } from './engine/QuarkEngine.js?v=c26d7b0';
+import { QuarkPanel } from './ui/QuarkPanel.js?v=c26d7b0';
+import { SubatomicEngine } from './engine/SubatomicEngine.js?v=c26d7b0';
+import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=c26d7b0';
 
 // === Game State ===
 let gameState = {
@@ -63,6 +63,7 @@ let gameState = {
   collapseCount: 0,
   totalRealTime: 0,
   cosmicEchoCount: 0,
+  prestigePurgatory: false, // true when prestige executed but menu still open
   settings: {
     notationMode: 'shortSuffix',
     glowEnabled: true,
@@ -113,7 +114,7 @@ const statsPanel = new StatsPanel(EventBus);
 const goalWidget = new GoalWidget(EventBus, milestoneSystem, resourceManager);
 const mobileTabBar = new MobileTabBar(EventBus);
 const fusionLabPanel = new FusionLabPanel(EventBus, upgradeSystem, protonSynthesisEngine, fusionEngine, moleculeEngine, resourceManager);
-const prestigePanel = new PrestigePanel(EventBus, prestigeSystem);
+const prestigePanel = new PrestigePanel(EventBus, prestigeSystem, moteController);
 const quarkPanel = new QuarkPanel(EventBus, quarkEngine);
 const particleForgePanel = new ParticleForgePanel(subatomicEngine, resourceManager, EventBus);
 const feedbackPanel = new FeedbackPanel(() => ({
@@ -367,17 +368,28 @@ async function bootstrap() {
     if (data?.resourceId === 'energy') syncPrestigeButtonVisibility();
   });
 
-  // --- Prestige execution ---
-  EventBus.on('prestige:execute', async ({ count, aeonsEarned, aeonTotal, peakEnergy }) => {
-    // Hide prestige overlay during reset
-    prestigePanel.hide();
-    // Hide center-screen prompt immediately
+  // --- Prestige execution → Purgatory ---
+  let pendingPrestigeData = null;
+  
+  EventBus.on('prestige:execute', ({ count, aeonsEarned, aeonTotal, peakEnergy }) => {
+    // Store prestige data but don't execute reset yet
+    // The reset happens when prestige:purgatory:enter fires
+    pendingPrestigeData = { count, aeonsEarned, aeonTotal, peakEnergy };
+    console.log(`[Prestige] Prestige executed. Entering purgatory...`);
+  });
+
+  EventBus.on('prestige:purgatory:enter', async () => {
+    if (!pendingPrestigeData) return;
+    const { count, aeonsEarned, aeonTotal, peakEnergy } = pendingPrestigeData;
+    
+    // Hide center-screen prompt
     const promptEl = document.getElementById('prestige-prompt');
     if (promptEl) promptEl.classList.add('hidden');
 
     // Update gameState
     gameState.aeonCount = aeonTotal;
     gameState.prestigeCount = count;
+    gameState.prestigePurgatory = true;
 
     // Reset movement and renderer gravity state BEFORE loadEpoch
     moteController.resetForPrestige();
@@ -396,17 +408,17 @@ async function bootstrap() {
     // Reload epoch data
     await epochSystem.loadEpoch('epoch1');
 
-    // Reposition player to new epoch home object (prevents old-position camera jump)
+    // Reposition player to new epoch home object
     const homeObj = canvasRenderer.canvasConfig?.homeObject;
     if (homeObj) {
       moteController.worldX = homeObj.worldX;
       moteController.worldY = homeObj.worldY;
     }
 
-    // Apply prestige run bonuses (cap, seed energy, free upgrades, rate multipliers)
-    prestigeSystem.applyRunBonuses(resourceManager, upgradeSystem, peakEnergy);
+    // Apply prestige run bonuses (cap, seed energy, free upgrades, rate multipliers, movement unlock)
+    prestigeSystem.applyRunBonuses(resourceManager, upgradeSystem, moteController, peakEnergy);
 
-    // Spawn DM nodes for visual flavor (reduced set post-prestige)
+    // Spawn DM nodes for visual flavor
     const voidRegion = canvasRenderer.canvasConfig?.regions?.find(r => r.regionId === 'void');
     if (voidRegion) darkMatterSystem.setVoidBounds(voidRegion.worldBounds);
     darkMatterSystem.activate();
@@ -415,11 +427,19 @@ async function bootstrap() {
       darkMatterSystem._spawnNode(params);
     }
 
-    // Sync UI after reset
+    // Sync UI after reset (but keep prestige menu open!)
     syncFusionLabVisibility();
     syncPrestigeButtonVisibility();
 
-    console.log(`[Prestige] Run ${count} complete. +${aeonsEarned} Aeons (total: ${aeonTotal})`);
+    console.log(`[Prestige] Purgatory entered. Run ${count} reset. +${aeonsEarned} Aeons (total: ${aeonTotal}). Waiting for menu close...`);
+  });
+
+  EventBus.on('prestige:purgatory:exit', () => {
+    gameState.prestigePurgatory = false;
+    // Unblock input and allow new run to begin
+    moteController.unblockAllInput();
+    pendingPrestigeData = null;
+    console.log(`[Prestige] Purgatory exited. New run begins!`);
   });
 
   // --- Epoch Collapse complete (narrative [Continue] clicked) ---
@@ -519,6 +539,12 @@ async function bootstrap() {
   }
 
   GameLoop.onTick((dt) => {
+    // Skip game progression when in prestige purgatory
+    // (Rendering continues via onFrame, so canvas still animates)
+    if (gameState.prestigePurgatory) {
+      return;
+    }
+
     resourceManager.tick(dt);
     milestoneSystem.check();
     starManager.tick(dt);
@@ -526,6 +552,67 @@ async function bootstrap() {
     moleculeEngine.tick(dt);
     protonSynthesisEngine.tick(dt);
     prestigeSystem.trackPeakEnergy();
+
+    // --- Aeon Automaton: auto-purchase Phase 1 energy upgrades ---
+    if (prestigeSystem.getLevel('prs_aeonAutomaton') >= 1 && !gameState.collapseInProgress && gameState.collapseCount < 1) {
+      // Only in energy phase, before first collapse
+      const energy = resourceManager.get('energy')?.currentValue ?? 0;
+      if (energy > 0) {
+        // Find the best Phase 1 energy upgrade to auto-purchase
+        const phase1Upgrades = [
+          'upg_moteGeneration',
+          'upg_clickAmplifier',
+          'upg_energyHarvesting',
+          'upg_moteQuality',
+          'upg_moteFlood',
+          'upg_voidSaturation',
+          'upg_gravitationalPull',
+        ];
+        
+        // Score each upgrade: prefer rate multipliers and lower costs
+        let bestUpgrade = null;
+        let bestScore = -Infinity;
+        
+        for (const upgradeId of phase1Upgrades) {
+          const def = upgradeSystem.getDefinition(upgradeId);
+          if (!def) continue;
+          
+          const level = upgradeSystem.getLevel(upgradeId) || 0;
+          if (level >= def.maxLevel) continue; // Already maxed
+          
+          const cost = upgradeSystem.getCost(upgradeId, level + 1);
+          if (energy < cost) continue; // Can't afford
+          
+          // Prefer upgrades with rate multiplier effects
+          const isRateMult = def.effect?.type === 'rateMultiplier' ? 2 : 1;
+          // Prefer lower cost upgrades (easier progression)
+          const costScore = 100 / (cost + 1);
+          const score = isRateMult * costScore;
+          
+          if (score > bestScore) {
+            bestScore = score;
+            bestUpgrade = upgradeId;
+          }
+        }
+        
+        if (bestUpgrade && gameState._aeonAutomatonTick === undefined) {
+          gameState._aeonAutomatonTick = 0;
+        }
+        
+        // Throttle: only auto-purchase every 10 ticks to avoid spam
+        if (gameState._aeonAutomatonTick !== undefined) {
+          gameState._aeonAutomatonTick++;
+          if (gameState._aeonAutomatonTick >= 10 && bestUpgrade) {
+            upgradeSystem.purchase(bestUpgrade);
+            gameState._aeonAutomatonTick = 0;
+          }
+        }
+      }
+    } else if (gameState._aeonAutomatonTick !== undefined && (gameState.collapseInProgress || gameState.collapseCount >= 1)) {
+      // Reset throttle when leaving energy phase
+      gameState._aeonAutomatonTick = undefined;
+    }
+
     quarkEngine.tick(resourceManager.get('energy')?.currentValue ?? 0);
     subatomicEngine.tick(dt);
     if (subatomicEngine.isUnlocked()) {
