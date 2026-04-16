@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=41eb074';
-import { Camera } from './Camera.js?v=41eb074';
-import { ParticleSystem } from './ParticleSystem.js?v=41eb074';
-import { RegionManager } from './RegionManager.js?v=41eb074';
-import { FloatingNumbers } from './FloatingNumbers.js?v=41eb074';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=41eb074';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=41eb074';
+import { SpriteManager } from './SpriteManager.js?v=cce5ba0';
+import { Camera } from './Camera.js?v=cce5ba0';
+import { ParticleSystem } from './ParticleSystem.js?v=cce5ba0';
+import { RegionManager } from './RegionManager.js?v=cce5ba0';
+import { FloatingNumbers } from './FloatingNumbers.js?v=cce5ba0';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=cce5ba0';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=cce5ba0';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=41eb074').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=cce5ba0').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -1056,7 +1056,9 @@ export class CanvasRenderer {
       // (player now has active control, no need for passive drift)
       this._bgScrollTargetVx = 0;
       this._bgScrollTargetVy = 0;
-      console.log('[CanvasRenderer] Cosmic Drift purchased — stopping auto-drift');
+      // Start mote genesis now that player can move
+      this.particleSystem?.spawnInitialParticles('void', 50);
+      console.log('[CanvasRenderer] Cosmic Drift purchased — stopping auto-drift and starting mote genesis');
     }
     if (data.upgradeId === 'upg_gravitationalPull') {
       const ho = this.canvasConfig?.homeObject;
@@ -1344,7 +1346,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=41eb074').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=cce5ba0').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
