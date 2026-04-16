@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=d78e240';
-import { Camera } from './Camera.js?v=d78e240';
-import { ParticleSystem } from './ParticleSystem.js?v=d78e240';
-import { RegionManager } from './RegionManager.js?v=d78e240';
-import { FloatingNumbers } from './FloatingNumbers.js?v=d78e240';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d78e240';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d78e240';
+import { SpriteManager } from './SpriteManager.js?v=8b3ecad';
+import { Camera } from './Camera.js?v=8b3ecad';
+import { ParticleSystem } from './ParticleSystem.js?v=8b3ecad';
+import { RegionManager } from './RegionManager.js?v=8b3ecad';
+import { FloatingNumbers } from './FloatingNumbers.js?v=8b3ecad';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=8b3ecad';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=8b3ecad';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=d78e240').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=8b3ecad').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -111,11 +111,9 @@ export class CanvasRenderer {
     // Orbital energy display (orbiting motes representing current energy)
     this._orbitalDisplay = new OrbitalEnergyDisplay();
 
-    // Epoch Collapse animation controller
-    this._collapseAnim = new EpochCollapseAnimation();
-    this._collapseTriggered = false; // prevent re-trigger
-    this._narrativePanel = null;     // set via setNarrativePanel()
-  }
+    // Mote detection arrow (appears after 10s without absorption)
+    this._lastAbsorptionTime = Date.now(); // Track when last mote was absorbed
+    this._moteArrowAlpha = 0; // Fade in over time
 
   // ---------------------------------------------------------------
   // Initialization
@@ -180,6 +178,11 @@ export class CanvasRenderer {
     this.bus.on('ui:mobile:drawer:state',(data) => {
       this._targetCameraOffsetY = data.open ? data.offsetY : 0;
     });
+    // Reset mote detection arrow timer on absorption
+    this.bus.on('particle:absorbed', () => {
+      this._lastAbsorptionTime = Date.now();
+      this._moteArrowAlpha = 0;
+    });
     this.bus.on('milestone:triggered', (data) => {
       if (data.milestoneId === 'ms_gasCloud') {
         this._darkMatterActive = true;
@@ -225,6 +228,16 @@ export class CanvasRenderer {
   // ---------------------------------------------------------------
   // Epoch config loading
   // ---------------------------------------------------------------
+  // Epoch Config & Drift Control
+  // ---------------------------------------------------------------
+
+  /** Stop background drift (called when Cosmic Drift is already purchased on load). */
+  stopBackgroundDrift() {
+    this._bgScrollVx = 0;
+    this._bgScrollVy = 0;
+    this._bgScrollTargetVx = 0;
+    this._bgScrollTargetVy = 0;
+  }
 
   /** Load a full epoch canvas config (regions, sprites, home object, etc). */
   loadEpochConfig(config) {
@@ -499,6 +512,9 @@ export class CanvasRenderer {
 
     // Draw directional indicators
     this._drawIndicators(this.mainCtx, viewW, viewH);
+
+    // Draw mote detection arrow (if 10+ seconds without absorption)
+    this._drawMoteDetectionArrow(this.mainCtx, viewW, viewH, clampedDt);
 
     // Draw controls hint overlay (bottom-left of canvas)
     this._drawControlsHint(this.mainCtx, viewW, viewH);
@@ -909,6 +925,85 @@ export class CanvasRenderer {
       ctx.textAlign = 'start';
     }
     ctx.globalAlpha = 1;
+  }
+
+  _drawMoteDetectionArrow(ctx, viewW, viewH, clampedDt) {
+    // Update arrow fade based on time since last absorption
+    const timeSinceAbsorption = (Date.now() - this._lastAbsorptionTime) / 1000; // seconds
+    const fadeInDuration = 1.0; // 1 second fade-in after 10 second threshold
+    const thresholdTime = 10.0; // Show after 10 seconds
+
+    if (timeSinceAbsorption >= thresholdTime) {
+      // Fade in over fadeInDuration
+      const elapsed = timeSinceAbsorption - thresholdTime;
+      this._moteArrowAlpha = Math.min(1, elapsed / fadeInDuration);
+    } else {
+      this._moteArrowAlpha = 0;
+    }
+
+    if (this._moteArrowAlpha < 0.01) return; // Not visible yet
+
+    // Find nearest mote to player
+    const ho = this.canvasConfig?.homeObject;
+    if (!ho || !this.particleSystem) return;
+
+    let nearestMote = null;
+    let nearestDist = Infinity;
+
+    // Search all regions for nearest mote
+    for (const [regionId, entry] of this.particleSystem.regions) {
+      for (const particle of entry.particles) {
+        // Only track regular motes, not beacon or dark motes
+        if (particle.type && (particle.type.startsWith('mote') || particle.type === 'mote')) {
+          const dx = particle.x - ho.worldX;
+          const dy = particle.y - ho.worldY;
+          const distSq = dx * dx + dy * dy;
+          if (distSq < nearestDist) {
+            nearestDist = distSq;
+            nearestMote = { x: particle.x, y: particle.y };
+          }
+        }
+      }
+    }
+
+    if (!nearestMote) return; // No motes found
+
+    // Draw arrow pointing to nearest mote from player's position
+    const { sx: playerSx, sy: playerSy } = this.camera.worldToScreen(ho.worldX, ho.worldY);
+    const { sx: moteSx, sy: moteSy } = this.camera.worldToScreen(nearestMote.x, nearestMote.y);
+
+    // Arrow originates from player position
+    const dx = moteSx - playerSx;
+    const dy = moteSy - playerSy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 1) return; // Mote is too close to player
+
+    // Position arrow 50px from player toward mote
+    const arrowDist = 50;
+    const arrowX = playerSx + (dx / dist) * arrowDist;
+    const arrowY = playerSy + (dy / dist) * arrowDist;
+    const angle = Math.atan2(dy, dx);
+
+    ctx.save();
+    ctx.translate(arrowX, arrowY);
+    ctx.rotate(angle);
+    ctx.globalAlpha = this._moteArrowAlpha;
+
+    // Draw arrow triangle pointing toward mote
+    ctx.fillStyle = '#a0c4ff';
+    ctx.beginPath();
+    ctx.moveTo(12, 0);        // Tip
+    ctx.lineTo(-4, -6);       // Left base
+    ctx.lineTo(-4, 6);        // Right base
+    ctx.closePath();
+    ctx.fill();
+
+    // Glow outline
+    ctx.strokeStyle = 'rgba(160, 196, 255, 0.6)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.restore();
   }
 
   _drawControlsHint(ctx, viewW, viewH) {
@@ -1385,7 +1480,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=d78e240').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=8b3ecad').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
