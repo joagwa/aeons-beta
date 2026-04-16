@@ -40,7 +40,10 @@ export class OrbitalEnergyDisplay {
     this._angles = TIERS.map(() => []);
     this._tierPhase = new Array(TIERS.length).fill(0);
     this._precessionPhase = new Array(TIERS.length).fill(0); // tracks orbital plane rotation per tier
-    this._tumblePhase = 0; // X-axis rotation for tier 0 motes (first 10)
+    // Per-tier tumble phases: even tiers (Y-axis), odd tiers (X-axis, alternating direction)
+    this._tumblePhases = new Array(TIERS.length).fill(0);
+    // Tumble speeds: starting at 0.60, decreasing by 0.08 per tier
+    this._tumbleSpeeds = [0.60, 0.52, 0.44, 0.36, 0.28, 0.20, 0.12];
     this._flashTimers = new Array(TIERS.length).fill(0);
     this._speedMultiplier = 1;
     this._radiusScale = 1;
@@ -64,8 +67,10 @@ export class OrbitalEnergyDisplay {
     const newCounts = this._computeCounts(e);
     const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
 
-    // Advance Y-axis tumble for all tiers
-    this._tumblePhase += 0.30 * dt; // Rotate around Y axis (faster)
+    // Advance per-tier tumble phases: even tiers Y-axis, odd tiers X-axis
+    for (let t = 0; t < TIERS.length; t++) {
+      this._tumblePhases[t] += this._tumbleSpeeds[t] * dt;
+    }
 
     for (let t = 0; t < TIERS.length; t++) {
       // Advance both orbital phase and precession phase
@@ -211,14 +216,28 @@ export class OrbitalEnergyDisplay {
         let oy = scaledR * (cosTheta * sinNode + sinTheta * cosIncl * cosNode);
         let oz = scaledR * sinTheta * sinIncl;
 
-        // Apply Y-axis tumble rotation to all tiers
-        const cosTumble = Math.cos(this._tumblePhase);
-        const sinTumble = Math.sin(this._tumblePhase);
-        // Rotate around Y-axis: X' = X·cos(t) + Z·sin(t), Z' = -X·sin(t) + Z·cos(t)
-        const oxOld = ox;
-        const ozOld = oz;
-        ox = oxOld * cosTumble + ozOld * sinTumble;
-        oz = -oxOld * sinTumble + ozOld * cosTumble;
+        // Apply per-tier tumble rotation: even tiers Y-axis, odd tiers X-axis
+        const tumblePhase = this._tumblePhases[t];
+        const cosTumble = Math.cos(tumblePhase);
+        const sinTumble = Math.sin(tumblePhase);
+
+        if (t % 2 === 0) {
+          // Even tiers (0, 2, 4, 6): Y-axis rotation
+          // Rotate around Y-axis: X' = X·cos(t) + Z·sin(t), Z' = -X·sin(t) + Z·cos(t)
+          const oxOld = ox;
+          const ozOld = oz;
+          ox = oxOld * cosTumble + ozOld * sinTumble;
+          oz = -oxOld * sinTumble + ozOld * cosTumble;
+        } else {
+          // Odd tiers (1, 3, 5): X-axis rotation, alternating direction
+          // Tier 1, 5: positive (counter-clockwise), Tier 3: negative (clockwise)
+          const direction = t === 3 ? -1 : 1;
+          // Rotate around X-axis: Y' = Y·cos(t) - Z·sin(t), Z' = Y·sin(t) + Z·cos(t)
+          const oyOld = oy;
+          const ozOld = oz;
+          oy = oyOld * cosTumble - direction * ozOld * sinTumble;
+          oz = direction * oyOld * sinTumble + ozOld * cosTumble;
+        }
 
         // Skip motes not on the requested depth side
         if (frontSide ? oz < 0 : oz >= 0) continue;

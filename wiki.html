@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit (Quantum Capacitor fixed: ×2 per level; all mote tiers Y-axis tumble rotation).</p>
+Last updated with commit (Quantum Capacitor fixed: ×2 per level; alternating per-tier tumble axes with decreasing speeds).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -719,7 +719,7 @@ Player character size scales with tier: [5, 7, 10, 14, 18, 22, 26] px.
 
 **Colours**: All white (#ffffff) pre-Collapse. After Quark unlock, motes blend toward quark allocation colours.
 
-### Orbital Precession &amp; Global Tumble
+### Orbital Precession &amp; Per-Tier Tumble
 
 Each tier has a **precession rate** that rotates the orbital plane around the fixed Z-axis, creating a gyroscopic wobble effect:
 
@@ -733,7 +733,19 @@ Each tier has a **precession rate** that rotates the orbital plane around the fi
 | 5 | 0.09 rad/s | Glacial precession |
 | 6 | 0.03 rad/s | Minimal precession |
 
-**Global Y-axis Tumble**: All mote tiers apply a synchronized rotation **around the Y-axis** at 0.30 rad/s. This creates a unified "tumbling" motion across all orbital tiers, rotating the entire orbital system in and out of the camera's view. The tumble preserves each tier's radial distance, orbital speed, and orbital angle (inclination); it simply rotates the entire orbital structure around the Y-axis, providing a dynamic, 3D feel to the energy display.
+**Per-Tier Tumble Rotation**: Each mote tier applies an independent tumble rotation with alternating axes and decreasing speeds:
+
+| Tier | Tumble Axis | Direction | Speed | Effect |
+|------|-------------|-----------|-------|--------|
+| 0 | Y-axis | Constant | 0.60 rad/s | Rotates in/out of view |
+| 1 | X-axis | Counter-clockwise | 0.52 rad/s | Tilts left/right |
+| 2 | Y-axis | Constant | 0.44 rad/s | Rotates in/out of view |
+| 3 | X-axis | Clockwise (opposite) | 0.36 rad/s | Tilts opposite to tier 1 |
+| 4 | Y-axis | Constant | 0.28 rad/s | Rotates in/out of view |
+| 5 | X-axis | Counter-clockwise | 0.20 rad/s | Tilts left/right |
+| 6 | Y-axis | Constant | 0.12 rad/s | Rotates in/out of view |
+
+The tumble speeds decrease by 0.08 rad/s per tier, creating a cascading effect. Each tier maintains its own orbital angle (inclination) and orbital speed while tumbling, creating a rich, layered 3D effect where each tier rotates independently.
 
 ### Subatomic Mode
 
