@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=cce5ba0';
-import { Camera } from './Camera.js?v=cce5ba0';
-import { ParticleSystem } from './ParticleSystem.js?v=cce5ba0';
-import { RegionManager } from './RegionManager.js?v=cce5ba0';
-import { FloatingNumbers } from './FloatingNumbers.js?v=cce5ba0';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=cce5ba0';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=cce5ba0';
+import { SpriteManager } from './SpriteManager.js?v=917f154';
+import { Camera } from './Camera.js?v=917f154';
+import { ParticleSystem } from './ParticleSystem.js?v=917f154';
+import { RegionManager } from './RegionManager.js?v=917f154';
+import { FloatingNumbers } from './FloatingNumbers.js?v=917f154';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=917f154';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=917f154';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=cce5ba0').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=917f154').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -1056,9 +1056,38 @@ export class CanvasRenderer {
       // (player now has active control, no need for passive drift)
       this._bgScrollTargetVx = 0;
       this._bgScrollTargetVy = 0;
-      // Start mote genesis now that player can move
-      this.particleSystem?.spawnInitialParticles('void', 50);
-      console.log('[CanvasRenderer] Cosmic Drift purchased — stopping auto-drift and starting mote genesis');
+      
+      // Start mote genesis near the player
+      const ho = this.canvasConfig?.homeObject;
+      if (ho && this.particleSystem) {
+        // Spawn 50 motes in a circle around the player
+        // Some close (visible), some further out
+        for (let i = 0; i < 50; i++) {
+          const angle = (i / 50) * Math.PI * 2;
+          // Mix close and far: alternate close/far/mid distribution
+          let distance;
+          if (i % 3 === 0) {
+            // ~10 particles very close (100-300px) — guaranteed visible
+            distance = 100 + Math.random() * 200;
+          } else if (i % 3 === 1) {
+            // ~17 particles medium (300-600px)
+            distance = 300 + Math.random() * 300;
+          } else {
+            // ~17 particles far (600-1000px)
+            distance = 600 + Math.random() * 400;
+          }
+          
+          const x = ho.worldX + Math.cos(angle) * distance;
+          const y = ho.worldY + Math.sin(angle) * distance;
+          // Random velocity spread to feel more organic
+          const vx = (Math.random() - 0.5) * 2;
+          const vy = (Math.random() - 0.5) * 2;
+          this.particleSystem.spawnQualityParticle('void', 0, x, y, vx, vy);
+        }
+        console.log('[CanvasRenderer] Cosmic Drift purchased — spawned 50 motes near player');
+      } else {
+        console.warn('[CanvasRenderer] Cannot spawn motes near player: home object or particle system not ready');
+      }
     }
     if (data.upgradeId === 'upg_gravitationalPull') {
       const ho = this.canvasConfig?.homeObject;
@@ -1346,7 +1375,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=cce5ba0').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=917f154').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
