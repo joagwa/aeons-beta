@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=d57fed4';
-import { Camera } from './Camera.js?v=d57fed4';
-import { ParticleSystem } from './ParticleSystem.js?v=d57fed4';
-import { RegionManager } from './RegionManager.js?v=d57fed4';
-import { FloatingNumbers } from './FloatingNumbers.js?v=d57fed4';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d57fed4';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d57fed4';
+import { SpriteManager } from './SpriteManager.js?v=f0dd23a';
+import { Camera } from './Camera.js?v=f0dd23a';
+import { ParticleSystem } from './ParticleSystem.js?v=f0dd23a';
+import { RegionManager } from './RegionManager.js?v=f0dd23a';
+import { FloatingNumbers } from './FloatingNumbers.js?v=f0dd23a';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=f0dd23a';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=f0dd23a';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=d57fed4').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=f0dd23a').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -623,37 +623,6 @@ export class CanvasRenderer {
       this.glowCtx.arc(sx, sy, s + gr, 0, Math.PI * 2);
       this.glowCtx.fill();
       this.glowCtx.globalAlpha = 1;
-    }
-
-    // Direction indicator (small line showing facing angle)
-    if (this._moteController?.enabled) {
-      const mc = this._moteController;
-      const dirLen = s + 10;
-      const dx = Math.cos(mc.angle) * dirLen;
-      const dy = Math.sin(mc.angle) * dirLen;
-      ctx.strokeStyle = color;
-      ctx.globalAlpha = 0.7;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(sx, sy);
-      ctx.lineTo(sx + dx, sy + dy);
-      ctx.stroke();
-
-      // Small arrowhead
-      const aLen = 4;
-      const aAngle = 0.5;
-      ctx.beginPath();
-      ctx.moveTo(sx + dx, sy + dy);
-      ctx.lineTo(
-        sx + dx - Math.cos(mc.angle - aAngle) * aLen,
-        sy + dy - Math.sin(mc.angle - aAngle) * aLen
-      );
-      ctx.moveTo(sx + dx, sy + dy);
-      ctx.lineTo(
-        sx + dx - Math.cos(mc.angle + aAngle) * aLen,
-        sy + dy - Math.sin(mc.angle + aAngle) * aLen
-      );
-      ctx.stroke();
     }
 
     // Tractor beam visual (pulsing dashed circle)
@@ -1211,9 +1180,9 @@ export class CanvasRenderer {
         this.particleSystem.clearHomingParticles('void');
         this.particleSystem.spawnInitialParticles('void', 25);
 
-        // Gravity radius scales with upgrade level — 10 levels
-        // Extended range with large outer zones; diminishing speed formula keeps outer motes slow
-        const gravityRadiusByLevel = [0, 400, 1400, 2200, 3400, 5000, 7200, 10000, 13500, 17500, 22000];
+        // Gravity radius scales with upgrade level — 10 levels, linear progression
+        // Starts small (50px) and increases to 410px for late-game mote gathering
+        const gravityRadiusByLevel = [0, 50, 70, 95, 125, 160, 200, 245, 295, 350, 410];
         const level = data.level || 1;
         const radius = gravityRadiusByLevel[Math.min(level, gravityRadiusByLevel.length - 1)];
 
@@ -1484,7 +1453,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=d57fed4').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=f0dd23a').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

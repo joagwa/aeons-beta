@@ -14,6 +14,7 @@ export class MoteController {
     this.worldY = 2500;
     this.angle = -Math.PI / 2; // visual facing angle, derived from velocity
     this.maxSpeed = 40; // flat movement speed when enabled (half of previous max 80)
+    this._speedMultiplier = 1.0; // applied via Spatial Acceleration upgrade
     this.tractorBeamRange = 0;
     this.tractorBeamStrength = 1.0;
 
@@ -128,13 +129,22 @@ export class MoteController {
   }
 
   /**
+   * Set movement speed multiplier (applied via Spatial Acceleration upgrade).
+   * @param {number} mult - multiplier (1.0 = base speed)
+   */
+  setSpeedMultiplier(mult) {
+    this._speedMultiplier = Math.max(1, mult);
+  }
+
+  /**
    * Game-frame update — called from onFrame at full rAF rate (~60fps) for smooth motion.
    * @param {number} dt — real wall-clock delta in seconds (clamped externally)
    */
   tick(dt) {
     if (!this._enabled || dt <= 0) return;
 
-    const accel = this.maxSpeed * 8 * dt;   // reach max speed in ~0.125s
+    const effectiveMaxSpeed = this.maxSpeed * this._speedMultiplier;
+    const accel = effectiveMaxSpeed * 8 * dt;   // reach max speed in ~0.125s
     const friction = Math.pow(0.008, dt);    // aggressive stop — nearly instant when released
 
     if (this._joystickActive) {
@@ -148,8 +158,8 @@ export class MoteController {
         const norm = Math.min(dist, this._joystickMaxRadius) / this._joystickMaxRadius;
         const nx = (dx / dist) * norm;
         const ny = (dy / dist) * norm;
-        const targetVx = nx * this.maxSpeed;
-        const targetVy = ny * this.maxSpeed;
+        const targetVx = nx * effectiveMaxSpeed;
+        const targetVy = ny * effectiveMaxSpeed;
 
         // Accelerate toward joystick target
         if (targetVx < this._vx) this._vx = Math.max(this._vx - accel, targetVx);
@@ -162,12 +172,12 @@ export class MoteController {
       }
     } else {
       // Keyboard input
-      if (this._input.left)       this._vx = Math.max(this._vx - accel, -this.maxSpeed);
-      else if (this._input.right) this._vx = Math.min(this._vx + accel,  this.maxSpeed);
+      if (this._input.left)       this._vx = Math.max(this._vx - accel, -effectiveMaxSpeed);
+      else if (this._input.right) this._vx = Math.min(this._vx + accel,  effectiveMaxSpeed);
       else                        this._vx *= friction;
 
-      if (this._input.up)         this._vy = Math.max(this._vy - accel, -this.maxSpeed);
-      else if (this._input.down)  this._vy = Math.min(this._vy + accel,  this.maxSpeed);
+      if (this._input.up)         this._vy = Math.max(this._vy - accel, -effectiveMaxSpeed);
+      else if (this._input.down)  this._vy = Math.min(this._vy + accel,  effectiveMaxSpeed);
       else                        this._vy *= friction;
     }
 

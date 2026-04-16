@@ -38,6 +38,8 @@ export class OrbitalEnergyDisplay {
     this._energy = 0;
     this._counts = new Array(TIERS.length).fill(0);
     this._angles = TIERS.map(() => []); // per-tier array of mote angles
+    this._targetAngles = TIERS.map(() => []); // target angles for gradual spacing
+    this._spacingOutTime = TIERS.map(() => 0); // timer for each tier's spacing-out phase
     this._flashTimers = new Array(TIERS.length).fill(0); // brief flash on tier rollover
     this._speedMultiplier = 1;  // Epoch Collapse spin-up
     this._radiusScale = 1;      // Epoch Collapse radius collapse (0 = all at center)
@@ -67,12 +69,30 @@ export class OrbitalEnergyDisplay {
       if (prev !== next) {
         this._redistributeAngles(t, next);
         this._counts[t] = next;
+        // Start spacing-out phase for this tier (1 second duration)
+        this._spacingOutTime[t] = 1.0;
         // Flash on the next tier when this tier rolls from 9 → 0
         if (prev > 0 && next === 0 && t + 1 < TIERS.length) {
           this._flashTimers[t + 1] = Math.min(1, (this._flashTimers[t + 1] || 0) + 0.5);
         }
       }
 
+      // Gradually space out motes if in spacing phase
+      if (this._spacingOutTime[t] > 0) {
+        this._spacingOutTime[t] = Math.max(0, this._spacingOutTime[t] - dt);
+        const progress = 1 - (this._spacingOutTime[t] / 1.0); // 0 → 1 over 1 second
+        for (let i = 0; i < this._angles[t].length; i++) {
+          // Interpolate from current angle toward target
+          const curr = this._angles[t][i];
+          const targ = this._targetAngles[t][i];
+          const angleDiff = targ - curr;
+          // Shortest path around circle
+          const normalized = Math.atan2(Math.sin(angleDiff), Math.cos(angleDiff));
+          this._angles[t][i] = curr + normalized * progress;
+        }
+      }
+
+      // Apply normal rotation after spacing-out
       for (let i = 0; i < this._angles[t].length; i++) {
         this._angles[t][i] += TIERS[t].speed * this._speedMultiplier * dt;
       }
@@ -208,6 +228,7 @@ export class OrbitalEnergyDisplay {
 
     if (count === 0) {
       this._angles[tierIndex] = [];
+      this._targetAngles[tierIndex] = [];
       return;
     }
 
@@ -215,6 +236,7 @@ export class OrbitalEnergyDisplay {
       // First mote(s) on this tier — initialize with even spacing
       const base = tierIndex * Math.PI * 0.4;
       this._angles[tierIndex] = Array.from({ length: count }, (_, i) => base + (i / count) * Math.PI * 2);
+      this._targetAngles[tierIndex] = [...this._angles[tierIndex]];
       return;
     }
 
@@ -237,9 +259,17 @@ export class OrbitalEnergyDisplay {
         newAngles.push(insertAngle);
       }
       this._angles[tierIndex] = newAngles;
+      
+      // Compute target angles: evenly spaced around the circle
+      const base = tierIndex * Math.PI * 0.4;
+      this._targetAngles[tierIndex] = Array.from({ length: count }, (_, i) => base + (i / count) * Math.PI * 2);
     } else {
       // Removing mote(s): drop from the end — keep remaining positions intact
       this._angles[tierIndex] = existing.slice(0, count);
+      
+      // Recompute evenly-spaced targets for remaining motes
+      const base = tierIndex * Math.PI * 0.4;
+      this._targetAngles[tierIndex] = Array.from({ length: count }, (_, i) => base + (i / count) * Math.PI * 2);
     }
   }
 
