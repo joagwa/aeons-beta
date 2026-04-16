@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=d53df5b';
-import { Camera } from './Camera.js?v=d53df5b';
-import { ParticleSystem } from './ParticleSystem.js?v=d53df5b';
-import { RegionManager } from './RegionManager.js?v=d53df5b';
-import { FloatingNumbers } from './FloatingNumbers.js?v=d53df5b';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d53df5b';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d53df5b';
+import { SpriteManager } from './SpriteManager.js?v=41eb074';
+import { Camera } from './Camera.js?v=41eb074';
+import { ParticleSystem } from './ParticleSystem.js?v=41eb074';
+import { RegionManager } from './RegionManager.js?v=41eb074';
+import { FloatingNumbers } from './FloatingNumbers.js?v=41eb074';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=41eb074';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=41eb074';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=d53df5b').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=41eb074').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -276,6 +276,10 @@ export class CanvasRenderer {
     if (config.homeObject) {
       const ho = config.homeObject;
       this.particleSystem.spawnBeaconMote('void', ho.worldX + 400, ho.worldY, ho.worldX, ho.worldY, 30);
+
+      // Add small initial attraction (200px radius) so player doesn't need perfect alignment
+      // This is replaced/expanded when upg_gravitationalPull is purchased
+      this.particleSystem.updateAttractionTargetAll(ho.worldX, ho.worldY, 200);
     }
 
     // Apply any gravity upgrade that fired before canvasConfig was ready
@@ -1047,6 +1051,13 @@ export class CanvasRenderer {
   }
 
   _onUpgradePurchased(data) {
+    if (data.upgradeId === 'upg_cosmicDrift') {
+      // Stop background scroll when player purchases Cosmic Drift
+      // (player now has active control, no need for passive drift)
+      this._bgScrollTargetVx = 0;
+      this._bgScrollTargetVy = 0;
+      console.log('[CanvasRenderer] Cosmic Drift purchased — stopping auto-drift');
+    }
     if (data.upgradeId === 'upg_gravitationalPull') {
       const ho = this.canvasConfig?.homeObject;
       if (!ho) {
@@ -1056,9 +1067,6 @@ export class CanvasRenderer {
         return;
       }
       try {
-        // Stop background scroll — beacon phase is over
-        this._bgScrollTargetVx = 0;
-        this._bgScrollTargetVy = 0;
         // Clean up beacon mote and start normal mote genesis (sparse — gravity will do the work)
         this.particleSystem.clearHomingParticles('void');
         this.particleSystem.spawnInitialParticles('void', 25);
@@ -1336,7 +1344,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=d53df5b').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=41eb074').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
