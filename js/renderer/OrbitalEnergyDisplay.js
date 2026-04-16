@@ -13,13 +13,13 @@
 // incl: tilt from the screen plane (0 = flat ring, π/2 = edge-on line)
 // node: orientation of the tilt axis in screen space
 const TIERS = [
-  { radius: 50,  moteSize: 2.0,  color: '#ffffff', speed: 2.8,  incl: 0,                    node: 0,             precession: 0.30 }, // ones — flat equatorial
-  { radius: 68,  moteSize: 3.0,  color: '#ffffff', speed: 2.1,  incl: Math.PI / 6,          node: Math.PI * 0.4,  precession: 0.20 }, // tens — 30°
-  { radius: 88,  moteSize: 4.5,  color: '#ffffff', speed: 1.54, incl: Math.PI * 5 / 18,     node: Math.PI * 0.8,  precession: 0.15 }, // hundreds — 50°
-  { radius: 112, moteSize: 6.0,  color: '#ffffff', speed: 1.12, incl: Math.PI * 7 / 18,     node: Math.PI * 1.2,  precession: 0.10 }, // thousands — 70°
-  { radius: 140, moteSize: 8.0,  color: '#ffffff', speed: 0.77, incl: Math.PI * 4 / 9,      node: Math.PI * 1.6,  precession: 0.07 }, // ten-thousands — 80°
-  { radius: 172, moteSize: 10.0, color: '#ffffff', speed: 0.49, incl: Math.PI / 4,           node: Math.PI * 0.2,  precession: 0.05 }, // hundred-thousands — 45°
-  { radius: 210, moteSize: 13.0, color: '#ffffff', speed: 0.31, incl: Math.PI * 67 / 180,   node: Math.PI,        precession: 0.03 }, // millions — 67°
+  { radius: 50,  moteSize: 2.0,  color: '#ffffff', speed: 2.8,  incl: 0,                    node: 0,             precession: 0.60 }, // ones — flat equatorial
+  { radius: 68,  moteSize: 3.0,  color: '#ffffff', speed: 2.1,  incl: Math.PI / 6,          node: Math.PI * 0.4,  precession: 0.40 }, // tens — 30°
+  { radius: 88,  moteSize: 4.5,  color: '#ffffff', speed: 1.54, incl: Math.PI * 5 / 18,     node: Math.PI * 0.8,  precession: 0.30 }, // hundreds — 50°
+  { radius: 112, moteSize: 6.0,  color: '#ffffff', speed: 1.12, incl: Math.PI * 7 / 18,     node: Math.PI * 1.2,  precession: 0.20 }, // thousands — 70°
+  { radius: 140, moteSize: 8.0,  color: '#ffffff', speed: 0.77, incl: Math.PI * 4 / 9,      node: Math.PI * 1.6,  precession: 0.14 }, // ten-thousands — 80°
+  { radius: 172, moteSize: 10.0, color: '#ffffff', speed: 0.49, incl: Math.PI / 4,           node: Math.PI * 0.2,  precession: 0.10 }, // hundred-thousands — 45°
+  { radius: 210, moteSize: 13.0, color: '#ffffff', speed: 0.31, incl: Math.PI * 67 / 180,   node: Math.PI,        precession: 0.06 }, // millions — 67°
 ];
 
 // Precompute fixed trig values per tier (incl/node never change at runtime)

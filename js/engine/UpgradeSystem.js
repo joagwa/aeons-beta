@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=a5f8f0f').EventBus} */
+  /** @type {import('../core/EventBus.js?v=62b647f').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=a5f8f0f').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=62b647f').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=a5f8f0f').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=62b647f').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -307,6 +307,9 @@ export class UpgradeSystem {
             break;
           case 'capIncrease':
             scaledMag = def.effectMagnitude * level * level;
+            break;
+          case 'capMultiplier':
+            scaledMag = Math.pow(def.effectMagnitude, level);
             break;
           case 'rateMultiplier':
           case 'clickMultiplier':
