@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=b34c567').EventBus} */
+  /** @type {import('../core/EventBus.js?v=0e91f62').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=b34c567').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=0e91f62').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=b34c567').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=0e91f62').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -39,6 +39,9 @@ export class UpgradeSystem {
     this.#definitions.clear();
     for (const def of upgrades) {
       this.#definitions.set(def.id, def);
+      if (def.id === 'upg_quantumCapacitor') {
+        console.debug(`[UpgradeSystem] Loading capacitor: effectType=${def.effectType}, target=${def.effectTarget}, mag=${def.effectMagnitude}`);
+      }
       if (!this.#states.has(def.id)) {
         this.#states.set(def.id, { purchased: false, level: 0 });
       }
@@ -264,6 +267,9 @@ export class UpgradeSystem {
     const maxLevel = def.maxLevel || 1;
     if (state.level >= maxLevel) state.purchased = true;
 
+    if (upgradeId === 'upg_quantumCapacitor') {
+      console.debug(`[UpgradeSystem] Purchased capacitor: level ${state.level}/${maxLevel}, calling recalculateRates`);
+    }
     console.debug(`[UpgradeSystem] purchase(${upgradeId}): success → level ${state.level}/${maxLevel} (cost=${cost})`);
 
     this.#resourceManager.recalculateRates();

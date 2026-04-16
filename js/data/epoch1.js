@@ -388,9 +388,9 @@ const tier1Upgrades = [
     prerequisites: [],
     effectType: 'capMultiplier',
     effectTarget: 'energy',
-    effectMagnitude: 1.2,
+    effectMagnitude: 2.0,
     requiresMilestone: null,
-    mechanic: '⚙ Energy cap: ×1.2 multiplier per level (10 levels: ×6.19x total) — each level costs the current energy cap',
+    mechanic: '⚙ Energy cap: ×2 multiplier per level (10 levels: ×1024x total) — each level costs the current energy cap',
   },
   // -- Synthesis upgrades --
   {

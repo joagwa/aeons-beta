@@ -40,6 +40,7 @@ export class OrbitalEnergyDisplay {
     this._angles = TIERS.map(() => []);
     this._tierPhase = new Array(TIERS.length).fill(0);
     this._precessionPhase = new Array(TIERS.length).fill(0); // tracks orbital plane rotation per tier
+    this._tumblePhase = 0; // X-axis rotation for tier 0 motes (first 10)
     this._flashTimers = new Array(TIERS.length).fill(0);
     this._speedMultiplier = 1;
     this._radiusScale = 1;
@@ -62,6 +63,9 @@ export class OrbitalEnergyDisplay {
     const e = Math.max(0, Math.floor(currentEnergy));
     const newCounts = this._computeCounts(e);
     const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+
+    // Advance X-axis tumble for tier 0 (first 10 motes)
+    this._tumblePhase += 0.15 * dt; // Rotate around X axis
 
     for (let t = 0; t < TIERS.length; t++) {
       // Advance both orbital phase and precession phase
@@ -203,9 +207,20 @@ export class OrbitalEnergyDisplay {
 
         // Orthographic 3D projection of a tilted circular orbit
         const scaledR = tier.radius * this._radiusScale;
-        const ox = scaledR * (cosTheta * cosNode - sinTheta * cosIncl * sinNode);
-        const oy = scaledR * (cosTheta * sinNode + sinTheta * cosIncl * cosNode);
-        const oz = scaledR * sinTheta * sinIncl;
+        let ox = scaledR * (cosTheta * cosNode - sinTheta * cosIncl * sinNode);
+        let oy = scaledR * (cosTheta * sinNode + sinTheta * cosIncl * cosNode);
+        let oz = scaledR * sinTheta * sinIncl;
+
+        // For tier 0: apply additional X-axis tumble rotation
+        if (t === 0) {
+          const cosTumble = Math.cos(this._tumblePhase);
+          const sinTumble = Math.sin(this._tumblePhase);
+          // Rotate around X-axis: Y' = Y*cosT - Z*sinT, Z' = Y*sinT + Z*cosT
+          const oyOld = oy;
+          const ozOld = oz;
+          oy = oyOld * cosTumble - ozOld * sinTumble;
+          oz = oyOld * sinTumble + ozOld * cosTumble;
+        }
 
         // Skip motes not on the requested depth side
         if (frontSide ? oz < 0 : oz >= 0) continue;

@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit (Movement as first upgrade, attraction boundary rings, doubled orbital speeds, smooth mote insertion).</p>
+Last updated with commit (Quantum Capacitor fixed: ×2 per level; first tier motes X-axis tumble rotation).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -719,6 +719,22 @@ Player character size scales with tier: [5, 7, 10, 14, 18, 22, 26] px.
 
 **Colours**: All white (#ffffff) pre-Collapse. After Quark unlock, motes blend toward quark allocation colours.
 
+### Orbital Precession &amp; Tier 0 Tumble
+
+Each tier has a **precession rate** that rotates the orbital plane around the fixed Z-axis, creating a gyroscopic wobble effect:
+
+| Tier | Precession Rate | Effect |
+|------|----------------|--------|
+| 0 | 0.60 rad/s | Fastest precession; also tumbles around X-axis |
+| 1 | 0.50 rad/s | Medium precession |
+| 2 | 0.40 rad/s | Medium precession |
+| 3 | 0.30 rad/s | Slow precession |
+| 4 | 0.15 rad/s | Very slow precession |
+| 5 | 0.09 rad/s | Glacial precession |
+| 6 | 0.03 rad/s | Minimal precession |
+
+**Tier 0 X-axis Tumble**: The ones-place motes (tier 0) apply an additional rotation **around the X-axis** at 0.15 rad/s. This creates a unique "tumbling" motion, distinct from precession, providing visual interest at the core of the orbital system. The tumble preserves the radial distance and orbital speed; it simply rotates the orbital plane out of the camera's XY view.
+
 ### Subatomic Mode
 
 After the 2nd Epoch Collapse, the display switches to three dedicated rings for proton, neutron, and electron counts (see Subatomic Phase above).
@@ -786,7 +802,7 @@ Always available. Energy costs. All multi-level upgrades: 10 levels, pure expone
 | upg_moteGeneration | Mote Genesis | 10 | 5E × 2× | ×2.0 spawn rate/level |
 | upg_quantumFluctuation | Quantum Fluctuation | 10 | 10E × 5× | ×2.0 absorption/level (passive only) — steep cost |
 | upg_clickAmplifier | Energy Resonance | 10 | 10E × 5× | ×(1 + level×0.25×E/(E+200)) to mote genesis &amp; attraction (soft-cap 200 energy, up to ×3.5 at L10) |
-| upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | ×1.2 energy cap/level (proportional growth) — cost equals current cap each time |
+| upg_quantumCapacitor | Quantum Capacitor | 10 | = current energy cap | ×2.0 energy cap/level (exponential growth: 500→1k→2k→4k…→256k) — cost equals current cap each time |
 | upg_vacuumHarvesting | Vacuum Harvesting | 10 | 200E × 3× | ×1.8 absorption/level |
 
 ---
