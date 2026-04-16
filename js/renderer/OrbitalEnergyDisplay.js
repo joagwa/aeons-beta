@@ -13,13 +13,13 @@
 // incl: tilt from the screen plane (0 = flat ring, π/2 = edge-on line)
 // node: orientation of the tilt axis in screen space
 const TIERS = [
-  { radius: 50,  moteSize: 2.0,  color: '#ffffff', speed: 2.8,  incl: 0,                    node: 0                }, // ones — flat equatorial
-  { radius: 68,  moteSize: 3.0,  color: '#ffffff', speed: 2.1,  incl: Math.PI / 6,          node: Math.PI * 0.4    }, // tens — 30°
-  { radius: 88,  moteSize: 4.5,  color: '#ffffff', speed: 1.54, incl: Math.PI * 5 / 18,     node: Math.PI * 0.8    }, // hundreds — 50°
-  { radius: 112, moteSize: 6.0,  color: '#ffffff', speed: 1.12, incl: Math.PI * 7 / 18,     node: Math.PI * 1.2    }, // thousands — 70°
-  { radius: 140, moteSize: 8.0,  color: '#ffffff', speed: 0.77, incl: Math.PI * 4 / 9,      node: Math.PI * 1.6    }, // ten-thousands — 80°
-  { radius: 172, moteSize: 10.0, color: '#ffffff', speed: 0.49, incl: Math.PI / 4,           node: Math.PI * 0.2    }, // hundred-thousands — 45°
-  { radius: 210, moteSize: 13.0, color: '#ffffff', speed: 0.31, incl: Math.PI * 67 / 180,   node: Math.PI           }, // millions — 67°
+  { radius: 50,  moteSize: 2.0,  color: '#ffffff', speed: 2.8,  incl: 0,                    node: 0,             precession: 0.30 }, // ones — flat equatorial
+  { radius: 68,  moteSize: 3.0,  color: '#ffffff', speed: 2.1,  incl: Math.PI / 6,          node: Math.PI * 0.4,  precession: 0.20 }, // tens — 30°
+  { radius: 88,  moteSize: 4.5,  color: '#ffffff', speed: 1.54, incl: Math.PI * 5 / 18,     node: Math.PI * 0.8,  precession: 0.15 }, // hundreds — 50°
+  { radius: 112, moteSize: 6.0,  color: '#ffffff', speed: 1.12, incl: Math.PI * 7 / 18,     node: Math.PI * 1.2,  precession: 0.10 }, // thousands — 70°
+  { radius: 140, moteSize: 8.0,  color: '#ffffff', speed: 0.77, incl: Math.PI * 4 / 9,      node: Math.PI * 1.6,  precession: 0.07 }, // ten-thousands — 80°
+  { radius: 172, moteSize: 10.0, color: '#ffffff', speed: 0.49, incl: Math.PI / 4,           node: Math.PI * 0.2,  precession: 0.05 }, // hundred-thousands — 45°
+  { radius: 210, moteSize: 13.0, color: '#ffffff', speed: 0.31, incl: Math.PI * 67 / 180,   node: Math.PI,        precession: 0.03 }, // millions — 67°
 ];
 
 // Precompute fixed trig values per tier (incl/node never change at runtime)
@@ -37,8 +37,9 @@ export class OrbitalEnergyDisplay {
   constructor() {
     this._energy = 0;
     this._counts = new Array(TIERS.length).fill(0);
-    this._angles = TIERS.map(() => []);     // actual rendered angle per mote
-    this._tierPhase = new Array(TIERS.length).fill(0); // co-rotating slot-0 reference per tier
+    this._angles = TIERS.map(() => []);
+    this._tierPhase = new Array(TIERS.length).fill(0);
+    this._precessionPhase = new Array(TIERS.length).fill(0); // tracks orbital plane rotation per tier
     this._flashTimers = new Array(TIERS.length).fill(0);
     this._speedMultiplier = 1;
     this._radiusScale = 1;
@@ -63,8 +64,9 @@ export class OrbitalEnergyDisplay {
     const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
 
     for (let t = 0; t < TIERS.length; t++) {
-      // Tier reference phase always advances at full speed
+      // Advance both orbital phase and precession phase
       this._tierPhase[t] += TIERS[t].speed * this._speedMultiplier * dt;
+      this._precessionPhase[t] += TIERS[t].precession * dt;
 
       const prev = this._counts[t];
       const next = newCounts[t];
@@ -150,7 +152,8 @@ export class OrbitalEnergyDisplay {
         ctx.lineWidth = 0.5;
         ctx.beginPath();
         const r = tier.radius * this._radiusScale;
-        ctx.ellipse(sx, sy, r, r * Math.abs(tier._cosIncl), tier.node, 0, Math.PI * 2);
+        const dynamicNode = tier.node + this._precessionPhase[t];
+        ctx.ellipse(sx, sy, r, r * Math.abs(tier._cosIncl), dynamicNode, 0, Math.PI * 2);
         ctx.stroke();
       }
       this._renderMotes(ctx, sx, sy, false);
@@ -191,11 +194,18 @@ export class OrbitalEnergyDisplay {
         const cosTheta = Math.cos(angle);
         const sinTheta = Math.sin(angle);
 
+        // Dynamic node includes precession
+        const dynamicNode = tier.node + this._precessionPhase[t];
+        const cosNode = Math.cos(dynamicNode);
+        const sinNode = Math.sin(dynamicNode);
+        const cosIncl = tier._cosIncl;
+        const sinIncl = tier._sinIncl;
+
         // Orthographic 3D projection of a tilted circular orbit
         const scaledR = tier.radius * this._radiusScale;
-        const ox = scaledR * (cosTheta * tier._cosNode - sinTheta * tier._cosIncl * tier._sinNode);
-        const oy = scaledR * (cosTheta * tier._sinNode + sinTheta * tier._cosIncl * tier._cosNode);
-        const oz = scaledR * sinTheta * tier._sinIncl;
+        const ox = scaledR * (cosTheta * cosNode - sinTheta * cosIncl * sinNode);
+        const oy = scaledR * (cosTheta * sinNode + sinTheta * cosIncl * cosNode);
+        const oz = scaledR * sinTheta * sinIncl;
 
         // Skip motes not on the requested depth side
         if (frontSide ? oz < 0 : oz >= 0) continue;
