@@ -12,11 +12,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=62b647f').EventBus} */
+  /** @type {import('../core/EventBus.js?v=b34c567').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=62b647f').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=b34c567').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=62b647f').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=b34c567').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;

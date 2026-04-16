@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=62b647f').EventBus} */
+  /** @type {import('../core/EventBus.js?v=b34c567').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=62b647f').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=b34c567').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=62b647f').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=b34c567').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -318,11 +318,15 @@ export class UpgradeSystem {
         }
       }
 
-      effects.push({
+      const effect = {
         effectType: def.effectType,
         effectTarget: def.effectTarget,
         effectMagnitude: scaledMag,
-      });
+      };
+      if (def.effectType === 'capMultiplier') {
+        console.debug(`[UpgradeSystem] getPurchasedEffects: ${id} L${level} → ${def.effectType} on ${def.effectTarget} ×${scaledMag}`);
+      }
+      effects.push(effect);
     }
     return effects;
   }

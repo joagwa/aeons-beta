@@ -4,13 +4,13 @@
  */
 
 export class ResourceManager {
-  /** @type {import('../core/EventBus.js?v=62b647f').EventBus} */
+  /** @type {import('../core/EventBus.js?v=b34c567').EventBus} */
   #eventBus;
   /** @type {Map<string, object>} resource definitions keyed by id */
   #definitions = new Map();
   /** @type {Map<string, object>} live resource states keyed by id */
   #states = new Map();
-  /** @type {import('./UpgradeSystem.js?v=62b647f').UpgradeSystem | null} */
+  /** @type {import('./UpgradeSystem.js?v=b34c567').UpgradeSystem | null} */
   #upgradeSystem = null;
   /** @type {Map<string, number>} milestone rate bonuses keyed by resource id */
   #rateBonuses = new Map();
@@ -30,7 +30,7 @@ export class ResourceManager {
   #comboTimer = null;
 
   /**
-   * @param {import('../core/EventBus.js?v=62b647f').EventBus} EventBus
+   * @param {import('../core/EventBus.js?v=b34c567').EventBus} EventBus
    */
   constructor(EventBus) {
     this.#eventBus = EventBus;
@@ -458,7 +458,11 @@ export class ResourceManager {
     for (const effect of effects) {
       if (effect.effectType === 'capMultiplier') {
         const state = this.#states.get(effect.effectTarget);
-        if (state && state.cap !== null) state.cap *= effect.effectMagnitude;
+        if (state && state.cap !== null) {
+          const oldCap = state.cap;
+          state.cap *= effect.effectMagnitude;
+          console.debug(`[ResourceManager] capMultiplier: ${effect.effectTarget} cap ${oldCap} → ${state.cap} (×${effect.effectMagnitude})`);
+        }
       }
     }
 
