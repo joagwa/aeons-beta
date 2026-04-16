@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=c26d7b0';
-import { Camera } from './Camera.js?v=c26d7b0';
-import { ParticleSystem } from './ParticleSystem.js?v=c26d7b0';
-import { RegionManager } from './RegionManager.js?v=c26d7b0';
-import { FloatingNumbers } from './FloatingNumbers.js?v=c26d7b0';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=c26d7b0';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=c26d7b0';
+import { SpriteManager } from './SpriteManager.js?v=d53df5b';
+import { Camera } from './Camera.js?v=d53df5b';
+import { ParticleSystem } from './ParticleSystem.js?v=d53df5b';
+import { RegionManager } from './RegionManager.js?v=d53df5b';
+import { FloatingNumbers } from './FloatingNumbers.js?v=d53df5b';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d53df5b';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d53df5b';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=c26d7b0').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=d53df5b').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -275,7 +275,7 @@ export class CanvasRenderer {
     // It is cleaned up when EM Bond is purchased (clearHomingParticles).
     if (config.homeObject) {
       const ho = config.homeObject;
-      this.particleSystem.spawnBeaconMote('void', ho.worldX + 60, ho.worldY, ho.worldX, ho.worldY, 150);
+      this.particleSystem.spawnBeaconMote('void', ho.worldX + 400, ho.worldY, ho.worldX, ho.worldY, 30);
     }
 
     // Apply any gravity upgrade that fired before canvasConfig was ready
@@ -1336,7 +1336,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=c26d7b0').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=d53df5b').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

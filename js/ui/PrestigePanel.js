@@ -11,7 +11,7 @@
  * Upgrade nodes rendered as HTML over the canvas.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=c26d7b0';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=d53df5b';
 
 const AEON_BRANCHES = {
   expansion:   { label: 'Expansion',  color: '#ffd700' },
