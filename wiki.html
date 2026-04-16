@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit (Quantum Capacitor fixed: ×2 per level; first tier motes X-axis tumble rotation).</p>
+Last updated with commit (Quantum Capacitor fixed: ×2 per level; all mote tiers Y-axis tumble rotation).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -719,13 +719,13 @@ Player character size scales with tier: [5, 7, 10, 14, 18, 22, 26] px.
 
 **Colours**: All white (#ffffff) pre-Collapse. After Quark unlock, motes blend toward quark allocation colours.
 
-### Orbital Precession &amp; Tier 0 Tumble
+### Orbital Precession &amp; Global Tumble
 
 Each tier has a **precession rate** that rotates the orbital plane around the fixed Z-axis, creating a gyroscopic wobble effect:
 
 | Tier | Precession Rate | Effect |
 |------|----------------|--------|
-| 0 | 0.60 rad/s | Fastest precession; also tumbles around X-axis |
+| 0 | 0.60 rad/s | Fastest precession |
 | 1 | 0.50 rad/s | Medium precession |
 | 2 | 0.40 rad/s | Medium precession |
 | 3 | 0.30 rad/s | Slow precession |
@@ -733,7 +733,7 @@ Each tier has a **precession rate** that rotates the orbital plane around the fi
 | 5 | 0.09 rad/s | Glacial precession |
 | 6 | 0.03 rad/s | Minimal precession |
 
-**Tier 0 X-axis Tumble**: The ones-place motes (tier 0) apply an additional rotation **around the X-axis** at 0.15 rad/s. This creates a unique "tumbling" motion, distinct from precession, providing visual interest at the core of the orbital system. The tumble preserves the radial distance and orbital speed; it simply rotates the orbital plane out of the camera's XY view.
+**Global Y-axis Tumble**: All mote tiers apply a synchronized rotation **around the Y-axis** at 0.30 rad/s. This creates a unified "tumbling" motion across all orbital tiers, rotating the entire orbital system in and out of the camera's view. The tumble preserves each tier's radial distance, orbital speed, and orbital angle (inclination); it simply rotates the entire orbital structure around the Y-axis, providing a dynamic, 3D feel to the energy display.
 
 ### Subatomic Mode
 

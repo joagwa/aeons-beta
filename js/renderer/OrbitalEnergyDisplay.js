@@ -64,8 +64,8 @@ export class OrbitalEnergyDisplay {
     const newCounts = this._computeCounts(e);
     const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
 
-    // Advance X-axis tumble for tier 0 (first 10 motes)
-    this._tumblePhase += 0.15 * dt; // Rotate around X axis
+    // Advance Y-axis tumble for all tiers
+    this._tumblePhase += 0.30 * dt; // Rotate around Y axis (faster)
 
     for (let t = 0; t < TIERS.length; t++) {
       // Advance both orbital phase and precession phase
@@ -211,16 +211,14 @@ export class OrbitalEnergyDisplay {
         let oy = scaledR * (cosTheta * sinNode + sinTheta * cosIncl * cosNode);
         let oz = scaledR * sinTheta * sinIncl;
 
-        // For tier 0: apply additional X-axis tumble rotation
-        if (t === 0) {
-          const cosTumble = Math.cos(this._tumblePhase);
-          const sinTumble = Math.sin(this._tumblePhase);
-          // Rotate around X-axis: Y' = Y*cosT - Z*sinT, Z' = Y*sinT + Z*cosT
-          const oyOld = oy;
-          const ozOld = oz;
-          oy = oyOld * cosTumble - ozOld * sinTumble;
-          oz = oyOld * sinTumble + ozOld * cosTumble;
-        }
+        // Apply Y-axis tumble rotation to all tiers
+        const cosTumble = Math.cos(this._tumblePhase);
+        const sinTumble = Math.sin(this._tumblePhase);
+        // Rotate around Y-axis: X' = X·cos(t) + Z·sin(t), Z' = -X·sin(t) + Z·cos(t)
+        const oxOld = ox;
+        const ozOld = oz;
+        ox = oxOld * cosTumble + ozOld * sinTumble;
+        oz = -oxOld * sinTumble + ozOld * cosTumble;
 
         // Skip motes not on the requested depth side
         if (frontSide ? oz < 0 : oz >= 0) continue;
