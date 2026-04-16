@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=74205be';
-import { Camera } from './Camera.js?v=74205be';
-import { ParticleSystem } from './ParticleSystem.js?v=74205be';
-import { RegionManager } from './RegionManager.js?v=74205be';
-import { FloatingNumbers } from './FloatingNumbers.js?v=74205be';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=74205be';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=74205be';
+import { SpriteManager } from './SpriteManager.js?v=d57fed4';
+import { Camera } from './Camera.js?v=d57fed4';
+import { ParticleSystem } from './ParticleSystem.js?v=d57fed4';
+import { RegionManager } from './RegionManager.js?v=d57fed4';
+import { FloatingNumbers } from './FloatingNumbers.js?v=d57fed4';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d57fed4';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d57fed4';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=74205be').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=d57fed4').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -111,9 +111,15 @@ export class CanvasRenderer {
     // Orbital energy display (orbiting motes representing current energy)
     this._orbitalDisplay = new OrbitalEnergyDisplay();
 
+    // Epoch Collapse animation controller
+    this._collapseAnim = new EpochCollapseAnimation();
+    this._collapseTriggered = false; // prevent re-trigger
+    this._narrativePanel = null;     // set via setNarrativePanel()
+
     // Mote detection arrow (appears after 10s without absorption)
     this._lastAbsorptionTime = Date.now(); // Track when last mote was absorbed
     this._moteArrowAlpha = 0; // Fade in over time
+  }
 
   // ---------------------------------------------------------------
   // Initialization
@@ -1478,7 +1484,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=74205be').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=d57fed4').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
