@@ -1114,6 +1114,44 @@ window.aeons.moteController.worldX
 window.aeons.moteController.worldY</code></pre>
 <p>All <code>console.debug()</code> calls use module-name prefixes (<code>[ResourceManager]</code>, <code>[MilestoneSystem]</code>, etc.). Filter by prefix in the DevTools console to reduce noise.</p>
 <hr>
+<h2 id="pre-commit-checklist">Pre-Commit Checklist</h2>
+<p><strong>Before committing any changes, always:</strong></p>
+<ol>
+<li><strong>Lint syntax</strong> — catches parse errors before reaching browser:</li>
+</ol>
+<p>``<code>bash    npm run lint    </code>`<code>    This runs </code>scripts/syntax-check.js<code> which parses all </code>.js<code> files. Fix any </code>SyntaxError` output before proceeding.</p>
+<ol>
+<li><strong>Test locally</strong> — play the game for 30 seconds after your changes:</li>
+</ol>
+<p>``<code>bash    python -m http.server 8080    # Open http://localhost:8080 and verify basic gameplay    </code>``    Common issues:</p>
+<ul>
+<li>White screen → likely a parse/import error (check DevTools Console)</li>
+<li>Broken UI → likely a rendering or DOM issue (check DevTools Elements)</li>
+<li>Logic broken → likely a state or event issue (check DevTools Console for error logs prefixed with <code>[Module]</code>)</li>
+</ul>
+<ol>
+<li><strong>No regressions</strong> — if you changed:</li>
+</ol>
+<ul>
+<li><strong>Upgrade system</strong> → verify upgrades still purchase and apply effects</li>
+<li><strong>Rendering</strong> → verify the player, particles, and UI render without visual artifacts</li>
+<li><strong>Save/load</strong> → verify page reload preserves game state</li>
+<li><strong>Events</strong> → verify triggered events still fire and are handled (search logs for <code>[Module] event:name</code>)</li>
+</ul>
+<ol>
+<li><strong>Optional: run unit tests</strong> — if you have time:</li>
+</ol>
+<p>``<code>bash    npm test    </code>``    Note: Tests are slow (~5 min). Only run if you modified core logic (not UI tweaks or visual changes).</p>
+<p><strong>If you skip these checks and break the game:</strong></p>
+<ul>
+<li>Developers have to revert your commit (wasted time)</li>
+<li>Beta users encounter broken builds (poor experience)</li>
+<li>You lose credibility with the team (matters for code reviews)</li>
+</ul>
+<p><strong>Minimum viable pre-commit:</strong></p>
+<pre><code class="language-bash">npm run lint
+# Reload browser — verify no white screen or obvious errors</code></pre>
+<hr>
 <h2 id="source-of-truth-boundaries">Source-of-Truth Boundaries</h2>
 <p>Understanding where things should live prevents confusion and prevents the same data from drifting across files.</p>
 <div class="table-wrapper"><table>

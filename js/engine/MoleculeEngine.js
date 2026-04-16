@@ -6,11 +6,11 @@
  */
 
 export class MoleculeEngine {
-  /** @type {import('./ResourceManager.js?v=8b3ecad').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=74205be').ResourceManager} */
   #resourceManager;
   /** @type {Set<string>} molecule IDs produced at least once */
   #firstProduced = new Set();
-  /** @type {import('../core/EventBus.js?v=8b3ecad').EventBus} */
+  /** @type {import('../core/EventBus.js?v=74205be').EventBus} */
   #eventBus;
   /** @type {Map<string, boolean>} molecule ID → enabled */
   #enabled = new Map();
