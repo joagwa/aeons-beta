@@ -308,7 +308,38 @@ export class ParticleSystem {
         for (let i = 0; i < toSpawn; i++) {
           this.spawnParticle(entry.config.regionId, types[Math.floor(Math.random() * types.length)]);
         }
+
+        // Recycle motes: remove 10% furthest from character to prevent infinite canvas buildup
+        if (attraction && entry.particles.length > 50) {
+          this._recycleFurthestMotes(entry, attraction.targetX, attraction.targetY);
+        }
       }
+    }
+  }
+
+  /**
+   * Remove the furthest 10% of motes from a region to prevent hitting mote limits
+   * while exploring with an infinite canvas.
+   */
+  _recycleFurthestMotes(entry, charX, charY) {
+    const particles = entry.particles;
+    if (particles.length < 2) return;
+
+    // Calculate distance for each particle
+    const withDist = particles.map((p, i) => {
+      const dx = p.x - charX;
+      const dy = p.y - charY;
+      const distSq = dx * dx + dy * dy;
+      return { index: i, distSq };
+    });
+
+    // Sort by distance descending (furthest first)
+    withDist.sort((a, b) => b.distSq - a.distSq);
+
+    // Remove top 10% (furthest) by removing from highest index to lowest
+    const removeCount = Math.max(1, Math.ceil(particles.length * 0.1));
+    for (let i = removeCount - 1; i >= 0; i--) {
+      particles.splice(withDist[i].index, 1);
     }
   }
 

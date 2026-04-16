@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit (Quantum Capacitor fixed: ×2 per level; alternating per-tier tumble axes with decreasing speeds).</p>
+Last updated with commit (Quantum Capacitor fixed: ×2 per level; alternating per-tier tumble axes; mote recycling by distance).</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -362,6 +362,7 @@ speed = (2 + 178 × t³) × speedMult × massMult</code></pre>
 <li><strong><code>_spawnEdgeParticle()</code></strong> — Edge spawns with 50% chance between 0.8× and 2.5× gravity radius.</li>
 </ol>
 <p><strong>Spawn flash</strong>: Each new mote shows a tiny white flash (0.3s fade) at its spawn location.</p>
+<p><strong>Mote density cap</strong>: Each region can hold a maximum of 500 motes. To prevent hitting this limit during extended infinite canvas exploration, the system <strong>recycles the furthest 10% of motes each generation tick</strong> when spawning is active and mote count exceeds 50. This allows distant motes to be freed and respawned closer to the player, maintaining good performance while enabling infinite exploration.</p>
 <p><strong>Mote Genesis</strong> upgrade increases spawn rate:</p>
 <div class="table-wrapper"><table>
 <thead><tr><th>Level</th><th>Spawn Rate Multiplier</th><th>Approx. Spawns/s</th></tr></thead>
