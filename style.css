@@ -1950,7 +1950,7 @@ html, body {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 9999;
+  z-index: 301;
   background: linear-gradient(90deg, #6b21a8, #4c1d95);
   color: #e9d5ff;
   font-family: monospace;
@@ -1960,6 +1960,20 @@ html, body {
   letter-spacing: 0.05em;
   pointer-events: none;
   user-select: none;
+  height: 20px;
+}
+
+/* Push all UI down when beta banner is present */
+body:has(#beta-banner:not(.hidden)) {
+  padding-top: 20px;
+}
+
+body:has(#beta-banner:not(.hidden)) #game-container {
+  height: calc(100% - 20px);
+}
+
+body:has(#beta-banner:not(.hidden)) #canvas-wrapper {
+  height: calc(100% - 20px);
 }
 
 /* === Narrative Overlay (Epoch Collapse) === */

@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=917f154';
-import { Camera } from './Camera.js?v=917f154';
-import { ParticleSystem } from './ParticleSystem.js?v=917f154';
-import { RegionManager } from './RegionManager.js?v=917f154';
-import { FloatingNumbers } from './FloatingNumbers.js?v=917f154';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=917f154';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=917f154';
+import { SpriteManager } from './SpriteManager.js?v=d78e240';
+import { Camera } from './Camera.js?v=d78e240';
+import { ParticleSystem } from './ParticleSystem.js?v=d78e240';
+import { RegionManager } from './RegionManager.js?v=d78e240';
+import { FloatingNumbers } from './FloatingNumbers.js?v=d78e240';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d78e240';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d78e240';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=917f154').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=d78e240').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -277,9 +277,9 @@ export class CanvasRenderer {
       const ho = config.homeObject;
       this.particleSystem.spawnBeaconMote('void', ho.worldX + 400, ho.worldY, ho.worldX, ho.worldY, 30);
 
-      // Add small initial attraction (200px radius) so player doesn't need perfect alignment
+      // Add small initial attraction (100px radius) so player doesn't need perfect alignment
       // This is replaced/expanded when upg_gravitationalPull is purchased
-      this.particleSystem.updateAttractionTargetAll(ho.worldX, ho.worldY, 200);
+      this.particleSystem.updateAttractionTargetAll(ho.worldX, ho.worldY, 100);
     }
 
     // Apply any gravity upgrade that fired before canvasConfig was ready
@@ -1057,34 +1057,44 @@ export class CanvasRenderer {
       this._bgScrollTargetVx = 0;
       this._bgScrollTargetVy = 0;
       
-      // Start mote genesis near the player
+      // Start mote genesis near the player in random clusters
       const ho = this.canvasConfig?.homeObject;
       if (ho && this.particleSystem) {
-        // Spawn 50 motes in a circle around the player
-        // Some close (visible), some further out
-        for (let i = 0; i < 50; i++) {
-          const angle = (i / 50) * Math.PI * 2;
-          // Mix close and far: alternate close/far/mid distribution
-          let distance;
-          if (i % 3 === 0) {
-            // ~10 particles very close (100-300px) — guaranteed visible
-            distance = 100 + Math.random() * 200;
-          } else if (i % 3 === 1) {
-            // ~17 particles medium (300-600px)
-            distance = 300 + Math.random() * 300;
+        // Create clusters of 1-5 motes at various distances from player
+        // ~10 clusters total = 30-50 motes depending on random cluster sizes
+        const numClusters = 10;
+        for (let i = 0; i < numClusters; i++) {
+          // Random angle for cluster position
+          const angle = Math.random() * Math.PI * 2;
+          
+          // Random cluster distance: close clusters (100-400px), medium (400-800px)
+          let clusterDistance;
+          if (i < 4) {
+            // First 4 clusters close (visible on screen)
+            clusterDistance = 100 + Math.random() * 300;
           } else {
-            // ~17 particles far (600-1000px)
-            distance = 600 + Math.random() * 400;
+            // Remaining 6 clusters medium distance
+            clusterDistance = 400 + Math.random() * 400;
           }
           
-          const x = ho.worldX + Math.cos(angle) * distance;
-          const y = ho.worldY + Math.sin(angle) * distance;
-          // Random velocity spread to feel more organic
-          const vx = (Math.random() - 0.5) * 2;
-          const vy = (Math.random() - 0.5) * 2;
-          this.particleSystem.spawnQualityParticle('void', 0, x, y, vx, vy);
+          // Cluster center
+          const centerX = ho.worldX + Math.cos(angle) * clusterDistance;
+          const centerY = ho.worldY + Math.sin(angle) * clusterDistance;
+          
+          // Random number of motes in this cluster (1-5)
+          const clusterSize = 1 + Math.floor(Math.random() * 5);
+          for (let j = 0; j < clusterSize; j++) {
+            // Small offset from cluster center (20-80px radius)
+            const offsetAngle = Math.random() * Math.PI * 2;
+            const offsetDist = 20 + Math.random() * 60;
+            const x = centerX + Math.cos(offsetAngle) * offsetDist;
+            const y = centerY + Math.sin(offsetAngle) * offsetDist;
+            const vx = (Math.random() - 0.5) * 2;
+            const vy = (Math.random() - 0.5) * 2;
+            this.particleSystem.spawnQualityParticle('void', 0, x, y, vx, vy);
+          }
         }
-        console.log('[CanvasRenderer] Cosmic Drift purchased — spawned 50 motes near player');
+        console.log('[CanvasRenderer] Cosmic Drift purchased — spawned mote clusters near player');
       } else {
         console.warn('[CanvasRenderer] Cannot spawn motes near player: home object or particle system not ready');
       }
@@ -1104,7 +1114,7 @@ export class CanvasRenderer {
 
         // Gravity radius scales with upgrade level — 10 levels
         // Extended range with large outer zones; diminishing speed formula keeps outer motes slow
-        const gravityRadiusByLevel = [0, 800, 1400, 2200, 3400, 5000, 7200, 10000, 13500, 17500, 22000];
+        const gravityRadiusByLevel = [0, 400, 1400, 2200, 3400, 5000, 7200, 10000, 13500, 17500, 22000];
         const level = data.level || 1;
         const radius = gravityRadiusByLevel[Math.min(level, gravityRadiusByLevel.length - 1)];
 
@@ -1375,7 +1385,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=917f154').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=d78e240').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
