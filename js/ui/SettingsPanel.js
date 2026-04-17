@@ -184,7 +184,7 @@ export class SettingsPanel {
     autoBuyRow.appendChild(autoBuyLabel);
     autoBuyRow.appendChild(autoBuyNote);
 
-    debugCheck.addEventListener('change', () => {
+     debugCheck.addEventListener('change', () => {
       window.AEONS_DEBUG = debugCheck.checked;
       if (!debugCheck.checked) {
         window.AEONS_AUTO_BUY = false;
@@ -192,6 +192,7 @@ export class SettingsPanel {
       }
       autoBuyRow.style.display = debugCheck.checked ? '' : 'none';
       speedRow.style.display = debugCheck.checked ? '' : 'none';
+      spawnMotesRow.style.display = debugCheck.checked ? '' : 'none';
       const msg = debugCheck.checked 
         ? '🔧 Debug mode ON (5x click, +50/+10 resources)' 
         : '🔧 Debug mode OFF (production settings)';
@@ -238,6 +239,28 @@ export class SettingsPanel {
     speedLabel.appendChild(speedSelect);
     speedRow.appendChild(speedLabel);
     debugGroup.appendChild(speedRow);
+
+    // --- Spawn motes button (only visible when debug is enabled) ---
+    const spawnMotesRow = document.createElement('div');
+    spawnMotesRow.style.marginTop = '10px';
+    spawnMotesRow.style.display = window.AEONS_DEBUG ? '' : 'none';
+    const spawnMotesBtn = document.createElement('button');
+    spawnMotesBtn.textContent = 'Spawn 50 Motes Near Player';
+    spawnMotesBtn.style.padding = '6px 12px';
+    spawnMotesBtn.style.fontSize = '14px';
+    spawnMotesBtn.style.cursor = 'pointer';
+    spawnMotesBtn.style.backgroundColor = '#2a5a8a';
+    spawnMotesBtn.style.color = '#fff';
+    spawnMotesBtn.style.border = 'none';
+    spawnMotesBtn.style.borderRadius = '4px';
+    spawnMotesBtn.addEventListener('click', () => {
+      if (window.aeons?.canvasRenderer?.particleSystem) {
+        window.aeons.canvasRenderer.particleSystem.spawnWithinAttractionRange('void', 50);
+        console.log('✨ Spawned 50 motes near player');
+      }
+    });
+    spawnMotesRow.appendChild(spawnMotesBtn);
+    debugGroup.appendChild(spawnMotesRow);
 
     this.body.appendChild(debugGroup);
     this._debugCheck = debugCheck;

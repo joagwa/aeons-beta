@@ -305,17 +305,19 @@ export class ParticleSystem {
         }
       }
 
-      // Gradually spawn toward target density (1-2 per frame)
+      // Spawn toward target density — scale up spawn rate if far from target
       // (skip spawning during vacuum — we want particles to vanish)
       if (!this._vacuumTarget && entry.targetDensity > entry.particles.length) {
-        const toSpawn = Math.min(2, entry.targetDensity - entry.particles.length);
+        const deficit = entry.targetDensity - entry.particles.length;
+        // Spawn more per frame when deficit is large (catch up to target faster)
+        const toSpawn = Math.min(entry.targetDensity, Math.max(2, Math.ceil(deficit / 10)));
         const types = entry.config.particleTypes;
         for (let i = 0; i < toSpawn; i++) {
           this.spawnParticle(entry.config.regionId, types[Math.floor(Math.random() * types.length)]);
         }
 
-        // Recycle motes: remove 10% furthest from character to prevent infinite canvas buildup
-        if (attraction && entry.particles.length > 50) {
+        // Recycle furthest motes when density gets too high, bringing them closer to player
+        if (attraction && entry.particles.length > entry.targetDensity * 1.2) {
           this._recycleFurthestMotes(entry, attraction.targetX, attraction.targetY);
         }
       }
@@ -330,8 +332,9 @@ export class ParticleSystem {
     const particles = entry.particles;
     if (particles.length < 2) return;
 
-    // Use cached threshold (set each draw call); fall back to 2× 1200 px if not yet computed
-    const minDistSq = this._recycleMinDistSq > 0 ? this._recycleMinDistSq : 4 * 1200 * 1200;
+    // Use cached threshold (set each draw call); fall back to 1.5× 1200 px if not yet computed
+    // Reduced from 4× diagonal (2× screen diagonal) to 2.25× diagonal (1.5× screen diagonal)
+    const minDistSq = this._recycleMinDistSq > 0 ? this._recycleMinDistSq * 0.5625 : 2.25 * 1200 * 1200;
 
     // Remove particles that are beyond the threshold (iterate backwards to preserve indices)
     for (let i = particles.length - 1; i >= 0; i--) {

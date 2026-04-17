@@ -4,13 +4,13 @@
  */
 
 export class ResourceManager {
-  /** @type {import('../core/EventBus.js?v=567d234').EventBus} */
+  /** @type {import('../core/EventBus.js?v=4bb1f98').EventBus} */
   #eventBus;
   /** @type {Map<string, object>} resource definitions keyed by id */
   #definitions = new Map();
   /** @type {Map<string, object>} live resource states keyed by id */
   #states = new Map();
-  /** @type {import('./UpgradeSystem.js?v=567d234').UpgradeSystem | null} */
+  /** @type {import('./UpgradeSystem.js?v=4bb1f98').UpgradeSystem | null} */
   #upgradeSystem = null;
   /** @type {Map<string, number>} milestone rate bonuses keyed by resource id */
   #rateBonuses = new Map();
@@ -30,7 +30,7 @@ export class ResourceManager {
   #comboTimer = null;
 
   /**
-   * @param {import('../core/EventBus.js?v=567d234').EventBus} EventBus
+   * @param {import('../core/EventBus.js?v=4bb1f98').EventBus} EventBus
    */
   constructor(EventBus) {
     this.#eventBus = EventBus;
@@ -486,6 +486,16 @@ export class ResourceManager {
       if (effect.effectType === 'clickMultiplier') {
         this.#clickMultiplier *= effect.effectMagnitude;
       }
+    }
+
+    // 8. Emit update events for all resources so UI refreshes (especially caps)
+    for (const [id, state] of this.#states) {
+      this.#eventBus.emit('resource:updated', {
+        resourceId: id,
+        newValue: state.currentValue,
+        delta: 0,
+        ratePerSec: state.passiveRatePerSec,
+      });
     }
   }
 

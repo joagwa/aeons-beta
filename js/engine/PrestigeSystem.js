@@ -17,11 +17,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=567d234').EventBus} */
+  /** @type {import('../core/EventBus.js?v=4bb1f98').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=567d234').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=4bb1f98').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=567d234').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=4bb1f98').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
@@ -100,7 +100,10 @@ export class PrestigeSystem {
   canPrestige() {
     const energy = this.#resourceManager?.get('energy');
     if (!energy) return false;
-    return energy.currentValue >= energy.cap && energy.cap > 0;
+    // Prestige requires either reaching cap OR hitting the minimum threshold (whichever is higher)
+    const minThreshold = 16000;
+    const requiredEnergy = Math.max(energy.cap, minThreshold);
+    return energy.currentValue >= requiredEnergy && energy.cap > 0;
   }
 
   /** Tier N is unlocked when the player has spent enough cumulative Aeons. */

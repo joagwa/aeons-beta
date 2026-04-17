@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=567d234').EventBus} */
+  /** @type {import('../core/EventBus.js?v=4bb1f98').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=567d234').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=4bb1f98').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=567d234').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=4bb1f98').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -378,6 +378,7 @@ export class UpgradeSystem {
   loadStates(states) {
     if (!states) return;
     console.log('[UpgradeSystem] Loading upgrade states:', Object.keys(states));
+    const upgradesToRestore = [];
     for (const [id, savedState] of Object.entries(states)) {
       const existing = this.#states.get(id);
       const def = this.#definitions.get(id);
@@ -400,12 +401,16 @@ export class UpgradeSystem {
         this.#states.set(id, normalized);
       }
       
-      // Emit purchase event for ALL partially or fully purchased upgrades so
-      // listeners can restore their state (e.g. gravity radius, mote generation rate).
       if (level > 0) {
         console.log(`[UpgradeSystem] Restored upgrade: ${id} (level ${level})`);
-        this.#eventBus.emit('upgrade:purchased', { upgradeId: id, level });
+        upgradesToRestore.push({ id, level });
       }
+    }
+    // Emit purchase event for ALL partially or fully purchased upgrades so
+    // listeners can restore their state (e.g. gravity radius).
+    // Mark these as restores so mote-generation listeners don't spawn particles.
+    for (const { id, level } of upgradesToRestore) {
+      this.#eventBus.emit('upgrade:purchased', { upgradeId: id, level, isRestore: true });
     }
   }
 
