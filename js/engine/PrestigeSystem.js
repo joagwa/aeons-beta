@@ -1,47 +1,57 @@
 /**
- * PrestigeSystem — Manages Aeon prestige cycles and the Epoch Echo currency.
+ * PrestigeSystem — Manages tiered Aeon prestige cycles and the Epoch Echo currency.
  *
- * Aeon prestige (player-triggered):
+ * Aeon prestige (auto-triggered when energy fills cap):
  *   - Trigger: energy >= currentCap
- *   - Awards: 1+ Aeons (bonus from Echo Chamber)
+ *   - Awards: vacuumExpansion.level + 1 + conversionBoost + bulkPrestige bonus
  *   - Resets: energy, upgrades, milestones
- *   - Persists: Aeons total, purchased Aeon upgrades, dynamic energy cap
+ *   - Persists: Aeons total, purchased prestige upgrades, dynamic energy cap
+ *
+ * Tiered upgrade system (unlocked by cumulative Aeons spent):
+ *   - Tier 1: always available — energy rate, cap expansion, mote acceleration
+ *   - Tier 2: unlocked after ≥3 Aeons spent — automation, instant prestige
+ *   - Tier 3: unlocked after ≥10 Aeons spent — bulk prestige, celestial quanta
  *
  * Epoch Echo (story, auto-triggered at Epoch Collapse):
  *   - Awarded by EpochCollapseAnimation on completion
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=b7f68d6').EventBus} */
+  /** @type {import('../core/EventBus.js?v=567d234').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=b7f68d6').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=567d234').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=b7f68d6').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=567d234').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
   #aeonCount = 0;
   #epochEchoCount = 0;
   #peakEnergy = 0;
+  #pointsSpentTotal = 0;
   /** @type {Map<string, number>} prestige upgrade id → level */
   #levels = new Map();
 
-  // ── Tree definitions ──────────────────────────────────────────────────
+  // ── Tier definitions ──────────────────────────────────────────────────
 
-  static AEON_TREE = {
-    expansion: [
-      { id: 'prs_expandedVacuum', name: 'Expanded Vacuum', cost: 1, maxLevel: 5, description: 'Raise energy cap ×10 per level (500 → 5K → 50K → 500K → 5M → 10M)' },
-    ],
-    efficiency: [
-      { id: 'prs_quantumResonance', name: 'Quantum Resonance', cost: 1, maxLevel: 5, description: '+25% base energy rate per level' },
-      { id: 'prs_moteInheritance',  name: 'Mote Inheritance',  cost: 1, maxLevel: 1, description: 'Start each run with EM Bond L1', requires: 'prs_quantumResonance' },
-    ],
-    memory: [
-      { id: 'prs_primalMemory', name: 'Primal Memory', cost: 1, maxLevel: 1, description: 'Start next run with 50% of last run peak energy' },
-      { id: 'prs_echoChamber',  name: 'Echo Chamber',  cost: 2, maxLevel: 1, description: '+1 bonus Aeon on each future prestige', requires: 'prs_primalMemory' },
-      { id: 'prs_aeonAutomaton', name: 'Aeon Automaton', cost: 10, maxLevel: 1, description: 'Auto-purchase Phase 1 energy upgrades for you', requires: 'prs_echoChamber' },
-    ],
-  };
+  static TIER1 = [
+    { id: 'prs_energeticEcho',   name: 'Energetic Echo',   tier: 1, baseCost: null, maxLevel: 10, description: '+25% energy rate per level (multiplicative).' },
+    { id: 'prs_vacuumExpansion', name: 'Vacuum Expansion', tier: 1, baseCost: null, maxLevel: 15, description: '×2 energy cap per level. Also increases Aeon reward.' },
+    { id: 'prs_moteAcceleration',name: 'Mote Acceleration',tier: 1, baseCost: 1,    maxLevel: 10, description: '+30% mote spawn rate per level.' },
+  ];
+
+  static TIER2 = [
+    { id: 'prs_autoProductionE',  name: 'Auto: Energy Path',    tier: 2, baseCost: 2, maxLevel: 1, description: 'Auto-buy Energy upgrades every 5 seconds.' },
+    { id: 'prs_autoProductionEff',name: 'Auto: Efficiency Path', tier: 2, baseCost: 2, maxLevel: 1, description: 'Auto-buy Efficiency upgrades every 7 seconds.' },
+    { id: 'prs_instantPrestige',  name: 'Instant Prestige',     tier: 2, baseCost: 2, maxLevel: 1, description: 'Auto-prestige when energy cap is reached. Skips the dialog.' },
+    { id: 'prs_conversionBoost',  name: 'Conversion Boost',     tier: 2, baseCost: 2, maxLevel: 3, description: '+1 Aeon per prestige per level.' },
+    { id: 'prs_primalMemory',     name: 'Primal Memory',        tier: 2, baseCost: 1, maxLevel: 1, description: 'Start next run with 50% of your peak energy.' },
+  ];
+
+  static TIER3 = [
+    { id: 'prs_bulkPrestige',    name: 'Bulk Prestige',    tier: 3, baseCost: null, maxLevel: 5, description: '+1 bonus Aeon per prestige per level.' },
+    { id: 'prs_celestialQuanta', name: 'Celestial Quanta', tier: 3, baseCost: 3,    maxLevel: 1, description: 'Unlock Celestial Quanta: orbiting energy motes coloured by quark flavour.' },
+  ];
 
   static ECHO_TREE = {
     collapse: [
@@ -52,8 +62,14 @@ export class PrestigeSystem {
     ],
   };
 
-  static get ALL_AEON_UPGRADES() {
-    return Object.values(PrestigeSystem.AEON_TREE).flat();
+  /** Upgrade IDs that auto-production timers target — defined here for consistency. */
+  static AUTO_PATHS = {
+    energy:     ['upg_quantumFluctuation', 'upg_vacuumHarvesting', 'upg_moteResonance', 'upg_clickAmplifier', 'upg_quantumCapacitor'],
+    efficiency: ['upg_moteGeneration', 'upg_moteQuality', 'upg_moteFlood', 'upg_voidSaturation', 'upg_nebularSurge'],
+  };
+
+  static get ALL_PRESTIGE_UPGRADES() {
+    return [...PrestigeSystem.TIER1, ...PrestigeSystem.TIER2, ...PrestigeSystem.TIER3];
   }
 
   static get ALL_ECHO_UPGRADES() {
@@ -61,7 +77,7 @@ export class PrestigeSystem {
   }
 
   static get ALL_UPGRADES() {
-    return [...PrestigeSystem.ALL_AEON_UPGRADES, ...PrestigeSystem.ALL_ECHO_UPGRADES];
+    return [...PrestigeSystem.ALL_PRESTIGE_UPGRADES, ...PrestigeSystem.ALL_ECHO_UPGRADES];
   }
 
   // ── Constructor ───────────────────────────────────────────────────────
@@ -74,25 +90,49 @@ export class PrestigeSystem {
 
   // ── Accessors ─────────────────────────────────────────────────────────
 
-  getCount()            { return this.#count; }
-  getAeonCount()        { return this.#aeonCount; }
-  getEpochEchoCount()   { return this.#epochEchoCount; }
-  getPeakEnergy()       { return this.#peakEnergy; }
-  getLevel(id)          { return this.#levels.get(id) ?? 0; }
+  getCount()              { return this.#count; }
+  getAeonCount()          { return this.#aeonCount; }
+  getEpochEchoCount()     { return this.#epochEchoCount; }
+  getPeakEnergy()         { return this.#peakEnergy; }
+  getLevel(id)            { return this.#levels.get(id) ?? 0; }
+  getPointsSpentTotal()   { return this.#pointsSpentTotal; }
 
   canPrestige() {
     const energy = this.#resourceManager?.get('energy');
     if (!energy) return false;
-    // Check against maximum potential energy cap (considering all available upgrades)
-    const maxCap = this.getMaxPotentialEnergyCap();
-    return energy.currentValue >= maxCap && maxCap > 0;
+    return energy.currentValue >= energy.cap && energy.cap > 0;
+  }
+
+  /** Tier N is unlocked when the player has spent enough cumulative Aeons. */
+  getTierUnlocked(tier) {
+    if (tier <= 1) return true;
+    if (tier === 2) return this.#pointsSpentTotal >= 3;
+    if (tier === 3) return this.#pointsSpentTotal >= 10;
+    return false;
+  }
+
+  /**
+   * Dynamic cost for a prestige upgrade at its current level.
+   * - prs_energeticEcho / prs_vacuumExpansion: cost = currentLevel + 1
+   * - prs_bulkPrestige: cost = 5 × (currentLevel + 1)
+   * - All others: fixed baseCost
+   */
+  getUpgradeCost(id) {
+    const def = PrestigeSystem.ALL_UPGRADES.find(u => u.id === id);
+    if (!def) return Infinity;
+    const level = this.getLevel(id);
+    if (id === 'prs_energeticEcho' || id === 'prs_vacuumExpansion') return level + 1;
+    if (id === 'prs_bulkPrestige') return 5 * (level + 1);
+    return def.baseCost ?? def.cost ?? 1;
   }
 
   /** How many Aeons the next prestige would award. */
   getPrestigeAeonReward() {
-    const base = 1;
-    const echoBonus = this.getLevel('prs_echoChamber') >= 1 ? 1 : 0;
-    return base + echoBonus;
+    // Base scales with vacuum expansion level so raising the cap is worthwhile
+    const base = this.getLevel('prs_vacuumExpansion') + 1;
+    const convBonus = this.getLevel('prs_conversionBoost');
+    const bulkBonus = this.getLevel('prs_bulkPrestige');
+    return base + convBonus + bulkBonus;
   }
 
   /** Current energy cap (for display). */
@@ -100,63 +140,12 @@ export class PrestigeSystem {
     return this.#resourceManager?.get('energy')?.cap ?? 500;
   }
 
-  /** Next energy cap after purchasing one more Expanded Vacuum level. */
+  /** Next energy cap after one more Vacuum Expansion purchase. */
   getNextEnergyCap() {
-    const level = this.getLevel('prs_expandedVacuum');
-    if (level >= 5) return 10000000;
-    return 500 * Math.pow(10, level + 1);
+    const level = this.getLevel('prs_vacuumExpansion');
+    const absoluteCap = this.#resourceManager?.getDefinition('energy')?.absoluteCap ?? 10000000;
+    return Math.min(500 * Math.pow(2, level + 1), absoluteCap);
   }
-
-  /**
-   * Calculate maximum achievable energy cap if player purchases all affordable upgrades.
-   * Considers:
-   * - All currently-purchased prestige cap upgrades (Expanded Vacuum)
-   * - All purchasable regular upgrades that increase energy cap (capIncrease, capMultiplier)
-   * 
-   * Used to determine true prestige checkpoint (player has maxed out progression potential).
-   */
-  getMaxPotentialEnergyCap() {
-    if (!this.#resourceManager || !this.#upgradeSystem) {
-      return 500;
-    }
-
-    // Start with base cap from Expanded Vacuum prestige upgrades
-    const expandedLevel = this.getLevel('prs_expandedVacuum');
-    let baseCap = expandedLevel >= 5 ? 10000000 : 500 * Math.pow(10, expandedLevel);
-
-    // List of energy cap upgrades to consider (in order of priority)
-    const capUpgradeIds = [
-      'upg_quantumCapacitor',      // ×1.2 per level
-      'upg_quantumReservoir',       // ×1.15 per level (needs hydrogen)
-      'upg_hydrologicalCycle',      // ×1.12 per level (needs multi-resources)
-    ];
-
-    // For each cap upgrade, calculate max level we could afford and apply it
-    let resultCap = baseCap;
-    for (const upgradeId of capUpgradeIds) {
-      const upgrade = this.#upgradeSystem.getDefinition(upgradeId);
-      if (!upgrade) continue;
-
-      const currentLevel = this.#upgradeSystem.getLevel(upgradeId);
-      const maxLevelPossible = upgrade.maxLevel ?? 10;
-
-      // Apply capMultiplier for this upgrade at max level
-      if (upgrade.effectType === 'capMultiplier') {
-        // Calculate what max level would give: magnitude ^ (maxLevelPossible - currentLevel)
-        const additionalLevels = maxLevelPossible - currentLevel;
-        const multiplierFactor = Math.pow(upgrade.effectMagnitude, additionalLevels);
-        resultCap *= multiplierFactor;
-      } else if (upgrade.effectType === 'capIncrease') {
-        // Legacy support (shouldn't happen after recent conversion)
-        for (let lvl = currentLevel + 1; lvl <= maxLevelPossible; lvl++) {
-          resultCap += upgrade.effectMagnitude * lvl * lvl; // quadratic scaling
-        }
-      }
-    }
-
-    return resultCap;
-  }
-
 
   // ── Track peak energy each tick ───────────────────────────────────────
 
@@ -200,41 +189,41 @@ export class PrestigeSystem {
    * @return {object|undefined}
    */
   getUpgradeDefinition(id) {
-    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
-    return allUpgrades.find(u => u.id === id);
+    return PrestigeSystem.ALL_UPGRADES.find(u => u.id === id);
   }
 
   canAffordUpgrade(id) {
-    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
-    const def = allUpgrades.find(u => u.id === id);
+    const def = PrestigeSystem.ALL_UPGRADES.find(u => u.id === id);
     if (!def) return false;
-    if (this.getLevel(id) >= def.maxLevel) return false;
+    if (this.getLevel(id) >= (def.maxLevel ?? 1)) return false;
     if (def.requires && this.getLevel(def.requires) < 1) return false;
 
-    // Determine currency
     const isEcho = PrestigeSystem.ALL_ECHO_UPGRADES.some(u => u.id === id);
     const balance = isEcho ? this.#epochEchoCount : this.#aeonCount;
-    return balance >= def.cost;
+    const cost = isEcho ? (def.cost ?? 1) : this.getUpgradeCost(id);
+    return balance >= cost;
   }
 
   purchaseUpgrade(id) {
     if (!this.canAffordUpgrade(id)) return false;
-    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
-    const def = allUpgrades.find(u => u.id === id);
 
     const isEcho = PrestigeSystem.ALL_ECHO_UPGRADES.some(u => u.id === id);
+    const def = PrestigeSystem.ALL_UPGRADES.find(u => u.id === id);
+    const cost = isEcho ? (def.cost ?? 1) : this.getUpgradeCost(id);
+
     if (isEcho) {
-      this.#epochEchoCount -= def.cost;
+      this.#epochEchoCount -= cost;
     } else {
-      this.#aeonCount -= def.cost;
+      this.#aeonCount -= cost;
+      this.#pointsSpentTotal += cost;
     }
 
     this.#levels.set(id, (this.#levels.get(id) ?? 0) + 1);
     this.#eventBus.emit('prestige:upgrade:purchased', { id, level: this.getLevel(id) });
 
-    // Apply Expanded Vacuum cap progression immediately
-    if (id === 'prs_expandedVacuum') {
-      const newCap = 500 * Math.pow(10, this.getLevel('prs_expandedVacuum'));
+    // Apply cap change immediately when vacuum expansion is purchased
+    if (id === 'prs_vacuumExpansion') {
+      const newCap = 500 * Math.pow(2, this.getLevel('prs_vacuumExpansion'));
       this.#resourceManager.setCurrentCap('energy', newCap);
     }
 
@@ -246,10 +235,9 @@ export class PrestigeSystem {
    * Used by story events (e.g. Epoch Collapse auto-granting echo chain).
    */
   forceGrantUpgrade(id) {
-    const allUpgrades = PrestigeSystem.ALL_UPGRADES;
-    const def = allUpgrades.find(u => u.id === id);
+    const def = PrestigeSystem.ALL_UPGRADES.find(u => u.id === id);
     if (!def) return;
-    if (this.getLevel(id) >= def.maxLevel) return;
+    if (this.getLevel(id) >= (def.maxLevel ?? 1)) return;
     this.#levels.set(id, (this.#levels.get(id) ?? 0) + 1);
     this.#eventBus.emit('prestige:upgrade:purchased', { id, level: this.getLevel(id) });
   }
@@ -264,7 +252,6 @@ export class PrestigeSystem {
    * @param {number} [peakEnergyOverride] — peak energy from the prestige event
    */
   applyRunBonuses(resourceManager, upgradeSystem, moteController, peakEnergyOverride) {
-    // Apply persistent bonuses (cap, rate multiplier)
     this.applyPersistentBonuses(resourceManager, upgradeSystem);
 
     // Primal Memory — start with 50% of last peak energy (one-shot, not on reload)
@@ -273,20 +260,13 @@ export class PrestigeSystem {
       resourceManager.add('energy', Math.floor(peak * 0.5));
     }
 
-    // Auto-unlock EM Bond L1 after first prestige (always, not just for Mote Inheritance)
-    if (this.#count === 1) {
+    // Grant EM Bond L1 on every post-prestige run as a QoL baseline
+    if (this.#count >= 1) {
       const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
       if (cur < 1) upgradeSystem.forceLevel('upg_gravitationalPull', 1);
     }
 
-    // Mote Inheritance — start with EM Bond L1 on all subsequent prestige
-    if (this.#count > 1 && this.getLevel('prs_moteInheritance') >= 1) {
-      const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
-      if (cur < 1) upgradeSystem.forceLevel('upg_gravitationalPull', 1);
-    }
-
-    // After first prestige, auto-grant movement via the upgrade system
-    // (fires upgrade:purchased which MoteController handles to enable movement)
+    // Auto-grant movement after first prestige
     if (this.#count >= 1) {
       const curDrift = upgradeSystem.getLevel('upg_cosmicDrift') ?? 0;
       if (curDrift < 1) upgradeSystem.forceLevel('upg_cosmicDrift', 1);
@@ -298,31 +278,36 @@ export class PrestigeSystem {
    * Does NOT re-seed energy or re-purchase upgrades.
    */
   applyPersistentBonuses(resourceManager) {
-    // Expanded Vacuum — restore dynamic cap
-    const vacLevel = this.getLevel('prs_expandedVacuum');
+    // Vacuum Expansion — restore dynamic cap (×2 per level)
+    const vacLevel = this.getLevel('prs_vacuumExpansion');
     if (vacLevel > 0) {
-      const cap = 500 * Math.pow(10, vacLevel);
-      resourceManager.setCurrentCap('energy', cap);
+      resourceManager.setCurrentCap('energy', 500 * Math.pow(2, vacLevel));
     }
 
-    // Quantum Resonance — persistent energy rate multiplier
-    const qrLevel = this.getLevel('prs_quantumResonance');
-    if (qrLevel > 0) {
-      resourceManager.applyPersistentRateMultiplier('energy', 1 + qrLevel * 0.25);
+    // Energetic Echo — persistent energy rate multiplier (1.25 per level, multiplicative)
+    const echoLevel = this.getLevel('prs_energeticEcho');
+    if (echoLevel > 0) {
+      resourceManager.applyPersistentRateMultiplier('energy', Math.pow(1.25, echoLevel));
     }
   }
 
   /**
-   * Runtime multipliers applied by other systems.
+   * Runtime multipliers and flags consumed by other systems.
    */
   getRuntimeBonuses() {
-    const qrLevel = this.getLevel('prs_quantumResonance');
+    const echoLevel = this.getLevel('prs_energeticEcho');
     return {
-      energyRateMult: 1 + qrLevel * 0.25,
-      quarkSightUnlocked: this.getLevel('prs_quarkSight') >= 1,
-      chromaticFieldActive: this.getLevel('prs_chromaticField') >= 1,
-      flavourResonanceMult: this.getLevel('prs_flavourResonance') >= 1 ? 1.5 : 1.0,
-      deepStructureUnlocked: this.getLevel('prs_deepStructure') >= 1,
+      energyRateMult:         Math.pow(1.25, echoLevel),
+      moteSpawnMult:          Math.pow(1.3,  this.getLevel('prs_moteAcceleration')),
+      autoProductionE:        this.getLevel('prs_autoProductionE')   >= 1,
+      autoProductionEff:      this.getLevel('prs_autoProductionEff') >= 1,
+      instantPrestige:        this.getLevel('prs_instantPrestige')   >= 1,
+      celestialQuantaUnlocked:this.getLevel('prs_celestialQuanta')   >= 1,
+      // Echo tree bonuses (unchanged)
+      quarkSightUnlocked:     this.getLevel('prs_quarkSight')        >= 1,
+      chromaticFieldActive:   this.getLevel('prs_chromaticField')    >= 1,
+      flavourResonanceMult:   this.getLevel('prs_flavourResonance')  >= 1 ? 1.5 : 1.0,
+      deepStructureUnlocked:  this.getLevel('prs_deepStructure')     >= 1,
     };
   }
 
@@ -336,24 +321,34 @@ export class PrestigeSystem {
       aeonCount: this.#aeonCount,
       epochEchoCount: this.#epochEchoCount,
       peakEnergy: this.#peakEnergy,
+      pointsSpentTotal: this.#pointsSpentTotal,
       upgrades,
     };
   }
 
   loadState(state) {
     if (!state) return;
-    this.#count            = state.count            ?? 0;
-    this.#aeonCount        = state.aeonCount        ?? 0;
-    this.#epochEchoCount   = state.epochEchoCount   ?? 0;
-    this.#peakEnergy       = state.peakEnergy       ?? 0;
+    this.#count          = state.count          ?? 0;
+    this.#aeonCount      = state.aeonCount      ?? 0;
+    this.#epochEchoCount = state.epochEchoCount ?? 0;
+    this.#peakEnergy     = state.peakEnergy     ?? 0;
+
     if (state.upgrades) {
       for (const [id, level] of Object.entries(state.upgrades)) {
         this.#levels.set(id, level);
       }
     }
-    // Backwards compatibility: old saves had darkMatterBanked
-    if (state.darkMatterBanked != null && this.#aeonCount === 0) {
-      // Don't migrate DM to Aeons — just let them start fresh
+
+    // Restore pointsSpentTotal; derive from upgrade levels for old saves
+    if (state.pointsSpentTotal != null) {
+      this.#pointsSpentTotal = state.pointsSpentTotal;
+    } else {
+      let migrated = 0;
+      const echoIds = new Set(PrestigeSystem.ALL_ECHO_UPGRADES.map(u => u.id));
+      for (const [id, level] of this.#levels) {
+        if (!echoIds.has(id)) migrated += level;
+      }
+      this.#pointsSpentTotal = migrated;
     }
   }
 }

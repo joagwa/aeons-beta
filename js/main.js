@@ -4,52 +4,52 @@
  */
 
 // === Core Imports ===
-import { ErrorReporter } from './core/ErrorReporter.js?v=b7f68d6';
-import { LogBuffer } from './core/LogBuffer.js?v=b7f68d6';
-import { EventBus } from './core/EventBus.js?v=b7f68d6';
-import { GameLoop } from './core/GameLoop.js?v=b7f68d6';
-import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=b7f68d6';
-import { SaveSystem } from './core/SaveSystem.js?v=b7f68d6';
-import { UpdateChecker } from './core/UpdateChecker.js?v=b7f68d6';
+import { ErrorReporter } from './core/ErrorReporter.js?v=567d234';
+import { LogBuffer } from './core/LogBuffer.js?v=567d234';
+import { EventBus } from './core/EventBus.js?v=567d234';
+import { GameLoop } from './core/GameLoop.js?v=567d234';
+import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=567d234';
+import { SaveSystem } from './core/SaveSystem.js?v=567d234';
+import { UpdateChecker } from './core/UpdateChecker.js?v=567d234';
 
 // === Engine Imports ===
-import { ResourceManager } from './engine/ResourceManager.js?v=b7f68d6';
-import { UpgradeSystem } from './engine/UpgradeSystem.js?v=b7f68d6';
-import { MilestoneSystem } from './engine/MilestoneSystem.js?v=b7f68d6';
-import { StarManager } from './engine/StarManager.js?v=b7f68d6';
-import { EpochSystem } from './engine/EpochSystem.js?v=b7f68d6';
-import { MoteController } from './engine/MoteController.js?v=b7f68d6';
-import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=b7f68d6';
-import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=b7f68d6';
-import { AutoBuySystem } from './engine/AutoBuySystem.js?v=b7f68d6';
-import { FusionEngine } from './engine/FusionEngine.js?v=b7f68d6';
-import { MoleculeEngine } from './engine/MoleculeEngine.js?v=b7f68d6';
-import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=b7f68d6';
+import { ResourceManager } from './engine/ResourceManager.js?v=567d234';
+import { UpgradeSystem } from './engine/UpgradeSystem.js?v=567d234';
+import { MilestoneSystem } from './engine/MilestoneSystem.js?v=567d234';
+import { StarManager } from './engine/StarManager.js?v=567d234';
+import { EpochSystem } from './engine/EpochSystem.js?v=567d234';
+import { MoteController } from './engine/MoteController.js?v=567d234';
+import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=567d234';
+import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=567d234';
+import { AutoBuySystem } from './engine/AutoBuySystem.js?v=567d234';
+import { FusionEngine } from './engine/FusionEngine.js?v=567d234';
+import { MoleculeEngine } from './engine/MoleculeEngine.js?v=567d234';
+import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=567d234';
 
 // === Renderer Imports ===
-import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=b7f68d6';
+import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=567d234';
 
 // === UI Imports ===
-import { ResourcePanel } from './ui/ResourcePanel.js?v=b7f68d6';
-import { UpgradePanel } from './ui/UpgradePanel.js?v=b7f68d6';
-import { MilestoneNotification } from './ui/MilestoneNotification.js?v=b7f68d6';
-import { ChroniclePanel } from './ui/ChroniclePanel.js?v=b7f68d6';
-import { SettingsPanel } from './ui/SettingsPanel.js?v=b7f68d6';
-import { OfflineProgress } from './ui/OfflineProgress.js?v=b7f68d6';
-import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=b7f68d6';
-import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=b7f68d6';
-import { StatsPanel } from './ui/StatsPanel.js?v=b7f68d6';
-import { GoalWidget } from './ui/GoalWidget.js?v=b7f68d6';
-import { MobileTabBar } from './ui/MobileTabBar.js?v=b7f68d6';
-import { FeedbackPanel } from './ui/FeedbackPanel.js?v=b7f68d6';
-import { FusionLabPanel } from './ui/FusionLabPanel.js?v=b7f68d6';
-import { PrestigeSystem } from './engine/PrestigeSystem.js?v=b7f68d6';
-import { PrestigePanel } from './ui/PrestigePanel.js?v=b7f68d6';
-import { NarrativePanel } from './ui/NarrativePanel.js?v=b7f68d6';
-import { QuarkEngine } from './engine/QuarkEngine.js?v=b7f68d6';
-import { QuarkPanel } from './ui/QuarkPanel.js?v=b7f68d6';
-import { SubatomicEngine } from './engine/SubatomicEngine.js?v=b7f68d6';
-import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=b7f68d6';
+import { ResourcePanel } from './ui/ResourcePanel.js?v=567d234';
+import { UpgradePanel } from './ui/UpgradePanel.js?v=567d234';
+import { MilestoneNotification } from './ui/MilestoneNotification.js?v=567d234';
+import { ChroniclePanel } from './ui/ChroniclePanel.js?v=567d234';
+import { SettingsPanel } from './ui/SettingsPanel.js?v=567d234';
+import { OfflineProgress } from './ui/OfflineProgress.js?v=567d234';
+import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=567d234';
+import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=567d234';
+import { StatsPanel } from './ui/StatsPanel.js?v=567d234';
+import { GoalWidget } from './ui/GoalWidget.js?v=567d234';
+import { MobileTabBar } from './ui/MobileTabBar.js?v=567d234';
+import { FeedbackPanel } from './ui/FeedbackPanel.js?v=567d234';
+import { FusionLabPanel } from './ui/FusionLabPanel.js?v=567d234';
+import { PrestigeSystem } from './engine/PrestigeSystem.js?v=567d234';
+import { PrestigePanel } from './ui/PrestigePanel.js?v=567d234';
+import { NarrativePanel } from './ui/NarrativePanel.js?v=567d234';
+import { QuarkEngine } from './engine/QuarkEngine.js?v=567d234';
+import { QuarkPanel } from './ui/QuarkPanel.js?v=567d234';
+import { SubatomicEngine } from './engine/SubatomicEngine.js?v=567d234';
+import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=567d234';
 
 // === Game State ===
 let gameState = {
@@ -371,8 +371,31 @@ async function bootstrap() {
   }
 
   // --- Show prestige button once energy reaches cap ---
+  let _prestigeAutoTriggered = false;
   EventBus.on('resource:updated', (data) => {
-    if (data?.resourceId === 'energy') syncPrestigeButtonVisibility();
+    if (data?.resourceId === 'energy') {
+      syncPrestigeButtonVisibility();
+      // Auto-open prestige panel when energy fills the cap
+      if (!gameState.prestigePurgatory && !_prestigeAutoTriggered && prestigeSystem.canPrestige()) {
+        _prestigeAutoTriggered = true;
+        // If instant prestige is active, execute silently (no panel, no dialog)
+        const bonuses = prestigeSystem.getRuntimeBonuses();
+        if (bonuses.instantPrestige) {
+          prestigeSystem.executePrestige();
+          // executePrestige() emits prestige:execute synchronously → pendingPrestigeData is now set
+          if (pendingPrestigeData) {
+            pendingPrestigeData.isInstant = true;
+            EventBus.emit('prestige:purgatory:enter');
+          }
+        } else {
+          // Open prestige panel (blocks input)
+          if (!prestigePanel.isVisible()) {
+            prestigePanel.show();
+            syncPrestigeButtonVisibility();
+          }
+        }
+      }
+    }
   });
 
   // --- Prestige execution → Purgatory ---
@@ -387,8 +410,9 @@ async function bootstrap() {
 
   EventBus.on('prestige:purgatory:enter', async () => {
     if (!pendingPrestigeData) return;
-    const { count, aeonsEarned, aeonTotal, peakEnergy } = pendingPrestigeData;
-    
+    const { count, aeonsEarned, aeonTotal, peakEnergy, isInstant } = pendingPrestigeData;
+    _prestigeAutoTriggered = false;  // reset so next run can trigger again
+
     // Hide center-screen prompt
     const promptEl = document.getElementById('prestige-prompt');
     if (promptEl) promptEl.classList.add('hidden');
@@ -412,6 +436,9 @@ async function bootstrap() {
     darkMatterSystem.reset();
     protonSynthesisEngine.reset();
 
+    // Clear auto-production timer stamps so timers restart cleanly
+    gameState._autoProdTimestamps = {};
+
     // Reload epoch data
     await epochSystem.loadEpoch('epoch1');
 
@@ -434,11 +461,19 @@ async function bootstrap() {
       darkMatterSystem._spawnNode(params);
     }
 
-    // Sync UI after reset (but keep prestige menu open!)
+    // Sync UI after reset
     syncFusionLabVisibility();
     syncPrestigeButtonVisibility();
 
-    console.log(`[Prestige] Purgatory entered. Run ${count} reset. +${aeonsEarned} Aeons (total: ${aeonTotal}). Waiting for menu close...`);
+    if (isInstant) {
+      // Instant prestige: no menu interaction, exit purgatory immediately
+      gameState.prestigePurgatory = false;
+      moteController.unblockAllInput();
+      pendingPrestigeData = null;
+      console.log(`[Prestige] Instant prestige #${count} complete. New run begins!`);
+    } else {
+      console.log(`[Prestige] Purgatory entered. Run ${count} reset. +${aeonsEarned} Aeons (total: ${aeonTotal}). Waiting for menu close...`);
+    }
   });
 
   EventBus.on('prestige:purgatory:exit', () => {
@@ -447,6 +482,18 @@ async function bootstrap() {
     moteController.unblockAllInput();
     pendingPrestigeData = null;
     console.log(`[Prestige] Purgatory exited. New run begins!`);
+  });
+
+  // When prs_instantPrestige is purchased and energy is already capped, fire immediately
+  EventBus.on('prestige:upgrade:purchased', ({ id }) => {
+    if (id === 'prs_instantPrestige' && !gameState.prestigePurgatory && !_prestigeAutoTriggered && prestigeSystem.canPrestige()) {
+      _prestigeAutoTriggered = true;
+      prestigeSystem.executePrestige();
+      if (pendingPrestigeData) {
+        pendingPrestigeData.isInstant = true;
+        EventBus.emit('prestige:purgatory:enter');
+      }
+    }
   });
 
   // --- Epoch Collapse complete (narrative [Continue] clicked) ---
@@ -560,64 +607,40 @@ async function bootstrap() {
     protonSynthesisEngine.tick(dt);
     prestigeSystem.trackPeakEnergy();
 
-    // --- Aeon Automaton: auto-purchase Phase 1 energy upgrades ---
-    if (prestigeSystem.getLevel('prs_aeonAutomaton') >= 1 && !gameState.collapseInProgress && gameState.collapseCount < 1) {
-      // Only in energy phase, before first collapse
-      const energy = resourceManager.get('energy')?.currentValue ?? 0;
-      if (energy > 0) {
-        // Find the best Phase 1 energy upgrade to auto-purchase
-        const phase1Upgrades = [
-          'upg_moteGeneration',
-          'upg_clickAmplifier',
-          'upg_energyHarvesting',
-          'upg_moteQuality',
-          'upg_moteFlood',
-          'upg_voidSaturation',
-          'upg_gravitationalPull',
-        ];
-        
-        // Score each upgrade: prefer rate multipliers and lower costs
-        let bestUpgrade = null;
-        let bestScore = -Infinity;
-        
-        for (const upgradeId of phase1Upgrades) {
-          const def = upgradeSystem.getDefinition(upgradeId);
-          if (!def) continue;
-          
-          const level = upgradeSystem.getLevel(upgradeId) || 0;
-          if (level >= def.maxLevel) continue; // Already maxed
-          
-          const cost = upgradeSystem.getCost(upgradeId, level + 1);
-          if (energy < cost) continue; // Can't afford
-          
-          // Prefer upgrades with rate multiplier effects
-          const isRateMult = def.effect?.type === 'rateMultiplier' ? 2 : 1;
-          // Prefer lower cost upgrades (easier progression)
-          const costScore = 100 / (cost + 1);
-          const score = isRateMult * costScore;
-          
-          if (score > bestScore) {
-            bestScore = score;
-            bestUpgrade = upgradeId;
+    // --- Auto-Production: auto-purchase upgrade paths ---
+    {
+      const bonuses = prestigeSystem.getRuntimeBonuses();
+      const energy  = resourceManager.get('energy')?.currentValue ?? 0;
+      if (energy > 0 && !gameState.collapseInProgress) {
+        const now = performance.now();
+        if (!gameState._autoProdTimestamps) gameState._autoProdTimestamps = {};
+
+        if (bonuses.autoProductionE) {
+          const lastE = gameState._autoProdTimestamps.energy ?? 0;
+          if (now - lastE >= 5000) {
+            gameState._autoProdTimestamps.energy = now;
+            for (const upgradeId of PrestigeSystem.AUTO_PATHS.energy) {
+              if (upgradeSystem.canPurchase(upgradeId)) {
+                upgradeSystem.purchase(upgradeId);
+                break;
+              }
+            }
           }
         }
-        
-        if (bestUpgrade && gameState._aeonAutomatonTick === undefined) {
-          gameState._aeonAutomatonTick = 0;
-        }
-        
-        // Throttle: only auto-purchase every 10 ticks to avoid spam
-        if (gameState._aeonAutomatonTick !== undefined) {
-          gameState._aeonAutomatonTick++;
-          if (gameState._aeonAutomatonTick >= 10 && bestUpgrade) {
-            upgradeSystem.purchase(bestUpgrade);
-            gameState._aeonAutomatonTick = 0;
+
+        if (bonuses.autoProductionEff) {
+          const lastEff = gameState._autoProdTimestamps.efficiency ?? 0;
+          if (now - lastEff >= 7000) {
+            gameState._autoProdTimestamps.efficiency = now;
+            for (const upgradeId of PrestigeSystem.AUTO_PATHS.efficiency) {
+              if (upgradeSystem.canPurchase(upgradeId)) {
+                upgradeSystem.purchase(upgradeId);
+                break;
+              }
+            }
           }
         }
       }
-    } else if (gameState._aeonAutomatonTick !== undefined && (gameState.collapseInProgress || gameState.collapseCount >= 1)) {
-      // Reset throttle when leaving energy phase
-      gameState._aeonAutomatonTick = undefined;
     }
 
     quarkEngine.tick(resourceManager.get('energy')?.currentValue ?? 0);
@@ -649,7 +672,9 @@ async function bootstrap() {
       const subBonuses = subatomicEngine.getPassiveBonuses();
       const energyRateMult = resonanceMult * (1 + subBonuses.energyRateBonus);
       const attractMult = resonanceMult * (1 + subBonuses.attractRadiusBonus);
-      proceduralMoteGenerator.setGenerationRate(_baseGenerationRate * energyRateMult);
+      // Mote Acceleration prestige bonus
+      const motePrestigeMult = Math.pow(1.3, prestigeSystem.getLevel('prs_moteAcceleration'));
+      proceduralMoteGenerator.setGenerationRate(_baseGenerationRate * energyRateMult * motePrestigeMult);
       canvasRenderer.setResonanceMult(attractMult);
     }
 
@@ -975,4 +1000,9 @@ function showUpdateBanner(newVersion) {
 }
 
 // --- DOM Ready ---
-document.addEventListener('DOMContentLoaded', bootstrap);
+document.addEventListener('DOMContentLoaded', () => {
+  bootstrap().catch(err => {
+    console.error('[Bootstrap] FATAL ERROR:', err, err?.stack);
+    window._bootstrapError = err?.message || String(err);
+  });
+});

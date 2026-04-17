@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated with commit (Orbital motes retain full rings at tier thresholds; mote recycling minimum-distance threshold).</p>
+Last updated: 2026-04-16 | Latest: Tiered Aeon Prestige system (T1/T2/T3 upgrades, auto-trigger on cap, leave confirmation, instant prestige, auto-production), quantum capacitor fixed, orbital tumble mechanics, mote recycling.</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -228,7 +228,7 @@ Last updated with commit (Orbital motes retain full rings at tier thresholds; mo
 <h2 id="overview">Overview</h2>
 <p><strong>Epoch 1: The Primordial Universe</strong> — You begin as a lone particle in an empty void. Through absorbing energy motes, converting energy to hydrogen via proton synthesis, and unlocking gravity, you progress through the formation of atoms, gas clouds, nebulae, stars, and eventually planets.</p>
 <p>Mass is now <strong>fully derived</strong> from the atomic weights of elements you accumulate — it cannot be earned or spent directly.</p>
-<p>The energy phase features an <strong>Aeon Prestige</strong> system: repeatedly reset your run to earn Aeons, which buy persistent meta upgrades that raise the energy cap from 500 toward 10,000,000. At 10M energy, an automatic <strong>Epoch Collapse</strong> (Big Crunch cinematic) awards an Epoch Echo and unlocks <strong>quark flavours</strong> — six coloured energy types with passive bonuses. A second Collapse unlocks the <strong>subatomic phase</strong>: quarks form protons, neutrons, and electrons.</p>
+<p>The energy phase features an <strong>Aeon Prestige</strong> system: automatically triggered when energy fills the cap. Each prestige earns Aeons, which buy persistent meta-upgrades across three tiers — Tier 1 raises your energy rate and cap, Tier 2 (unlocked after spending 3 Aeons) adds automation and instant-prestige, Tier 3 (unlocked after spending 10 Aeons) enables bulk rewards and Celestial Quanta. At 10M energy, an automatic <strong>Epoch Collapse</strong> (Big Crunch cinematic) awards an Epoch Echo and unlocks <strong>quark flavours</strong> — six coloured energy types with passive bonuses. A second Collapse unlocks the <strong>subatomic phase</strong>: quarks form protons, neutrons, and electrons.</p>
 <p>The epoch ends when you reach the <strong>stable, Earth-like planet</strong> milestone.</p>
 <hr>
 <h2 id="resources">Resources</h2>
@@ -562,51 +562,73 @@ Sections are only visible once their prerequisite upgrade has been purchased. Li
 
 Two distinct prestige currencies serve two functions within the energy phase:
 
-### Aeon Prestige (Meta, Player-Triggered)
+### Aeon Prestige (Auto-Triggered)
 
-- **When**: Player manually triggers when energy ≥ **maximum potential energy cap** (not just the current run cap).
-- **Maximum Potential Cap**: Calculated by considering all currently-purchased Expanded Vacuum levels and all cap-multiplier upgrades (Quantum Capacitor, Quantum Reservoir, Hydrological Cycle). This ensures you only prestige when you've truly exhausted all available progression paths.
-- **How**: A pulsing "✦ Void Saturated" button appears in the center of the canvas when the cap is reached. Clicking it opens the prestige panel. All player input (movement, clicks) is blocked while the prestige panel is open.
-- **Prestige Transition**: When you click "Prestige", the reset happens **immediately**. However, the prestige menu enters a "purgatory" state and remains visible so you can:
-  - Review the Aeons and Epoch Echoes you earned.
-  - Browse your upgraded tech trees to see what's now available.
-  - Decide which upgrades to purchase before starting your next run.
-  - Close the menu (X button) to officially begin the new run.
+- **When**: Automatically triggered the moment `energy.currentValue &gt;= energy.cap`. The dialog appears instantly and blocks all input.
+- **How**: A full-screen **Prestige Panel** opens, pausing the game. You can spend Aeons on tiered upgrades, or close the menu to bank unspent points for a future run.
+- **Leave Confirmation**: If you close the panel while holding unspent Aeons, a confirmation dialog appears — unused points are banked and persist to the next prestige event.
+- **Prestige Transition**: Clicking "✦ Prestige" resets the run **immediately** but the panel stays open (purgatory state), so you can spend your newly earned Aeons before starting again. Closing the menu (×) begins the next run.
 - **During purgatory**: The game is paused (no energy gain, no motes spawning), but canvas animations continue smoothly.
-- **Earns**: 1+ Aeons per run (base 1, +1 per Echo Chamber level).
+- **Instant Prestige** (T2 upgrade): When purchased, the prestige fires silently on cap — no dialog, no panel. The run resets and resumes automatically.
+- **Earns**: Base 1 Aeon + bonuses from Vacuum Expansion level, Conversion Boost, and Bulk Prestige levels.
+- **Aeon reward formula**: `vacuumExpansion.level + 1 + conversionBoost.level + bulkPrestige.level`
 - **Resets**: energy, upgrades, milestones, stars (in-run systems); player position snaps to the epoch home; movement and gravity state fully cleared.
-- **Persists**: Aeons total, all purchased Aeon upgrades, Epoch Echoes, quark allocations, subatomic state.
+- **Persists**: Aeons total, all purchased prestige upgrades, Epoch Echoes, quark allocations, subatomic state.
 
-**Cap progression via Expanded Vacuum**: 500 → 5,000 → 50,000 → 500,000 → 5,000,000 → 10,000,000. Requires 4–5 Aeon prestiges to unlock the full 10M ceiling.
+**Cap progression via Vacuum Expansion**: 500 → 1,000 → 2,000 → 4,000 → ... (×2 per level). Requires repeated Aeon investment to reach the 10,000,000 absolute cap.
 
-**Movement &amp; EM Bond after first prestige**:
+**Movement after first prestige**:
 - Cosmic Drift (movement) is auto-granted after your first prestige — movement is free on all subsequent runs.
-- Electromagnetic Bond L1 is auto-unlocked after first prestige as a free perk (no cost). This eliminates the need to use Mote Inheritance just to get back to L1.
-- Mote Inheritance (costs 1 Aeon) still works on subsequent prestiges for players who purchase it.
+- Electromagnetic Bond L1 is auto-unlocked after first prestige as a free perk (no cost).
 
-#### Aeon Upgrade Tree
+#### Tiered Aeon Upgrade System
+
+Upgrades are grouped into three tiers. Higher tiers unlock as you **spend** cumulative Aeons:
+
+| Tier | Unlock Requirement |
+|------|--------------------|
+| Tier 1 | Always available (after first prestige) |
+| Tier 2 | Spend ≥ 3 Aeons total |
+| Tier 3 | Spend ≥ 10 Aeons total |
+
+#### Tier 1 Upgrades
 
 | ID | Name | Cost | Max | Effect |
 |----|------|------|-----|--------|
-| prs_primalMemory | Primal Memory | 1 Aeon | 1 | Start next run with 50% of last peak energy |
-| prs_quantumResonance | Quantum Resonance | 1 Aeon | 5 | +25% base energy rate (stacks multiplicatively) |
-| prs_expandedVacuum | Expanded Vacuum | 1 Aeon | 5 | Raise energy cap 10× per level |
-| prs_moteInheritance | Mote Inheritance | 1 Aeon | 1 | Start next run with EM Bond L1 pre-purchased |
-| prs_echoChamber | Echo Chamber | 2 Aeons | 1 | +1 bonus Aeon on each future prestige |
-| prs_aeonAutomaton | Aeon Automaton | 10 Aeons | 1 | Auto-purchase Phase 1 energy upgrades during pure energy phase |
+| prs_energeticEcho | Energetic Echo | level+1 Aeons | 10 | +25% energy rate per level (multiplicative stack) |
+| prs_vacuumExpansion | Vacuum Expansion | level+1 Aeons | 15 | ×2 energy cap per level; also increases Aeon reward |
+| prs_moteAcceleration | Mote Acceleration | 1 Aeon | 10 | +30% mote spawn rate per level |
 
-**Aeon Automaton** (requires Echo Chamber):
-- Once purchased, automatically selects and buys the best Phase 1 energy upgrades during your run in the energy-only phase.
-- Upgrade scoring prioritizes rate multipliers (×2 priority) and low cost, ensuring steady progression.
-- One auto-purchase fires every 10 game ticks, so progression remains visible and rewarding.
-- Automation disables at the first Epoch Collapse (when quark phase unlocks).
-- Excellent for speeding up early runs or for AFK testing.
+&gt; Energetic Echo and Vacuum Expansion use **scaling costs**: level 1 costs 1, level 2 costs 2, level 3 costs 3, etc.
+
+#### Tier 2 Upgrades (unlocked at ≥3 Aeons spent)
+
+| ID | Name | Cost | Max | Effect |
+|----|------|------|-----|--------|
+| prs_autoProductionE | Auto: Energy Path | 2 Aeons | 1 | Auto-buy Energy upgrades every 5 seconds |
+| prs_autoProductionEff | Auto: Efficiency Path | 2 Aeons | 1 | Auto-buy Efficiency upgrades every 7 seconds |
+| prs_instantPrestige | Instant Prestige | 2 Aeons | 1 | Auto-prestige silently on cap; skips the dialog |
+| prs_conversionBoost | Conversion Boost | 2 Aeons | 3 | +1 Aeon per prestige per level |
+| prs_primalMemory | Primal Memory | 1 Aeon | 1 | Start next run with 50% of your peak energy |
+
+**Auto: Energy Path** targets: `upg_quantumFluctuation`, `upg_vacuumHarvesting`, `upg_moteResonance`, `upg_clickAmplifier`, `upg_quantumCapacitor`.
+
+**Auto: Efficiency Path** targets: `upg_moteGeneration`, `upg_moteQuality`, `upg_moteFlood`, `upg_voidSaturation`, `upg_nebularSurge`.
+
+#### Tier 3 Upgrades (unlocked at ≥10 Aeons spent)
+
+| ID | Name | Cost | Max | Effect |
+|----|------|------|-----|--------|
+| prs_bulkPrestige | Bulk Prestige | 5×(level+1) Aeons | 5 | +1 bonus Aeon per prestige per level |
+| prs_celestialQuanta | Celestial Quanta | 3 Aeons | 1 | Unlock Celestial Quanta: orbiting motes coloured by quark flavour |
+
+&gt; Bulk Prestige uses **escalating costs**: L1 costs 5, L2 costs 10, L3 costs 15, L4 costs 20, L5 costs 25.
 
 ### Epoch Echo (Story, Auto-Triggered)
 
 - **When**: Automatically awarded at each Epoch Collapse event.
 - **Earns**: 1 Epoch Echo per Collapse.
-- **Cannot be spent until earned** — the panel appears only after the first Collapse.
+- **Cannot be spent until earned** — the Echo section of the prestige panel appears only after the first Collapse.
 
 #### Epoch Echo Upgrade Tree
 

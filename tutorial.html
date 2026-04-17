@@ -696,19 +696,38 @@ const { sx, sy } = camera.worldToScreen(worldX, worldY);
 <h3 id="orbitalenergydisplay">OrbitalEnergyDisplay</h3>
 <p><strong>File:</strong> <code>js/renderer/OrbitalEnergyDisplay.js</code></p>
 <p>Draws the 7-tier orbital mote ring around the player. Each tier corresponds to a power of 10 in current energy. Motes per tier = the leading decimal digit at that order of magnitude (1–9).</p>
-<p><strong>Insertion</strong> of new motes uses a <strong>largest-gap algorithm</strong> — new motes are placed at the midpoint of the biggest angular gap in the existing ring, so the animation never restarts.</p>
-<p><strong>Speed values</strong> (radians/second):</p>
+<p><strong>Mote insertion and spacing:</strong></p>
+<ul>
+<li>New motes are placed at the <strong>midpoint of the largest angular gap</strong> in the existing ring, maintaining smooth even spacing without animation restarts.</li>
+<li>When motes are removed, remaining motes preserve their angles (truncate from end).</li>
+<li>As motes spread evenly around the tier, each individual mote may slightly slow its rotation until proper spacing is achieved, then returns to full tier speed.</li>
+</ul>
+<p><strong>Orbital speeds</strong> (radians/second per tier):</p>
 <div class="table-wrapper"><table>
-<thead><tr><th>Tier</th><th>Threshold</th><th>Speed</th></tr></thead>
+<thead><tr><th>Tier</th><th>Threshold</th><th>Speed</th><th>Radius</th></tr></thead>
 <tbody>
-<tr><td>0</td><td>1</td><td>4.0</td></tr>
-<tr><td>1</td><td>10</td><td>3.0</td></tr>
-<tr><td>2</td><td>100</td><td>2.2</td></tr>
-<tr><td>3</td><td>1,000</td><td>1.6</td></tr>
-<tr><td>4</td><td>10,000</td><td>1.1</td></tr>
-<tr><td>5</td><td>100,000</td><td>0.7</td></tr>
-<tr><td>6</td><td>1,000,000</td><td>0.44</td></tr>
+<tr><td>0</td><td>1</td><td>4.0</td><td>50</td></tr>
+<tr><td>1</td><td>10</td><td>3.0</td><td>68</td></tr>
+<tr><td>2</td><td>100</td><td>2.2</td><td>88</td></tr>
+<tr><td>3</td><td>1,000</td><td>1.6</td><td>112</td></tr>
+<tr><td>4</td><td>10,000</td><td>1.1</td><td>140</td></tr>
+<tr><td>5</td><td>100,000</td><td>0.7</td><td>172</td></tr>
+<tr><td>6</td><td>1,000,000</td><td>0.44</td><td>210</td></tr>
 </tbody></table></div>
+<p><strong>Per-tier tumble rotations</strong> (layered 3D effect): Each tier rotates on a different axis and speed, creating a rich gyroscopic wobble:</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Tier</th><th>Tumble Axis</th><th>Direction</th><th>Speed</th><th>Effect</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>Y-axis</td><td>—</td><td>0.60 rad/s</td><td>Rotates in/out of view</td></tr>
+<tr><td>1</td><td>X-axis</td><td>Counter-CW</td><td>0.52 rad/s</td><td>Tilts left/right</td></tr>
+<tr><td>2</td><td>Y-axis</td><td>—</td><td>0.44 rad/s</td><td>Rotates in/out of view</td></tr>
+<tr><td>3</td><td>X-axis</td><td>Clockwise (opposite)</td><td>0.36 rad/s</td><td>Tilts opposite to tier 1</td></tr>
+<tr><td>4</td><td>Y-axis</td><td>—</td><td>0.28 rad/s</td><td>Rotates in/out of view</td></tr>
+<tr><td>5</td><td>X-axis</td><td>Counter-CW</td><td>0.20 rad/s</td><td>Tilts left/right</td></tr>
+<tr><td>6</td><td>Y-axis</td><td>—</td><td>0.12 rad/s</td><td>Rotates in/out of view</td></tr>
+</tbody></table></div>
+<p>Tumble speeds decrease by 0.08 rad/s per tier, with odd tiers alternating X-axis direction. The tumble rotation is independent of the main orbital rotation, composing with it to create dynamic visual motion.</p>
+<p><strong>Mote recycling:</strong> To prevent hitting the 500-mote-per-region density cap during infinite canvas exploration, the system recycles the furthest 10% of motes each generation tick (when spawning is active and count &gt; 50). This allows distant motes to be freed and respawned closer to the player.</p>
 <hr>
 <h2 id="game-engines">Game Engines</h2>
 <h3 id="darkmattersystem">DarkMatterSystem</h3>

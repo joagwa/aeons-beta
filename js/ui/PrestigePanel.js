@@ -1,27 +1,26 @@
 /**
- * PrestigePanel — Full-screen overlay with animated star-field and Aeon/Echo upgrade tree.
+ * PrestigePanel — Full-screen overlay with animated star-field and tiered upgrade tree.
  *
- * Layout: 3 Aeon branches + 1 Echo branch (post-Collapse only).
- *   Expansion (top)   — gold  — Expanded Vacuum
- *   Efficiency (right) — blue  — Quantum Resonance, Mote Inheritance
- *   Memory (left)      — purple — Primal Memory, Echo Chamber
- *   Collapse (bottom)  — cyan  — Echo upgrades (Quark Sight, etc.)
+ * Tiers displayed:
+ *   Tier 1 (always) — gold  — Energetic Echo, Vacuum Expansion, Mote Acceleration
+ *   Tier 2 (≥3 pts) — blue  — Auto-production, Instant Prestige, Conversion Boost, Primal Memory
+ *   Tier 3 (≥10 pts)— purple— Bulk Prestige, Celestial Quanta
+ *   Echo Tree        — cyan  — Quark Sight etc. (post-Collapse only)
  *
  * Star-field background rendered on a canvas element.
  * Upgrade nodes rendered as HTML over the canvas.
+ * Leave confirmation shown inline when closing with unspent Aeons while in purgatory.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=b7f68d6';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=567d234';
 
-const AEON_BRANCHES = {
-  expansion:   { label: 'Expansion',  color: '#ffd700' },
-  efficiency:  { label: 'Efficiency', color: '#60a5fa' },
-  memory:      { label: 'Memory',     color: '#a78bfa' },
-};
+const TIER_CONFIG = [
+  { tier: 1, label: 'Tier I — Primal',      color: '#ffd700', unlockMsg: null },
+  { tier: 2, label: 'Tier II — Automation', color: '#60a5fa', unlockMsg: 'Spend 3 Aeons to unlock' },
+  { tier: 3, label: 'Tier III — Transcendent', color: '#a78bfa', unlockMsg: 'Spend 10 Aeons to unlock' },
+];
 
-const ECHO_BRANCHES = {
-  collapse:    { label: 'Epoch Echoes', color: '#44dddd' },
-};
+const ECHO_BRANCH_CONFIG = { label: 'Epoch Echoes', color: '#44dddd' };
 
 export class PrestigePanel {
   constructor(EventBus, prestigeSystem, moteController = null) {
@@ -34,7 +33,8 @@ export class PrestigePanel {
     this._stars  = [];
     this._animId = null;
     this._visible = false;
-    this._inPurgatory = false; // true when prestige executed but menu still open
+    this._inPurgatory = false;
+    this._leaveConfirmVisible = false;
   }
 
   // ── Init ──────────────────────────────────────────────────────────────
@@ -48,21 +48,25 @@ export class PrestigePanel {
 
     this._buildStars(200);
 
-    // Close button
+    // Close button — intercept for leave confirmation
     const closeBtn = this.overlay.querySelector('#prestige-close');
-    if (closeBtn) closeBtn.addEventListener('click', () => this.hide());
+    if (closeBtn) closeBtn.addEventListener('click', () => this._requestHide());
 
-    // Prestige button — enter purgatory (execute but keep menu open)
+    // Prestige button — execute then enter purgatory
     const prestigeBtn = this.overlay.querySelector('#prestige-action-btn');
     if (prestigeBtn) prestigeBtn.addEventListener('click', () => {
       if (this.prestigeSystem.canPrestige()) {
-        // Execute prestige (reset happens now)
         this.prestigeSystem.executePrestige();
-        // Enter purgatory state (menu stays open, game is in limbo)
         this._inPurgatory = true;
         this.bus.emit('prestige:purgatory:enter');
       }
     });
+
+    // Leave confirmation buttons
+    const leaveYes = this.overlay.querySelector('#prestige-leave-yes');
+    const leaveNo  = this.overlay.querySelector('#prestige-leave-no');
+    if (leaveYes) leaveYes.addEventListener('click', () => this._confirmLeave());
+    if (leaveNo)  leaveNo.addEventListener('click',  () => this._cancelLeave());
 
     this.bus.on('prestige:upgrade:purchased', () => this._renderTree());
     this.bus.on('prestige:execute',           () => this._renderTree());
@@ -77,38 +81,67 @@ export class PrestigePanel {
   show() {
     if (!this.overlay) return;
     this._visible = true;
+    this._leaveConfirmVisible = false;
     this.overlay.classList.remove('hidden');
+    this._hideLeaveConfirm();
     this._resizeCanvas();
     this._renderHeader();
     this._renderTree();
     this._startAnimation();
-    // Block player input when prestige panel opens
-    if (this.moteController) {
-      this.moteController.blockAllInput();
+    if (this.moteController) this.moteController.blockAllInput();
+  }
+
+  /** Request to hide — shows leave confirmation if purgatory + unspent Aeons. */
+  _requestHide() {
+    if (this._inPurgatory && this.prestigeSystem.getAeonCount() > 0) {
+      this._showLeaveConfirm();
+    } else {
+      this.hide();
     }
   }
 
   hide() {
     if (!this.overlay) return;
-    
-    // If exiting purgatory, complete the post-reset sequence
     if (this._inPurgatory) {
       this._inPurgatory = false;
       this.bus.emit('prestige:purgatory:exit');
     }
-    
     this._visible = false;
+    this._leaveConfirmVisible = false;
     this.overlay.classList.add('hidden');
     this._stopAnimation();
-    // Unblock player input when prestige panel closes
-    if (this.moteController) {
-      this.moteController.unblockAllInput();
-    }
+    if (this.moteController) this.moteController.unblockAllInput();
   }
 
-  isVisible() { return this._visible; }
-
+  isVisible()     { return this._visible; }
   isInPurgatory() { return this._inPurgatory; }
+
+  // ── Leave confirmation ────────────────────────────────────────────────
+
+  _showLeaveConfirm() {
+    const el = this.overlay?.querySelector('#prestige-leave-confirm');
+    if (!el) { this.hide(); return; }
+    const aeons = this.prestigeSystem.getAeonCount();
+    const msgEl = el.querySelector('#prestige-leave-msg');
+    if (msgEl) msgEl.textContent = `You have ${aeons} unspent Aeon${aeons !== 1 ? 's' : ''}. They'll be banked for your next run.`;
+    el.classList.remove('hidden');
+    this._leaveConfirmVisible = true;
+  }
+
+  _hideLeaveConfirm() {
+    const el = this.overlay?.querySelector('#prestige-leave-confirm');
+    if (el) el.classList.add('hidden');
+    this._leaveConfirmVisible = false;
+  }
+
+  _confirmLeave() {
+    this._hideLeaveConfirm();
+    this.hide();
+  }
+
+  _cancelLeave() {
+    this._hideLeaveConfirm();
+  }
 
   // ── Star-field ────────────────────────────────────────────────────────
 
@@ -116,8 +149,7 @@ export class PrestigePanel {
     this._stars = [];
     for (let i = 0; i < count; i++) {
       this._stars.push({
-        x: Math.random(),
-        y: Math.random(),
+        x: Math.random(), y: Math.random(),
         r: 0.3 + Math.random() * 1.2,
         a: 0.2 + Math.random() * 0.6,
         da: (Math.random() - 0.5) * 0.008,
@@ -159,33 +191,38 @@ export class PrestigePanel {
     }
   }
 
-  // ── Header (Aeon balance + prestige button) ────────────────────────────
+  // ── Header ────────────────────────────────────────────────────────────
 
   _renderHeader() {
     const el = this.overlay?.querySelector('#prestige-dm-display');
     if (!el) return;
     const ps = this.prestigeSystem;
-    const aeons = ps.getAeonCount();
+    const aeons  = ps.getAeonCount();
     const echoes = ps.getEpochEchoCount();
-    const cap = ps.getCurrentEnergyCap();
+    const cap    = ps.getCurrentEnergyCap();
     const reward = ps.getPrestigeAeonReward();
-    el.innerHTML = `<span style="color:#ffd700">✦ ${aeons} Aeons</span>` +
-      (echoes > 0 ? ` <span style="color:#44dddd;margin-left:12px">◈ ${echoes} Epoch Echoes</span>` : '') +
-      `<br><span style="font-size:0.85em;opacity:0.7">Energy Cap: ${cap.toLocaleString()} | Next prestige: +${reward} Aeon${reward > 1 ? 's' : ''}</span>`;
+    const spent  = ps.getPointsSpentTotal();
+    const t2Rem  = Math.max(0, 3  - spent);
+    const t3Rem  = Math.max(0, 10 - spent);
+
+    el.innerHTML =
+      `<span style="color:#ffd700">✦ ${aeons} Aeon${aeons !== 1 ? 's' : ''}</span>` +
+      (echoes > 0 ? ` <span style="color:#44dddd;margin-left:12px">◈ ${echoes} Epoch Echo${echoes !== 1 ? 's' : ''}</span>` : '') +
+      `<br><span style="font-size:0.85em;opacity:0.7">Energy Cap: ${cap.toLocaleString()} | Next prestige: +${reward} Aeon${reward !== 1 ? 's' : ''}</span>` +
+      (t2Rem > 0 ? `<br><span style="font-size:0.8em;color:#60a5fa;opacity:0.8">Tier II unlocks in ${t2Rem} more spent Aeon${t2Rem !== 1 ? 's' : ''}</span>` : '') +
+      (t3Rem > 0 && spent >= 3 ? `<br><span style="font-size:0.8em;color:#a78bfa;opacity:0.8">Tier III unlocks in ${t3Rem} more spent Aeon${t3Rem !== 1 ? 's' : ''}</span>` : '');
 
     const btn = this.overlay?.querySelector('#prestige-action-btn');
     if (btn) {
       if (this._inPurgatory) {
-        // In purgatory — show that prestige is complete
         btn.disabled = true;
         btn.textContent = '✓ Prestige Complete — Exit to Begin';
-        btn.title = 'You are in purgatory. Close this menu to start your next run.';
+        btn.title = 'Close this menu to start your next run.';
         btn.style.opacity = '0.7';
       } else {
-        // Pre-prestige — show prestige option
         const canPrestige = ps.canPrestige();
         btn.disabled = !canPrestige;
-        btn.textContent = canPrestige ? `Prestige (+${reward} Aeon${reward > 1 ? 's' : ''})` : 'Reach energy cap to prestige';
+        btn.textContent = canPrestige ? `Prestige (+${reward} Aeon${reward !== 1 ? 's' : ''})` : 'Fill energy to cap to prestige';
         btn.title = canPrestige ? 'Reset this run and earn Aeons' : 'Fill your energy to the cap first';
         btn.style.opacity = '1';
       }
@@ -200,26 +237,76 @@ export class PrestigePanel {
     if (!container) return;
     container.innerHTML = '';
 
-    // Aeon branches
-    for (const [branchId, cfg] of Object.entries(AEON_BRANCHES)) {
-      const upgrades = PrestigeSystem.AEON_TREE[branchId] ?? [];
-      container.appendChild(this._buildBranch(branchId, cfg, upgrades, 'aeon'));
+    // Render prestige tiers
+    for (const cfg of TIER_CONFIG) {
+      const upgrades = {
+        1: PrestigeSystem.TIER1,
+        2: PrestigeSystem.TIER2,
+        3: PrestigeSystem.TIER3,
+      }[cfg.tier] ?? [];
+      container.appendChild(this._buildTierBlock(cfg, upgrades));
     }
 
-    // Echo branches (only if player has echoes or has purchased echo upgrades)
+    // Echo branch (only if player has echoes or has any echo upgrade)
     const ps = this.prestigeSystem;
     const hasEchoes = ps.getEpochEchoCount() > 0 || ps.getLevel('prs_quarkSight') >= 1;
     if (hasEchoes) {
-      for (const [branchId, cfg] of Object.entries(ECHO_BRANCHES)) {
-        const upgrades = PrestigeSystem.ECHO_TREE[branchId] ?? [];
-        container.appendChild(this._buildBranch(branchId, cfg, upgrades, 'echo'));
-      }
+      const echoUpgrades = PrestigeSystem.ECHO_TREE.collapse ?? [];
+      container.appendChild(this._buildBranch(ECHO_BRANCH_CONFIG, echoUpgrades, 'echo'));
     }
   }
 
-  _buildBranch(branchId, cfg, upgrades, currency) {
+  _buildTierBlock(cfg, upgrades) {
+    const ps = this.prestigeSystem;
+    const unlocked = ps.getTierUnlocked(cfg.tier);
+    const spent    = ps.getPointsSpentTotal();
+
+    const block = document.createElement('div');
+    block.className = `prs-tier prs-tier--${cfg.tier}${unlocked ? '' : ' prs-tier--locked'}`;
+
+    const title = document.createElement('div');
+    title.className = 'prs-branch-title';
+    title.style.color = cfg.color;
+    title.textContent = cfg.label;
+
+    if (!unlocked && cfg.unlockMsg) {
+      const lockBadge = document.createElement('span');
+      lockBadge.className = 'prs-tier-lock-badge';
+      lockBadge.textContent = ` (${cfg.unlockMsg})`;
+      lockBadge.style.color = 'rgba(255,255,255,0.4)';
+      lockBadge.style.fontSize = '0.8em';
+      title.appendChild(lockBadge);
+    } else if (unlocked && cfg.tier === 2) {
+      const nextThresh = 10 - spent;
+      if (nextThresh > 0) {
+        const progressNote = document.createElement('span');
+        progressNote.style.cssText = 'font-size:0.75em;color:#a78bfa;opacity:0.7;margin-left:8px';
+        progressNote.textContent = `(Tier III in ${nextThresh} Aeon${nextThresh !== 1 ? 's' : ''})`;
+        title.appendChild(progressNote);
+      }
+    }
+    block.appendChild(title);
+
+    if (!unlocked) {
+      const lockedHint = document.createElement('div');
+      lockedHint.className = 'prs-tier-locked-hint';
+      lockedHint.style.cssText = 'opacity:0.35;font-size:0.8em;padding:4px 8px';
+      lockedHint.textContent = upgrades.map(u => u.name).join(' · ');
+      block.appendChild(lockedHint);
+    } else {
+      const chain = document.createElement('div');
+      chain.className = 'prs-chain';
+      for (const def of upgrades) {
+        chain.appendChild(this._buildUpgradeNode(def, cfg.color, 'aeon'));
+      }
+      block.appendChild(chain);
+    }
+    return block;
+  }
+
+  _buildBranch(cfg, upgrades, currency) {
     const branch = document.createElement('div');
-    branch.className = `prs-branch prs-branch--${branchId}`;
+    branch.className = 'prs-branch prs-branch--echo';
 
     const title = document.createElement('div');
     title.className = 'prs-branch-title';
@@ -241,27 +328,30 @@ export class PrestigePanel {
     const level     = ps.getLevel(def.id);
     const maxLevel  = def.maxLevel ?? 1;
     const purchased = level >= maxLevel;
-    const canAfford = ps.canAffordUpgrade(def.id);
     const locked    = def.requires && ps.getLevel(def.requires) < 1;
+    const canAfford = ps.canAffordUpgrade(def.id);
 
     let stateClass = 'prs-node--locked';
-    if (purchased)    stateClass = 'prs-node--purchased';
-    else if (canAfford) stateClass = 'prs-node--available';
-    else if (!locked)   stateClass = 'prs-node--seen';
+    if (purchased)        stateClass = 'prs-node--purchased';
+    else if (canAfford)   stateClass = 'prs-node--available';
+    else if (!locked)     stateClass = 'prs-node--seen';
 
     const node = document.createElement('div');
     node.className = `prs-node ${stateClass}`;
     node.style.setProperty('--branch-color', color);
 
-    const levelBadge = maxLevel > 1 ? ` <span class="prs-level">${level}/${maxLevel}</span>` : '';
-    const currencyLabel = currency === 'echo' ? 'Echo' : 'Aeon';
+    const levelBadge    = maxLevel > 1 ? ` <span class="prs-level">${level}/${maxLevel}</span>` : '';
     const currencySymbol = currency === 'echo' ? '◈' : '✦';
+    const currencyLabel  = currency === 'echo' ? 'Echo' : 'Aeon';
+    const cost           = currency === 'echo' ? (def.cost ?? 1) : ps.getUpgradeCost(def.id);
+    const costDisplay    = purchased ? '✓' : `${currencySymbol} ${cost} ${currencyLabel}${cost !== 1 ? 's' : ''}`;
+
     node.innerHTML = `
       <div class="prs-node-dot"></div>
       <div class="prs-node-body">
         <div class="prs-node-name">${def.name}${levelBadge}</div>
         <div class="prs-node-desc">${def.description}</div>
-        <div class="prs-node-cost">${currencySymbol} ${def.cost} ${currencyLabel}${def.cost > 1 ? 's' : ''}</div>
+        <div class="prs-node-cost">${costDisplay}</div>
       </div>
     `;
 

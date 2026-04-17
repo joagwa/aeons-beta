@@ -1845,10 +1845,35 @@ html, body {
 
 /* Prestige tree branches */
 .prestige-tree {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 16px;
   padding: 8px 0;
+}
+
+/* Tier blocks — full-width with inner chain using grid */
+.prs-tier {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 12px;
+}
+.prs-tier--locked {
+  opacity: 0.55;
+  border-style: dashed;
+}
+.prs-tier-lock-badge { margin-left: 6px; }
+.prs-tier-locked-hint {
+  font-style: italic;
+  color: #64748b;
+  padding-top: 4px;
+}
+
+/* Tiers display nodes in a responsive grid */
+.prs-tier .prs-chain {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
 }
 
 .prs-branch {
@@ -1865,6 +1890,55 @@ html, body {
   letter-spacing: 0.08em;
   margin-bottom: 10px;
 }
+
+/* Leave confirmation overlay */
+.prestige-leave-confirm {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.75);
+  z-index: 10;
+  border-radius: 16px;
+}
+.prestige-leave-confirm.hidden { display: none; }
+.prestige-leave-confirm-box {
+  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 24px 32px;
+  text-align: center;
+  max-width: 380px;
+}
+.prestige-leave-msg {
+  font-size: 0.9rem;
+  color: #ffd700;
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+.prestige-leave-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0 0 18px;
+}
+.prestige-leave-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+.prestige-leave-btn {
+  padding: 7px 18px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.prestige-leave-btn:hover { opacity: 0.8; }
+.prestige-leave-btn--confirm { background: #ffd700; color: #0f172a; }
+.prestige-leave-btn--cancel  { background: #334155; color: #e2e8f0; }
 
 .prs-chain {
   display: flex;
@@ -1941,7 +2015,7 @@ html, body {
 }
 
 @media (max-width: 600px) {
-  .prestige-tree { grid-template-columns: 1fr; }
+  .prs-tier .prs-chain { grid-template-columns: 1fr; }
 }
 
 /* Beta banner — injected by deploy-beta-to-pages.yml; no-op in production */
