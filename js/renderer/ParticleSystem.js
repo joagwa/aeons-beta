@@ -717,6 +717,44 @@ export class ParticleSystem {
     }
   }
 
+  /**
+   * Debug spawn: ignores mote limit, spawns count motes regardless of MAX_PER_REGION.
+   */
+  debugSpawnWithinAttractionRange(regionId, count) {
+    const entry = this.regions.get(regionId);
+    if (!entry) return;
+    const attraction = entry.attraction;
+    const types = entry.config.particleTypes;
+    const spriteTypes = ['mote_base', 'mote_common', 'mote_rare', 'mote_epic', 'mote_legendary'];
+    for (let i = 0; i < count; i++) {
+      let x, y;
+      if (attraction) {
+        const r = (attraction.gravityRadius * 0.7) * Math.sqrt(Math.random());
+        const angle = Math.random() * Math.PI * 2;
+        x = attraction.targetX + Math.cos(angle) * r;
+        y = attraction.targetY + Math.sin(angle) * r;
+      } else {
+        const bounds = entry.config.worldBounds;
+        x = bounds.x + Math.random() * bounds.w;
+        y = bounds.y + Math.random() * bounds.h;
+      }
+      const type = types ? types[Math.floor(Math.random() * types.length)] : 'mote_base';
+      const spriteType = spriteTypes.includes(type) ? type : 'mote_base';
+      const sprite = this.spriteManager.getSprite(spriteType);
+      if (!sprite) continue;
+      const size = sprite.minSize + Math.random() * (sprite.maxSize - sprite.minSize);
+      entry.particles.push({
+        x, y, vx: 0, vy: 0,
+        size,
+        brightness: 0.5 + Math.random() * 0.4,
+        type: spriteType,
+        sprite,
+        attracted: true,
+        quality: TYPE_QUALITY[spriteType] ?? 0,
+      });
+    }
+  }
+
   /** Store the glow canvas 2D context for glow particle rendering. */
   setGlowCtx(ctx) {
     this._glowCtx = ctx;
