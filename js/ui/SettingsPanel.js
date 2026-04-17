@@ -240,26 +240,31 @@ export class SettingsPanel {
     speedRow.appendChild(speedLabel);
     debugGroup.appendChild(speedRow);
 
-    // --- Spawn motes button (only visible when debug is enabled) ---
+    // --- Spawn motes toggle (only visible when debug is enabled) ---
     const spawnMotesRow = document.createElement('div');
     spawnMotesRow.style.marginTop = '10px';
     spawnMotesRow.style.display = window.AEONS_DEBUG ? '' : 'none';
-    const spawnMotesBtn = document.createElement('button');
-    spawnMotesBtn.textContent = 'Spawn 50 Motes Near Player';
-    spawnMotesBtn.style.padding = '6px 12px';
-    spawnMotesBtn.style.fontSize = '14px';
-    spawnMotesBtn.style.cursor = 'pointer';
-    spawnMotesBtn.style.backgroundColor = '#2a5a8a';
-    spawnMotesBtn.style.color = '#fff';
-    spawnMotesBtn.style.border = 'none';
-    spawnMotesBtn.style.borderRadius = '4px';
-    spawnMotesBtn.addEventListener('click', () => {
-      if (window.aeons?.canvasRenderer?.particleSystem) {
-        window.aeons.canvasRenderer.particleSystem.spawnWithinAttractionRange('void', 50);
-        console.log('✨ Spawned 50 motes near player');
+    const spawnMotesLabel = document.createElement('label');
+    spawnMotesLabel.className = 'settings-checkbox-label';
+    const spawnMotesCheck = document.createElement('input');
+    spawnMotesCheck.type = 'checkbox';
+    spawnMotesCheck.checked = window.AEONS_SPAWN_MOTES_ENABLED === true;
+    spawnMotesCheck.addEventListener('change', () => {
+      window.AEONS_SPAWN_MOTES_ENABLED = spawnMotesCheck.checked;
+      console.log(`✨ Spawn motes button ${spawnMotesCheck.checked ? 'ENABLED' : 'DISABLED'}`);
+      // Show/hide the on-screen button
+      const btn = document.getElementById('debug-spawn-motes-btn');
+      if (btn) {
+        if (spawnMotesCheck.checked) {
+          btn.classList.remove('hidden');
+        } else {
+          btn.classList.add('hidden');
+        }
       }
     });
-    spawnMotesRow.appendChild(spawnMotesBtn);
+    spawnMotesLabel.appendChild(spawnMotesCheck);
+    spawnMotesLabel.appendChild(document.createTextNode(' Show spawn motes button'));
+    spawnMotesRow.appendChild(spawnMotesLabel);
     debugGroup.appendChild(spawnMotesRow);
 
     this.body.appendChild(debugGroup);
