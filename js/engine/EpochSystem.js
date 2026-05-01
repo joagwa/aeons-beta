@@ -4,15 +4,15 @@
  */
 
 export class EpochSystem {
-  /** @type {import('../core/EventBus.js?v=02ab36d').EventBus} */
+  /** @type {import('../core/EventBus.js?v=f7056d8').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=02ab36d').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=f7056d8').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=02ab36d').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=f7056d8').UpgradeSystem} */
   #upgradeSystem;
-  /** @type {import('./MilestoneSystem.js?v=02ab36d').MilestoneSystem} */
+  /** @type {import('./MilestoneSystem.js?v=f7056d8').MilestoneSystem} */
   #milestoneSystem;
-  /** @type {import('./StarManager.js?v=02ab36d').StarManager} */
+  /** @type {import('./StarManager.js?v=f7056d8').StarManager} */
   #starManager;
   /** @type {object} mutable game-wide state reference */
   #gameState;
@@ -22,11 +22,11 @@ export class EpochSystem {
   #epochRegistry = new Map();
 
   /**
-   * @param {import('../core/EventBus.js?v=02ab36d').EventBus} EventBus
-   * @param {import('./ResourceManager.js?v=02ab36d').ResourceManager} resourceManager
-   * @param {import('./UpgradeSystem.js?v=02ab36d').UpgradeSystem} upgradeSystem
-   * @param {import('./MilestoneSystem.js?v=02ab36d').MilestoneSystem} milestoneSystem
-   * @param {import('./StarManager.js?v=02ab36d').StarManager} starManager
+   * @param {import('../core/EventBus.js?v=f7056d8').EventBus} EventBus
+   * @param {import('./ResourceManager.js?v=f7056d8').ResourceManager} resourceManager
+   * @param {import('./UpgradeSystem.js?v=f7056d8').UpgradeSystem} upgradeSystem
+   * @param {import('./MilestoneSystem.js?v=f7056d8').MilestoneSystem} milestoneSystem
+   * @param {import('./StarManager.js?v=f7056d8').StarManager} starManager
    * @param {object} gameState — mutable reference
    */
   constructor(EventBus, resourceManager, upgradeSystem, milestoneSystem, starManager, gameState) {
@@ -62,8 +62,8 @@ export class EpochSystem {
       try {
         if (epochId === 'epoch1') {
           const [dataModule, canvasModule] = await Promise.all([
-            import('../data/epoch1.js?v=02ab36d'),
-            import('../data/epoch1-canvas.js?v=02ab36d'),
+            import('../data/epoch1.js?v=f7056d8'),
+            import('../data/epoch1-canvas.js?v=f7056d8'),
           ]);
           config = dataModule.epoch1Config;
           canvasConfig = { ...canvasModule.epoch1CanvasConfig, visualThresholds: canvasModule.visualThresholds || null };

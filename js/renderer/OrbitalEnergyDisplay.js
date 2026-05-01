@@ -287,32 +287,40 @@ export class OrbitalEnergyDisplay {
       return;
     }
 
+    const step = (Math.PI * 2) / count;
+
     if (existing.length === 0) {
-      // First mote(s): evenly spaced from current tier phase
-      const step = (Math.PI * 2) / count;
-      this._angles[tierIndex] = Array.from({ length: count }, (_, i) => this._tierPhase[tierIndex] + i * step);
+      // Brand-new ring: evenly spaced from current tier phase.
+      const phase = this._tierPhase[tierIndex];
+      this._angles[tierIndex] = Array.from({ length: count }, (_, i) => phase + i * step);
       return;
     }
 
-    if (count > existing.length) {
-      // Insert new mote(s) at the midpoint of the largest angular gap
-      const newAngles = [...existing];
-      while (newAngles.length < count) {
-        const sorted = [...newAngles].sort((a, b) => a - b);
-        let maxGap = 0;
-        let insertAngle = sorted[0] + Math.PI;
-        for (let i = 0; i < sorted.length; i++) {
-          const next = sorted[(i + 1) % sorted.length];
-          const gap = (next - sorted[i] + Math.PI * 2) % (Math.PI * 2);
-          if (gap > maxGap) { maxGap = gap; insertAngle = sorted[i] + gap / 2; }
-        }
-        newAngles.push(insertAngle);
-      }
-      this._angles[tierIndex] = newAngles;
-    } else {
-      // Removing motes: keep the first count positions
-      this._angles[tierIndex] = existing.slice(0, count);
+    // Snap all motes to new ideal co-rotating positions so the spring sees near-zero
+    // error immediately — eliminating the prolonged speed-variation jank on count changes.
+    // For removal, keep the first `count` survivors; for addition, use all existing.
+    const survivors = existing.length > count ? existing.slice(0, count) : [...existing];
+    const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+    const sorted = [...survivors].sort((a, b) => norm(a) - norm(b));
+
+    // Circular mean of (m[i] − i·step): the phase that minimises total squared
+    // displacement of existing motes to their new ideal slots.
+    let sumCos = 0, sumSin = 0;
+    for (let i = 0; i < sorted.length; i++) {
+      const d = sorted[i] - i * step;
+      sumCos += Math.cos(d);
+      sumSin += Math.sin(d);
     }
+    const rawPhase = Math.atan2(sumSin, sumCos);
+
+    // Adjust rawPhase to stay numerically close to the current tierPhase (no 2π jump).
+    const prevPhase = this._tierPhase[tierIndex];
+    const delta = Math.atan2(Math.sin(rawPhase - prevPhase), Math.cos(rawPhase - prevPhase));
+    const bestPhase = prevPhase + delta;
+
+    // Align the tier phase so the spring's ideal slots match our new positions exactly.
+    this._tierPhase[tierIndex] = bestPhase;
+    this._angles[tierIndex] = Array.from({ length: count }, (_, i) => bestPhase + i * step);
   }
 
   // ── Subatomic mode rendering ──────────────────────────────────────────
