@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=f7056d8';
-import { Camera } from './Camera.js?v=f7056d8';
-import { ParticleSystem } from './ParticleSystem.js?v=f7056d8';
-import { RegionManager } from './RegionManager.js?v=f7056d8';
-import { FloatingNumbers } from './FloatingNumbers.js?v=f7056d8';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=f7056d8';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=f7056d8';
+import { SpriteManager } from './SpriteManager.js?v=b432639';
+import { Camera } from './Camera.js?v=b432639';
+import { ParticleSystem } from './ParticleSystem.js?v=b432639';
+import { RegionManager } from './RegionManager.js?v=b432639';
+import { FloatingNumbers } from './FloatingNumbers.js?v=b432639';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=b432639';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=b432639';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -50,6 +50,8 @@ export class CanvasRenderer {
 
     // Mote controller reference (set via setMoteController)
     this._moteController = null;
+    // Tilt controller reference (set via setTiltController)
+    this._tiltController = null;
     this._gravityBaseRadius = 0; // set when upg_gravitationalPull purchased
     this._pendingGravityLevel = 0; // deferred if canvasConfig not ready on purchase
     this._effectiveGravityRadius = 0; // computed each frame from base radius + bonuses
@@ -73,7 +75,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=f7056d8').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=b432639').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -575,6 +577,11 @@ export class CanvasRenderer {
     }
 
     // Far-side orbital motes and path ellipses — drawn behind player
+    if (this._tiltController) {
+      const tiltBeta = this._tiltController._beta || 0;
+      const tiltGamma = this._tiltController._gamma || 0;
+      this._orbitalDisplay.setTiltModulation(tiltBeta, tiltGamma);
+    }
     this._orbitalDisplay.renderBack(ctx, sx, sy);
 
     // Bright core circle
@@ -1453,10 +1460,18 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=f7056d8').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=b432639').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
+  }
+
+  /**
+   * Attach a TiltController for device orientation events and tilt modulation.
+   * @param {import('../core/TiltController.js?v=b432639').TiltController} controller
+   */
+  setTiltController(controller) {
+    this._tiltController = controller;
   }
 
   /**

@@ -52,11 +52,12 @@ const CHANGELOG = [
 ];
 
 export class SettingsPanel {
-  constructor(EventBus, saveSystem, gameState, autoBuySystem = null) {
+  constructor(EventBus, saveSystem, gameState, autoBuySystem = null, tiltController = null) {
     this.eventBus = EventBus;
     this.saveSystem = saveSystem;
     this.gameState = gameState;
     this.autoBuySystem = autoBuySystem;
+    this.tiltController = tiltController;
     this.modal = null;
     this.body = null;
   }
@@ -151,6 +152,54 @@ export class SettingsPanel {
     glowGroup.appendChild(glowLabel);
     this.body.appendChild(glowGroup);
     this._glowCheck = glowCheck;
+
+    // --- Tilt Controls ---
+    if (this.tiltController && this.tiltController.isSupported()) {
+      const tiltGroup = this._group('Tilt Controls');
+      const tiltLabel = document.createElement('label');
+      tiltLabel.className = 'settings-checkbox-label';
+      const tiltCheck = document.createElement('input');
+      tiltCheck.type = 'checkbox';
+      tiltCheck.checked = this.gameState.settings.tiltEnabled || false;
+      const tiltNote = document.createElement('small');
+      tiltNote.style.display = 'block';
+      tiltNote.style.marginTop = '4px';
+      tiltNote.style.opacity = '0.7';
+      
+      const updateTiltUI = () => {
+        if (this.tiltController.isEnabled()) {
+          tiltNote.textContent = '(tilt your device to rotate the orbital display)';
+        } else {
+          tiltNote.textContent = this.tiltController._permissionGranted 
+            ? '(disabled)' 
+            : '(requires permission)';
+        }
+      };
+
+      tiltCheck.addEventListener('change', () => {
+        if (tiltCheck.checked) {
+          this.tiltController.requestPermissionAndEnable().then((granted) => {
+            this.gameState.settings.tiltEnabled = granted;
+            tiltCheck.checked = granted;
+            this.eventBus.emit('settings:changed', { key: 'tiltEnabled', value: granted });
+            updateTiltUI();
+          });
+        } else {
+          this.tiltController.setEnabled(false);
+          this.gameState.settings.tiltEnabled = false;
+          this.eventBus.emit('settings:changed', { key: 'tiltEnabled', value: false });
+          updateTiltUI();
+        }
+      });
+
+      tiltLabel.appendChild(tiltCheck);
+      tiltLabel.appendChild(document.createTextNode(' Enable tilt controls'));
+      tiltGroup.appendChild(tiltLabel);
+      tiltGroup.appendChild(tiltNote);
+      this.body.appendChild(tiltGroup);
+      this._tiltCheck = tiltCheck;
+      updateTiltUI();
+    }
 
     // --- Debug mode toggle ---
     const debugGroup = this._group('Debug');

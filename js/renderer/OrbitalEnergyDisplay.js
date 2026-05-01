@@ -45,11 +45,16 @@ export class OrbitalEnergyDisplay {
     // Tumble speeds: starting at 0.60, decreasing by 0.08 per tier
     this._tumbleSpeeds = [0.60, 0.52, 0.44, 0.36, 0.28, 0.20, 0.12];
     this._flashTimers = new Array(TIERS.length).fill(0);
+    // Phase animation: { targetPhase, remainingTime } per tier (for smooth 0.2s transitions on mote add)
+    this._phaseAnimations = new Array(TIERS.length).fill(null);
     this._speedMultiplier = 1;
     this._radiusScale = 1;
     this._quarkColor = null;
     this._mode = 'energy';
     this._subatomicCounts = { proton: 0, neutron: 0, electron: 0 };
+    // Tilt modulation: device orientation angles
+    this._tiltBeta = 0;
+    this._tiltGamma = 0;
   }
 
   /** Switch display mode. 'energy' = normal orbital, 'subatomic' = proton/neutron/electron rings. */
@@ -77,10 +82,26 @@ export class OrbitalEnergyDisplay {
       this._tierPhase[t] += TIERS[t].speed * this._speedMultiplier * dt;
       this._precessionPhase[t] += TIERS[t].precession * dt;
 
+      // Apply phase animation (lerp toward target over 0.2s)
+      if (this._phaseAnimations[t]) {
+        const anim = this._phaseAnimations[t];
+        anim.remainingTime -= dt;
+        if (anim.remainingTime <= 0) {
+          this._tierPhase[t] = anim.targetPhase;
+          this._phaseAnimations[t] = null;
+        } else {
+          const progress = 1 - (anim.remainingTime / 0.2);
+          const current = this._tierPhase[t];
+          let diff = anim.targetPhase - current;
+          diff = Math.atan2(Math.sin(diff), Math.cos(diff)); // shortest arc
+          this._tierPhase[t] = current + diff * progress;
+        }
+      }
+
       const prev = this._counts[t];
       const next = newCounts[t];
       if (prev !== next) {
-        this._redistributeAngles(t, next);
+        this._redistributeAngles(t, next, prev);
         this._counts[t] = next;
         if (prev > 0 && next === 0 && t + 1 < TIERS.length) {
           this._flashTimers[t + 1] = Math.min(1, (this._flashTimers[t + 1] || 0) + 0.5);
@@ -142,6 +163,13 @@ export class OrbitalEnergyDisplay {
   /** Set quark-blended color for all motes (null = white default). */
   setQuarkColor(hexColor) { this._quarkColor = hexColor || null; }
 
+  /** Set tilt modulation: device orientation angles to apply as orbital rotation. */
+  setTiltModulation(tiltBeta, tiltGamma) {
+    // Store for use during rendering
+    this._tiltBeta = tiltBeta || 0;
+    this._tiltGamma = tiltGamma || 0;
+  }
+
   /**
    * Render far-side elements (behind player): orbital path ellipses + motes with oz < 0.
    * Must be called BEFORE the player is drawn.
@@ -190,6 +218,18 @@ export class OrbitalEnergyDisplay {
    * @param {boolean} frontSide  true = oz >= 0 (near), false = oz < 0 (far)
    */
   _renderMotes(ctx, sx, sy, frontSide) {
+    // Apply tilt rotation around the home object center
+    if (this._tiltBeta !== 0 || this._tiltGamma !== 0) {
+      ctx.save();
+      ctx.translate(sx, sy);
+      // Compute rotation angle from tilt angles (combine beta and gamma)
+      // Scale down to avoid extreme rotations
+      const tiltScale = 0.15; // 15% of device tilt for smooth effect
+      const tiltAngle = Math.atan2(this._tiltGamma, this._tiltBeta) * tiltScale;
+      ctx.rotate(tiltAngle);
+      ctx.translate(-sx, -sy);
+    }
+
     for (let t = 0; t < TIERS.length; t++) {
       const count = this._counts[t];
       if (count === 0) continue;
@@ -267,6 +307,10 @@ export class OrbitalEnergyDisplay {
         ctx.fill();
       }
     }
+
+    if (this._tiltBeta !== 0 || this._tiltGamma !== 0) {
+      ctx.restore();
+    }
   }
 
   _computeCounts(energy) {
@@ -279,7 +323,7 @@ export class OrbitalEnergyDisplay {
     });
   }
 
-  _redistributeAngles(tierIndex, count) {
+  _redistributeAngles(tierIndex, count, prevCount) {
     const existing = this._angles[tierIndex];
 
     if (count === 0) {
@@ -296,31 +340,37 @@ export class OrbitalEnergyDisplay {
       return;
     }
 
-    // Snap all motes to new ideal co-rotating positions so the spring sees near-zero
-    // error immediately — eliminating the prolonged speed-variation jank on count changes.
-    // For removal, keep the first `count` survivors; for addition, use all existing.
-    const survivors = existing.length > count ? existing.slice(0, count) : [...existing];
-    const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
-    const sorted = [...survivors].sort((a, b) => norm(a) - norm(b));
+    // Only animate if we're **adding** motes; if removing, just slice without animation.
+    const isAdding = count > prevCount;
 
-    // Circular mean of (m[i] − i·step): the phase that minimises total squared
-    // displacement of existing motes to their new ideal slots.
-    let sumCos = 0, sumSin = 0;
-    for (let i = 0; i < sorted.length; i++) {
-      const d = sorted[i] - i * step;
-      sumCos += Math.cos(d);
-      sumSin += Math.sin(d);
+    if (isAdding) {
+      // Snap all motes to new ideal co-rotating positions, then animate over 0.2s.
+      const survivors = [...existing];
+      const norm = a => ((a % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+      const sorted = [...survivors].sort((a, b) => norm(a) - norm(b));
+
+      // Circular mean of (m[i] − i·step): the phase that minimises total squared
+      // displacement of existing motes to their new ideal slots.
+      let sumCos = 0, sumSin = 0;
+      for (let i = 0; i < sorted.length; i++) {
+        const d = sorted[i] - i * step;
+        sumCos += Math.cos(d);
+        sumSin += Math.sin(d);
+      }
+      const rawPhase = Math.atan2(sumSin, sumCos);
+
+      // Adjust rawPhase to stay numerically close to the current tierPhase (no 2π jump).
+      const prevPhase = this._tierPhase[tierIndex];
+      const delta = Math.atan2(Math.sin(rawPhase - prevPhase), Math.cos(rawPhase - prevPhase));
+      const bestPhase = prevPhase + delta;
+
+      // Snap motes to new positions and start animation toward bestPhase over 0.2s.
+      this._angles[tierIndex] = Array.from({ length: count }, (_, i) => this._tierPhase[tierIndex] + i * step);
+      this._phaseAnimations[tierIndex] = { targetPhase: bestPhase, remainingTime: 0.2 };
+    } else {
+      // Removing: just slice, no animation.
+      this._angles[tierIndex] = existing.slice(0, count);
     }
-    const rawPhase = Math.atan2(sumSin, sumCos);
-
-    // Adjust rawPhase to stay numerically close to the current tierPhase (no 2π jump).
-    const prevPhase = this._tierPhase[tierIndex];
-    const delta = Math.atan2(Math.sin(rawPhase - prevPhase), Math.cos(rawPhase - prevPhase));
-    const bestPhase = prevPhase + delta;
-
-    // Align the tier phase so the spring's ideal slots match our new positions exactly.
-    this._tierPhase[tierIndex] = bestPhase;
-    this._angles[tierIndex] = Array.from({ length: count }, (_, i) => bestPhase + i * step);
   }
 
   // ── Subatomic mode rendering ──────────────────────────────────────────
