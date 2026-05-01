@@ -590,6 +590,32 @@ upgradeSystem.forceLevel('upg_cosmicDrift', 1)        // bypass cost check (used
   if (!data.myNewField) data.myNewField = defaultValue;
   return data;
 }</code></pre>
+<h3 id="tiltcontroller">TiltController</h3>
+<p><strong>File:</strong> <code>js/core/TiltController.js</code></p>
+<p>Manages device orientation events (accelerometer/gyroscope) on mobile and tablet devices. When enabled via settings, tracks device tilt angles and applies them to the orbital energy display rendering.</p>
+<p><strong>Key properties:</strong></p>
+<pre><code class="language-js">_enabled           // boolean — tilt controls active
+_beta              // number — device X-axis tilt (−180° to +180°)
+_gamma             // number — device Y-axis tilt (−90° to +90°)
+_permissionGranted // boolean — iOS 13+ permission status
+_isSupported       // boolean — browser supports DeviceOrientationEvent
+_isIOS13Plus       // boolean — iOS 13+ detected (requires permission)</code></pre>
+<p><strong>Key methods:</strong></p>
+<pre><code class="language-js">requestPermissionAndEnable()  // async; request iOS 13+ permission, enable tilt
+setEnabled(enabled)            // start/stop listening to deviceorientation events
+isEnabled()                    // → boolean
+isSupported()                  // → boolean
+getOrientation()               // → { beta, gamma }
+getTiltFactor()                // → number [0,1] normalized tilt magnitude</code></pre>
+<p><strong>Settings integration:</strong></p>
+<p>When the player toggles <strong>Tilt Controls</strong> in the ⚙️ Settings menu:</p>
+<ul>
+<li><code>settings:changed</code> event is emitted with <code>key: 'tiltEnabled', value: boolean</code></li>
+<li>TiltController listens for this event and calls <code>requestPermissionAndEnable()</code> or <code>setEnabled(false)</code></li>
+<li>On iOS 13+, a browser permission prompt appears the first time; subsequent toggles don't require re-approval</li>
+</ul>
+<p><strong>Rendering:</strong></p>
+<p><code>CanvasRenderer._drawHomeObject()</code> retrieves tilt angles from TiltController and passes them to <code>OrbitalEnergyDisplay.setTiltModulation(beta, gamma)</code> before rendering each frame. The orbital display then applies a 2D canvas rotation during mote rendering (scaled to 15% of device tilt for a subtle, smooth effect).</p>
 <hr>
 <h2 id="data-layer-epoch1js">Data Layer: epoch1.js</h2>
 <p><strong>File:</strong> <code>js/data/epoch1.js</code></p>
@@ -700,7 +726,10 @@ const { sx, sy } = camera.worldToScreen(worldX, worldY);
 <ul>
 <li>New motes are placed at the <strong>midpoint of the largest angular gap</strong> in the existing ring, maintaining smooth even spacing without animation restarts.</li>
 <li>When motes are removed, remaining motes preserve their angles (truncate from end).</li>
-<li>As motes spread evenly around the tier, each individual mote may slightly slow its rotation until proper spacing is achieved, then returns to full tier speed.</li>
+<li><strong>Phase animation:</strong> When motes are added, the entire tier's phase is smoothly animated over <strong>0.2 seconds</strong> to the optimal evenly-spaced position using circular mean calculation. This eliminates the "jank" of immediate snapping and spring corrections.</li>
+<li>Only animations on <strong>addition</strong>; removal is immediate with no animation.</li>
+<li>Circular mean computation minimizes total squared displacement and prevents motes from snapping more than π/count radians in a single frame (~30° for 3 motes, invisible at 60fps).</li>
+<li>Numerical continuity prevents 2π wrapping by computing shortest-arc phase deltas.</li>
 </ul>
 <p><strong>Orbital speeds</strong> (radians/second per tier):</p>
 <div class="table-wrapper"><table>
@@ -727,6 +756,8 @@ const { sx, sy } = camera.worldToScreen(worldX, worldY);
 <tr><td>6</td><td>Y-axis</td><td>—</td><td>0.12 rad/s</td><td>Rotates in/out of view</td></tr>
 </tbody></table></div>
 <p>Tumble speeds decrease by 0.08 rad/s per tier, with odd tiers alternating X-axis direction. The tumble rotation is independent of the main orbital rotation, composing with it to create dynamic visual motion.</p>
+<p><strong>Tilt modulation:</strong></p>
+<p>When tilt controls are enabled on mobile/tablet devices, <code>setTiltModulation(beta, gamma)</code> receives device orientation angles. During mote rendering, a 2D canvas rotation is applied (scaled to 15% of device tilt) around the player character, making the orbital ring rotate smoothly in response to device tilt.</p>
 <p><strong>Mote recycling:</strong> To prevent hitting the 500-mote-per-region density cap during infinite canvas exploration, the system recycles the furthest 10% of motes each generation tick (when spawning is active and count &gt; 50). This allows distant motes to be freed and respawned closer to the player.</p>
 <hr>
 <h2 id="game-engines">Game Engines</h2>

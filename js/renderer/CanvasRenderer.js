@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=b432639';
-import { Camera } from './Camera.js?v=b432639';
-import { ParticleSystem } from './ParticleSystem.js?v=b432639';
-import { RegionManager } from './RegionManager.js?v=b432639';
-import { FloatingNumbers } from './FloatingNumbers.js?v=b432639';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=b432639';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=b432639';
+import { SpriteManager } from './SpriteManager.js?v=13654ca';
+import { Camera } from './Camera.js?v=13654ca';
+import { ParticleSystem } from './ParticleSystem.js?v=13654ca';
+import { RegionManager } from './RegionManager.js?v=13654ca';
+import { FloatingNumbers } from './FloatingNumbers.js?v=13654ca';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=13654ca';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=13654ca';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -75,7 +75,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=b432639').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=13654ca').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -1460,7 +1460,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=b432639').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=13654ca').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;
@@ -1468,7 +1468,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a TiltController for device orientation events and tilt modulation.
-   * @param {import('../core/TiltController.js?v=b432639').TiltController} controller
+   * @param {import('../core/TiltController.js?v=13654ca').TiltController} controller
    */
   setTiltController(controller) {
     this._tiltController = controller;
