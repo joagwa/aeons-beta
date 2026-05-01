@@ -4,7 +4,7 @@
  * Only shows upgrades whose cost-resource has been unlocked.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=13654ca';
+import { formatNumber } from '../core/NumberFormatter.js?v=d8e4d8a';
 
 const GROUP_ORDER = ['synthesis', 'fusionLab', 'energy', 'motes', 'movement', 'stellar', 'planetary', 'darkMatter'];
 const GROUP_LABELS = {

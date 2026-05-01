@@ -4,53 +4,53 @@
  */
 
 // === Core Imports ===
-import { ErrorReporter } from './core/ErrorReporter.js?v=13654ca';
-import { LogBuffer } from './core/LogBuffer.js?v=13654ca';
-import { EventBus } from './core/EventBus.js?v=13654ca';
-import { GameLoop } from './core/GameLoop.js?v=13654ca';
-import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=13654ca';
-import { SaveSystem } from './core/SaveSystem.js?v=13654ca';
-import { UpdateChecker } from './core/UpdateChecker.js?v=13654ca';
-import { TiltController } from './core/TiltController.js?v=13654ca';
+import { ErrorReporter } from './core/ErrorReporter.js?v=d8e4d8a';
+import { LogBuffer } from './core/LogBuffer.js?v=d8e4d8a';
+import { EventBus } from './core/EventBus.js?v=d8e4d8a';
+import { GameLoop } from './core/GameLoop.js?v=d8e4d8a';
+import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=d8e4d8a';
+import { SaveSystem } from './core/SaveSystem.js?v=d8e4d8a';
+import { UpdateChecker } from './core/UpdateChecker.js?v=d8e4d8a';
+import { TiltController } from './core/TiltController.js?v=d8e4d8a';
 
 // === Engine Imports ===
-import { ResourceManager } from './engine/ResourceManager.js?v=13654ca';
-import { UpgradeSystem } from './engine/UpgradeSystem.js?v=13654ca';
-import { MilestoneSystem } from './engine/MilestoneSystem.js?v=13654ca';
-import { StarManager } from './engine/StarManager.js?v=13654ca';
-import { EpochSystem } from './engine/EpochSystem.js?v=13654ca';
-import { MoteController } from './engine/MoteController.js?v=13654ca';
-import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=13654ca';
-import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=13654ca';
-import { AutoBuySystem } from './engine/AutoBuySystem.js?v=13654ca';
-import { FusionEngine } from './engine/FusionEngine.js?v=13654ca';
-import { MoleculeEngine } from './engine/MoleculeEngine.js?v=13654ca';
-import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=13654ca';
+import { ResourceManager } from './engine/ResourceManager.js?v=d8e4d8a';
+import { UpgradeSystem } from './engine/UpgradeSystem.js?v=d8e4d8a';
+import { MilestoneSystem } from './engine/MilestoneSystem.js?v=d8e4d8a';
+import { StarManager } from './engine/StarManager.js?v=d8e4d8a';
+import { EpochSystem } from './engine/EpochSystem.js?v=d8e4d8a';
+import { MoteController } from './engine/MoteController.js?v=d8e4d8a';
+import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=d8e4d8a';
+import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=d8e4d8a';
+import { AutoBuySystem } from './engine/AutoBuySystem.js?v=d8e4d8a';
+import { FusionEngine } from './engine/FusionEngine.js?v=d8e4d8a';
+import { MoleculeEngine } from './engine/MoleculeEngine.js?v=d8e4d8a';
+import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=d8e4d8a';
 
 // === Renderer Imports ===
-import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=13654ca';
+import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=d8e4d8a';
 
 // === UI Imports ===
-import { ResourcePanel } from './ui/ResourcePanel.js?v=13654ca';
-import { UpgradePanel } from './ui/UpgradePanel.js?v=13654ca';
-import { MilestoneNotification } from './ui/MilestoneNotification.js?v=13654ca';
-import { ChroniclePanel } from './ui/ChroniclePanel.js?v=13654ca';
-import { SettingsPanel } from './ui/SettingsPanel.js?v=13654ca';
-import { OfflineProgress } from './ui/OfflineProgress.js?v=13654ca';
-import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=13654ca';
-import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=13654ca';
-import { StatsPanel } from './ui/StatsPanel.js?v=13654ca';
-import { GoalWidget } from './ui/GoalWidget.js?v=13654ca';
-import { MobileTabBar } from './ui/MobileTabBar.js?v=13654ca';
-import { FeedbackPanel } from './ui/FeedbackPanel.js?v=13654ca';
-import { FusionLabPanel } from './ui/FusionLabPanel.js?v=13654ca';
-import { PrestigeSystem } from './engine/PrestigeSystem.js?v=13654ca';
-import { PrestigePanel } from './ui/PrestigePanel.js?v=13654ca';
-import { NarrativePanel } from './ui/NarrativePanel.js?v=13654ca';
-import { QuarkEngine } from './engine/QuarkEngine.js?v=13654ca';
-import { QuarkPanel } from './ui/QuarkPanel.js?v=13654ca';
-import { SubatomicEngine } from './engine/SubatomicEngine.js?v=13654ca';
-import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=13654ca';
+import { ResourcePanel } from './ui/ResourcePanel.js?v=d8e4d8a';
+import { UpgradePanel } from './ui/UpgradePanel.js?v=d8e4d8a';
+import { MilestoneNotification } from './ui/MilestoneNotification.js?v=d8e4d8a';
+import { ChroniclePanel } from './ui/ChroniclePanel.js?v=d8e4d8a';
+import { SettingsPanel } from './ui/SettingsPanel.js?v=d8e4d8a';
+import { OfflineProgress } from './ui/OfflineProgress.js?v=d8e4d8a';
+import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=d8e4d8a';
+import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=d8e4d8a';
+import { StatsPanel } from './ui/StatsPanel.js?v=d8e4d8a';
+import { GoalWidget } from './ui/GoalWidget.js?v=d8e4d8a';
+import { MobileTabBar } from './ui/MobileTabBar.js?v=d8e4d8a';
+import { FeedbackPanel } from './ui/FeedbackPanel.js?v=d8e4d8a';
+import { FusionLabPanel } from './ui/FusionLabPanel.js?v=d8e4d8a';
+import { PrestigeSystem } from './engine/PrestigeSystem.js?v=d8e4d8a';
+import { PrestigePanel } from './ui/PrestigePanel.js?v=d8e4d8a';
+import { NarrativePanel } from './ui/NarrativePanel.js?v=d8e4d8a';
+import { QuarkEngine } from './engine/QuarkEngine.js?v=d8e4d8a';
+import { QuarkPanel } from './ui/QuarkPanel.js?v=d8e4d8a';
+import { SubatomicEngine } from './engine/SubatomicEngine.js?v=d8e4d8a';
+import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=d8e4d8a';
 
 // === Game State ===
 let gameState = {
@@ -105,7 +105,7 @@ const autoBuySystem = new AutoBuySystem(EventBus, upgradeSystem);
 const tiltController = new TiltController(EventBus);
 
 const canvasRenderer = new CanvasRenderer(EventBus);
-canvasRenderer.setTiltController(tiltController);
+moteController.setTiltController(tiltController);
 const resourcePanel = new ResourcePanel(EventBus);
 const upgradePanel = new UpgradePanel(EventBus, upgradeSystem);
 const milestoneNotification = new MilestoneNotification(EventBus);

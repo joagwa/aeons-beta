@@ -12,7 +12,7 @@
  * Leave confirmation shown inline when closing with unspent Aeons while in purgatory.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=13654ca';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=d8e4d8a';
 
 const TIER_CONFIG = [
   { tier: 1, label: 'Tier I — Primal',      color: '#ffd700', unlockMsg: null },

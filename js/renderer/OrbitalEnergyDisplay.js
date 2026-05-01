@@ -52,9 +52,6 @@ export class OrbitalEnergyDisplay {
     this._quarkColor = null;
     this._mode = 'energy';
     this._subatomicCounts = { proton: 0, neutron: 0, electron: 0 };
-    // Tilt modulation: device orientation angles
-    this._tiltBeta = 0;
-    this._tiltGamma = 0;
   }
 
   /** Switch display mode. 'energy' = normal orbital, 'subatomic' = proton/neutron/electron rings. */
@@ -163,13 +160,6 @@ export class OrbitalEnergyDisplay {
   /** Set quark-blended color for all motes (null = white default). */
   setQuarkColor(hexColor) { this._quarkColor = hexColor || null; }
 
-  /** Set tilt modulation: device orientation angles to apply as orbital rotation. */
-  setTiltModulation(tiltBeta, tiltGamma) {
-    // Store for use during rendering
-    this._tiltBeta = tiltBeta || 0;
-    this._tiltGamma = tiltGamma || 0;
-  }
-
   /**
    * Render far-side elements (behind player): orbital path ellipses + motes with oz < 0.
    * Must be called BEFORE the player is drawn.
@@ -218,18 +208,6 @@ export class OrbitalEnergyDisplay {
    * @param {boolean} frontSide  true = oz >= 0 (near), false = oz < 0 (far)
    */
   _renderMotes(ctx, sx, sy, frontSide) {
-    // Apply tilt rotation around the home object center
-    if (this._tiltBeta !== 0 || this._tiltGamma !== 0) {
-      ctx.save();
-      ctx.translate(sx, sy);
-      // Compute rotation angle from tilt angles (combine beta and gamma)
-      // Scale down to avoid extreme rotations
-      const tiltScale = 0.15; // 15% of device tilt for smooth effect
-      const tiltAngle = Math.atan2(this._tiltGamma, this._tiltBeta) * tiltScale;
-      ctx.rotate(tiltAngle);
-      ctx.translate(-sx, -sy);
-    }
-
     for (let t = 0; t < TIERS.length; t++) {
       const count = this._counts[t];
       if (count === 0) continue;
@@ -306,10 +284,6 @@ export class OrbitalEnergyDisplay {
         ctx.arc(mx, my, r, 0, Math.PI * 2);
         ctx.fill();
       }
-    }
-
-    if (this._tiltBeta !== 0 || this._tiltGamma !== 0) {
-      ctx.restore();
     }
   }
 

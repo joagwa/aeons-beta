@@ -56,6 +56,7 @@ export class MoteController {
     /** Maximum drag radius in CSS pixels before speed is capped */
     this._joystickMaxRadius = 60;
     this._canvas = null;
+    this._tiltController = null;
 
     /** True when the primary input is touch (used to tailor the controls hint). */
     this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -136,6 +137,11 @@ export class MoteController {
     this._speedMultiplier = Math.max(1, mult);
   }
 
+  /** Attach a TiltController to use as an additional movement input source. */
+  setTiltController(tc) {
+    this._tiltController = tc;
+  }
+
   /**
    * Game-frame update — called from onFrame at full rAF rate (~60fps) for smooth motion.
    * @param {number} dt — real wall-clock delta in seconds (clamped externally)
@@ -171,14 +177,35 @@ export class MoteController {
         this._vy *= friction;
       }
     } else {
-      // Keyboard input
-      if (this._input.left)       this._vx = Math.max(this._vx - accel, -effectiveMaxSpeed);
-      else if (this._input.right) this._vx = Math.min(this._vx + accel,  effectiveMaxSpeed);
-      else                        this._vx *= friction;
+      // Tilt input (if active and giving a non-zero vector); falls through to keyboard when zero
+      let tiltActive = false;
+      if (!this._inputBlocked && this._tiltController && this._tiltController.isEnabled()) {
+        const mv = this._tiltController.getMovementVector();
+        if (mv.x !== 0 || mv.y !== 0) {
+          tiltActive = true;
+          // Normalise combined magnitude so diagonal tilt doesn't exceed maxSpeed
+          const mag = Math.sqrt(mv.x * mv.x + mv.y * mv.y);
+          const nx = mag > 1 ? mv.x / mag : mv.x;
+          const ny = mag > 1 ? mv.y / mag : mv.y;
+          const targetVx = nx * effectiveMaxSpeed;
+          const targetVy = ny * effectiveMaxSpeed;
+          if (targetVx < this._vx) this._vx = Math.max(this._vx - accel, targetVx);
+          else                      this._vx = Math.min(this._vx + accel, targetVx);
+          if (targetVy < this._vy) this._vy = Math.max(this._vy - accel, targetVy);
+          else                      this._vy = Math.min(this._vy + accel, targetVy);
+        }
+      }
 
-      if (this._input.up)         this._vy = Math.max(this._vy - accel, -effectiveMaxSpeed);
-      else if (this._input.down)  this._vy = Math.min(this._vy + accel,  effectiveMaxSpeed);
-      else                        this._vy *= friction;
+      if (!tiltActive) {
+        // Keyboard input
+        if (this._input.left)       this._vx = Math.max(this._vx - accel, -effectiveMaxSpeed);
+        else if (this._input.right) this._vx = Math.min(this._vx + accel,  effectiveMaxSpeed);
+        else                        this._vx *= friction;
+
+        if (this._input.up)         this._vy = Math.max(this._vy - accel, -effectiveMaxSpeed);
+        else if (this._input.down)  this._vy = Math.min(this._vy + accel,  effectiveMaxSpeed);
+        else                        this._vy *= friction;
+      }
     }
 
     // Snap tiny velocity to zero to avoid micro-drift

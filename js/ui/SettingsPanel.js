@@ -168,7 +168,7 @@ export class SettingsPanel {
       
       const updateTiltUI = () => {
         if (this.tiltController.isEnabled()) {
-          tiltNote.textContent = '(tilt your device to rotate the orbital display)';
+          tiltNote.textContent = '(tilt your device to steer your character)';
         } else {
           tiltNote.textContent = this.tiltController._permissionGranted 
             ? '(disabled)' 
@@ -192,10 +192,19 @@ export class SettingsPanel {
         }
       });
 
+      const recalibBtn = document.createElement('button');
+      recalibBtn.textContent = 'Recalibrate';
+      recalibBtn.style.marginTop = '6px';
+      recalibBtn.style.fontSize = '0.8em';
+      recalibBtn.addEventListener('click', () => {
+        this.tiltController.calibrate();
+      });
+
       tiltLabel.appendChild(tiltCheck);
       tiltLabel.appendChild(document.createTextNode(' Enable tilt controls'));
       tiltGroup.appendChild(tiltLabel);
       tiltGroup.appendChild(tiltNote);
+      tiltGroup.appendChild(recalibBtn);
       this.body.appendChild(tiltGroup);
       this._tiltCheck = tiltCheck;
       updateTiltUI();
