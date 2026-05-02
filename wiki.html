@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated: 2026-05-02 | Latest: Tilt controls now steer the player character (fixed from orbital rotation), calibration support added.</p>
+Last updated: 2026-05-02 | Latest: First prestige now requires max Quantum Capacitor (10/10); energy attraction pauses when storage is full.</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -564,7 +564,8 @@ Two distinct prestige currencies serve two functions within the energy phase:
 
 ### Aeon Prestige (Auto-Triggered)
 
-- **When**: Automatically triggered the moment `energy.currentValue &gt;= energy.cap`. The dialog appears instantly and blocks all input.
+- **When**: Triggered the moment `energy.currentValue &gt;= energy.cap`. The dialog appears instantly and blocks all input.
+- **First prestige requirement**: You must **also** have the **Quantum Capacitor maxed (level 10/10)** before the first prestige can fire. This ensures you've meaningfully expanded your energy storage before resetting. Energy attraction turns off as soon as the cap is full, so you'll know when you're ready.
 - **How**: A full-screen **Prestige Panel** opens, pausing the game. You can spend Aeons on tiered upgrades, or close the menu to bank unspent points for a future run.
 - **Leave Confirmation**: If you close the panel while holding unspent Aeons, a confirmation dialog appears — unused points are banked and persist to the next prestige event.
 - **Prestige Transition**: Clicking "✦ Prestige" resets the run **immediately** but the panel stays open (purgatory state), so you can spend your newly earned Aeons before starting again. Closing the menu (×) begins the next run.
@@ -574,6 +575,8 @@ Two distinct prestige currencies serve two functions within the energy phase:
 - **Aeon reward formula**: `vacuumExpansion.level + 1 + conversionBoost.level + bulkPrestige.level`
 - **Resets**: energy, upgrades, milestones, stars (in-run systems); player position snaps to the epoch home; movement and gravity state fully cleared.
 - **Persists**: Aeons total, all purchased prestige upgrades, Epoch Echoes, quark allocations, subatomic state.
+
+**Energy attraction stops at cap**: Once your energy storage is full, mote attraction automatically pauses — no new particles are pulled toward you. Attraction resumes the moment energy drops below cap (e.g., after a prestige reset or spending energy on upgrades).
 
 **Cap progression via Vacuum Expansion**: 500 → 1,000 → 2,000 → 4,000 → ... (×2 per level). Requires repeated Aeon investment to reach the 10,000,000 absolute cap.
 

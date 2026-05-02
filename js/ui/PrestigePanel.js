@@ -12,7 +12,7 @@
  * Leave confirmation shown inline when closing with unspent Aeons while in purgatory.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=d8e4d8a';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=91f6268';
 
 const TIER_CONFIG = [
   { tier: 1, label: 'Tier I — Primal',      color: '#ffd700', unlockMsg: null },
@@ -221,9 +221,10 @@ export class PrestigePanel {
         btn.style.opacity = '0.7';
       } else {
         const canPrestige = ps.canPrestige();
+        const blockedMsg = canPrestige ? null : (ps.canPrestigeBlockedMessage?.() ?? 'Fill energy to cap to prestige');
         btn.disabled = !canPrestige;
-        btn.textContent = canPrestige ? `Prestige (+${reward} Aeon${reward !== 1 ? 's' : ''})` : 'Fill energy to cap to prestige';
-        btn.title = canPrestige ? 'Reset this run and earn Aeons' : 'Fill your energy to the cap first';
+        btn.textContent = canPrestige ? `Prestige (+${reward} Aeon${reward !== 1 ? 's' : ''})` : blockedMsg;
+        btn.title = canPrestige ? 'Reset this run and earn Aeons' : blockedMsg;
         btn.style.opacity = '1';
       }
     }

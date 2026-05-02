@@ -17,11 +17,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=d8e4d8a').EventBus} */
+  /** @type {import('../core/EventBus.js?v=91f6268').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=d8e4d8a').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=91f6268').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=d8e4d8a').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=91f6268').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
@@ -100,10 +100,30 @@ export class PrestigeSystem {
   canPrestige() {
     const energy = this.#resourceManager?.get('energy');
     if (!energy) return false;
-    // Prestige requires either reaching cap OR hitting the minimum threshold (whichever is higher)
+    const energyAtCap = energy.currentValue >= energy.cap && energy.cap > 0;
+    if (this.#count === 0) {
+      // First prestige: must also have Quantum Capacitor at max level
+      const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
+      return energyAtCap && capacitorLevel >= 10;
+    }
+    // Subsequent prestiges: energy at cap (with legacy minimum floor)
     const minThreshold = 16000;
     const requiredEnergy = Math.max(energy.cap, minThreshold);
     return energy.currentValue >= requiredEnergy && energy.cap > 0;
+  }
+
+  /** Returns a user-facing message explaining why prestige is currently blocked, or null if not blocked. */
+  canPrestigeBlockedMessage() {
+    if (this.canPrestige()) return null;
+    const energy = this.#resourceManager?.get('energy');
+    if (this.#count === 0) {
+      const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
+      const capacitorMaxed = capacitorLevel >= 10;
+      const energyAtCap = energy && energy.currentValue >= energy.cap && energy.cap > 0;
+      if (!capacitorMaxed && !energyAtCap) return `Max Quantum Capacitor (${capacitorLevel}/10) & fill energy to cap`;
+      if (!capacitorMaxed) return `Max Quantum Capacitor (${capacitorLevel}/10) to prestige`;
+    }
+    return 'Fill energy to cap to prestige';
   }
 
   /** Tier N is unlocked when the player has spent enough cumulative Aeons. */

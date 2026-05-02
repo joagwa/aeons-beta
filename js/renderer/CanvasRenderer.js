@@ -3,13 +3,13 @@
  * Owns the main and glow canvas contexts and drives per-frame updates.
  */
 
-import { SpriteManager } from './SpriteManager.js?v=d8e4d8a';
-import { Camera } from './Camera.js?v=d8e4d8a';
-import { ParticleSystem } from './ParticleSystem.js?v=d8e4d8a';
-import { RegionManager } from './RegionManager.js?v=d8e4d8a';
-import { FloatingNumbers } from './FloatingNumbers.js?v=d8e4d8a';
-import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=d8e4d8a';
-import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=d8e4d8a';
+import { SpriteManager } from './SpriteManager.js?v=91f6268';
+import { Camera } from './Camera.js?v=91f6268';
+import { ParticleSystem } from './ParticleSystem.js?v=91f6268';
+import { RegionManager } from './RegionManager.js?v=91f6268';
+import { FloatingNumbers } from './FloatingNumbers.js?v=91f6268';
+import { OrbitalEnergyDisplay } from './OrbitalEnergyDisplay.js?v=91f6268';
+import { EpochCollapseAnimation } from './EpochCollapseAnimation.js?v=91f6268';
 
 // Star visual definitions by stage
 const STAR_VISUALS = {
@@ -73,7 +73,7 @@ export class CanvasRenderer {
     this._resizeObserver = null;
     this._darkMatterActive = false;
 
-    /** @type {import('../engine/DarkMatterSystem.js?v=d8e4d8a').DarkMatterSystem|null} */
+    /** @type {import('../engine/DarkMatterSystem.js?v=91f6268').DarkMatterSystem|null} */
     this._darkMatterSystem = null;
 
     // Particle storm (temporary boost from milestone reward)
@@ -100,6 +100,8 @@ export class CanvasRenderer {
 
     // Current energy value (cached from resource:updated, used by orbital display)
     this._currentEnergy = 0;
+    this._energyCap = Infinity;
+    this._energyAtCap = false;
 
     // Energy Resonance upgrade multiplier (applied to attraction radius and mote density)
     this._resonanceMult = 1;
@@ -347,29 +349,38 @@ export class CanvasRenderer {
       this.canvasConfig.homeObject.worldY = this._moteController.worldY;
       // Update particle attraction target in ALL regions to follow the mote
       if (this._gravityBaseRadius > 0) {
-        const baseRadius = this._gravityBaseRadius || 100;
-        const tractorRange = this._moteController.tractorBeamRange || 0;
-        // Energy-based radius bonus: +60px per log10(energy) so early accumulation widens pull
-        const energyBonus = Math.log10(Math.max(1, this._currentEnergy)) * 60;
-        // Mass-based radius expansion: +50% radius per 100 mass, logarithmic scaling
-        const massBonus = this._currentMass > 0 ? Math.log10(1 + this._currentMass) * 0.4 : 0;
-        const effectiveRadius = (baseRadius + tractorRange + energyBonus) * (1 + massBonus) * this._stormGravityMult * this._resonanceMult;
-        this._effectiveGravityRadius = effectiveRadius;
-        this.particleSystem.updateAttractionTargetAll(
-          this._moteController.worldX,
-          this._moteController.worldY,
-          effectiveRadius
-        );
-        // Mass-based speed multiplier: 1.0 base, +10% per log10(mass)
-        const massSpeedMult = 1 + (this._currentMass > 0 ? Math.log10(1 + this._currentMass) * 0.1 : 0);
-        this.particleSystem.setMassGravityMultiplier(massSpeedMult);
-        // Apply tractor beam speed/conversion params to all regions
-        if (tractorRange > 0) {
-          for (const region of this.canvasConfig.regions) {
-            this.particleSystem.setAttractionParams(region.regionId, {
-              conversionRate: this._moteController.tractorBeamStrength,
-              speedMultiplier: this._moteController.tractorBeamStrength,
-            });
+        if (this._energyAtCap) {
+          // Energy is full — stop attracting new particles
+          this.particleSystem.updateAttractionTargetAll(
+            this._moteController.worldX,
+            this._moteController.worldY,
+            0
+          );
+        } else {
+          const baseRadius = this._gravityBaseRadius || 100;
+          const tractorRange = this._moteController.tractorBeamRange || 0;
+          // Energy-based radius bonus: +60px per log10(energy) so early accumulation widens pull
+          const energyBonus = Math.log10(Math.max(1, this._currentEnergy)) * 60;
+          // Mass-based radius expansion: +50% radius per 100 mass, logarithmic scaling
+          const massBonus = this._currentMass > 0 ? Math.log10(1 + this._currentMass) * 0.4 : 0;
+          const effectiveRadius = (baseRadius + tractorRange + energyBonus) * (1 + massBonus) * this._stormGravityMult * this._resonanceMult;
+          this._effectiveGravityRadius = effectiveRadius;
+          this.particleSystem.updateAttractionTargetAll(
+            this._moteController.worldX,
+            this._moteController.worldY,
+            effectiveRadius
+          );
+          // Mass-based speed multiplier: 1.0 base, +10% per log10(mass)
+          const massSpeedMult = 1 + (this._currentMass > 0 ? Math.log10(1 + this._currentMass) * 0.1 : 0);
+          this.particleSystem.setMassGravityMultiplier(massSpeedMult);
+          // Apply tractor beam speed/conversion params to all regions
+          if (tractorRange > 0) {
+            for (const region of this.canvasConfig.regions) {
+              this.particleSystem.setAttractionParams(region.regionId, {
+                conversionRate: this._moteController.tractorBeamStrength,
+                speedMultiplier: this._moteController.tractorBeamStrength,
+              });
+            }
           }
         }
       }
@@ -399,7 +410,7 @@ export class CanvasRenderer {
     this.particleSystem.setWorldScroll(this._bgScrollVx, this._bgScrollVy);
 
     // Contact absorption: active before gravity is purchased; drifting into motes gives energy
-    if (this.particleSystem && this.canvasConfig?.homeObject && this._gravityBaseRadius === 0) {
+    if (this.particleSystem && this.canvasConfig?.homeObject && this._gravityBaseRadius === 0 && !this._energyAtCap) {
       const ho = this.canvasConfig.homeObject;
       this.particleSystem.checkContactAbsorption(ho.worldX, ho.worldY, 6);
     }
@@ -1081,6 +1092,10 @@ export class CanvasRenderer {
 
     if (data.resourceId === 'energy') {
       this._currentEnergy = data.newValue ?? 0;
+      if (data.cap != null) {
+        this._energyCap = data.cap;
+        this._energyAtCap = data.newValue >= data.cap;
+      }
       if (data.ratePerSec != null) {
         const intensity = Math.min(2, 0.5 + data.ratePerSec * 0.05);
         this.particleSystem.setRegionParams('void', {
@@ -1453,7 +1468,7 @@ export class CanvasRenderer {
 
   /**
    * Attach a DarkMatterSystem for node rendering and wave dispatch.
-   * @param {import('../engine/DarkMatterSystem.js?v=d8e4d8a').DarkMatterSystem} sys
+   * @param {import('../engine/DarkMatterSystem.js?v=91f6268').DarkMatterSystem} sys
    */
   setDarkMatterSystem(sys) {
     this._darkMatterSystem = sys;

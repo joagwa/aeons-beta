@@ -4,13 +4,13 @@
  */
 
 export class ResourceManager {
-  /** @type {import('../core/EventBus.js?v=d8e4d8a').EventBus} */
+  /** @type {import('../core/EventBus.js?v=91f6268').EventBus} */
   #eventBus;
   /** @type {Map<string, object>} resource definitions keyed by id */
   #definitions = new Map();
   /** @type {Map<string, object>} live resource states keyed by id */
   #states = new Map();
-  /** @type {import('./UpgradeSystem.js?v=d8e4d8a').UpgradeSystem | null} */
+  /** @type {import('./UpgradeSystem.js?v=91f6268').UpgradeSystem | null} */
   #upgradeSystem = null;
   /** @type {Map<string, number>} milestone rate bonuses keyed by resource id */
   #rateBonuses = new Map();
@@ -30,7 +30,7 @@ export class ResourceManager {
   #comboTimer = null;
 
   /**
-   * @param {import('../core/EventBus.js?v=d8e4d8a').EventBus} EventBus
+   * @param {import('../core/EventBus.js?v=91f6268').EventBus} EventBus
    */
   constructor(EventBus) {
     this.#eventBus = EventBus;
@@ -97,6 +97,7 @@ export class ResourceManager {
           newValue: state.currentValue,
           delta,
           ratePerSec: state.passiveRatePerSec,
+          cap: state.cap,
         });
       }
     }
@@ -123,6 +124,7 @@ export class ResourceManager {
         newValue: newMass,
         delta,
         ratePerSec: 0,
+        cap: massState.cap,
       });
     }
   }
@@ -148,6 +150,7 @@ export class ResourceManager {
         newValue: newGravity,
         delta,
         ratePerSec: 0,
+        cap: gravityState.cap,
       });
     }
   }
@@ -178,6 +181,7 @@ export class ResourceManager {
       newValue: state.currentValue,
       delta: state.currentValue - prevValue,
       ratePerSec: state.passiveRatePerSec,
+      cap: state.cap,
     });
   }
 
@@ -218,6 +222,7 @@ export class ResourceManager {
       delta: state.currentValue - prevValue,
       ratePerSec: state.passiveRatePerSec,
       comboActive: this.#comboActive,
+      cap: state.cap,
     });
   }
 
@@ -241,6 +246,7 @@ export class ResourceManager {
       newValue: state.currentValue,
       delta: -amount,
       ratePerSec: state.passiveRatePerSec,
+      cap: state.cap,
     });
     return true;
   }
@@ -495,6 +501,7 @@ export class ResourceManager {
         newValue: state.currentValue,
         delta: 0,
         ratePerSec: state.passiveRatePerSec,
+        cap: state.cap,
       });
     }
   }

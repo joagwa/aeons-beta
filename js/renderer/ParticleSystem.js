@@ -181,7 +181,7 @@ export class ParticleSystem {
       const aParms = entry.attractionParams || { conversionRate: 1, speedMultiplier: 1 };
 
       // --- Move particles ---
-      const gravRadius = attraction ? (attraction.gravityRadius || 600) : 0;
+      const gravRadius = attraction ? (attraction.gravityRadius ?? 600) : 0;
       const massMult = this._massGravityMult;
 
       for (const p of entry.particles) {
