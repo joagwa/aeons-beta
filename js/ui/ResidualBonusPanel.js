@@ -2,7 +2,7 @@
  * ResidualBonusPanel — Displays Cosmic Legacy bonuses carried across epochs.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=91f6268';
+import { formatNumber } from '../core/NumberFormatter.js?v=217c71f';
 
 export class ResidualBonusPanel {
   constructor(EventBus, gameState) {
