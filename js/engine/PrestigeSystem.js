@@ -2,7 +2,7 @@
  * PrestigeSystem — Manages tiered Aeon prestige cycles and the Epoch Echo currency.
  *
  * Aeon prestige (auto-triggered when energy fills cap):
- *   - Trigger: energy >= currentCap
+ *   - Trigger: Quantum Capacitor maxed (L10) AND energy >= cap
  *   - Awards: vacuumExpansion.level + 1 + conversionBoost + bulkPrestige bonus
  *   - Resets: energy, upgrades, milestones
  *   - Persists: Aeons total, purchased prestige upgrades, dynamic energy cap
@@ -17,11 +17,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=0ba458a').EventBus} */
+  /** @type {import('../core/EventBus.js?v=b44c30f').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=0ba458a').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=b44c30f').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=0ba458a').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=b44c30f').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
@@ -100,29 +100,20 @@ export class PrestigeSystem {
   canPrestige() {
     const energy = this.#resourceManager?.get('energy');
     if (!energy) return false;
-    const energyAtCap = energy.currentValue >= energy.cap && energy.cap > 0;
-    if (this.#count === 0) {
-      // First prestige: must also have Quantum Capacitor at max level
-      const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
-      return energyAtCap && capacitorLevel >= 10;
-    }
-    // Subsequent prestiges: energy at cap (with legacy minimum floor)
-    const minThreshold = 16000;
-    const requiredEnergy = Math.max(energy.cap, minThreshold);
-    return energy.currentValue >= requiredEnergy && energy.cap > 0;
+    const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
+    if (capacitorLevel < 10) return false;
+    return energy.currentValue >= energy.cap && energy.cap > 0;
   }
 
   /** Returns a user-facing message explaining why prestige is currently blocked, or null if not blocked. */
   canPrestigeBlockedMessage() {
     if (this.canPrestige()) return null;
     const energy = this.#resourceManager?.get('energy');
-    if (this.#count === 0) {
-      const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
-      const capacitorMaxed = capacitorLevel >= 10;
-      const energyAtCap = energy && energy.currentValue >= energy.cap && energy.cap > 0;
-      if (!capacitorMaxed && !energyAtCap) return `Max Quantum Capacitor (${capacitorLevel}/10) & fill energy to cap`;
-      if (!capacitorMaxed) return `Max Quantum Capacitor (${capacitorLevel}/10) to prestige`;
-    }
+    const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
+    const capacitorMaxed = capacitorLevel >= 10;
+    const energyAtCap = energy && energy.currentValue >= energy.cap && energy.cap > 0;
+    if (!capacitorMaxed && !energyAtCap) return `Max Quantum Capacitor (${capacitorLevel}/10) & fill energy to cap`;
+    if (!capacitorMaxed) return `Max Quantum Capacitor (${capacitorLevel}/10) to prestige`;
     return 'Fill energy to cap to prestige';
   }
 

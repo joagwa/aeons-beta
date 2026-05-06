@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated: 2026-05-02 | Latest: First prestige now requires max Quantum Capacitor (10/10); energy attraction pauses when storage is full.</p>
+Last updated: 2026-05-06 | Latest: All prestiges now require max Quantum Capacitor (10/10); energy attraction pauses when storage is full.</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -228,7 +228,7 @@ Last updated: 2026-05-02 | Latest: First prestige now requires max Quantum Capac
 <h2 id="overview">Overview</h2>
 <p><strong>Epoch 1: The Primordial Universe</strong> — You begin as a lone particle in an empty void. Through absorbing energy motes, converting energy to hydrogen via proton synthesis, and unlocking gravity, you progress through the formation of atoms, gas clouds, nebulae, stars, and eventually planets.</p>
 <p>Mass is now <strong>fully derived</strong> from the atomic weights of elements you accumulate — it cannot be earned or spent directly.</p>
-<p>The energy phase features an <strong>Aeon Prestige</strong> system: automatically triggered when energy fills the cap. Each prestige earns Aeons, which buy persistent meta-upgrades across three tiers — Tier 1 raises your energy rate and cap, Tier 2 (unlocked after spending 3 Aeons) adds automation and instant-prestige, Tier 3 (unlocked after spending 10 Aeons) enables bulk rewards and Celestial Quanta. At 10M energy, an automatic <strong>Epoch Collapse</strong> (Big Crunch cinematic) awards an Epoch Echo and unlocks <strong>quark flavours</strong> — six coloured energy types with passive bonuses. A second Collapse unlocks the <strong>subatomic phase</strong>: quarks form protons, neutrons, and electrons.</p>
+<p>The energy phase features an <strong>Aeon Prestige</strong> system: triggered when Quantum Capacitor is maxed (10/10) and energy fills the cap. Each prestige earns Aeons, which buy persistent meta-upgrades across three tiers — Tier 1 raises your energy rate and cap, Tier 2 (unlocked after spending 3 Aeons) adds automation and instant-prestige, Tier 3 (unlocked after spending 10 Aeons) enables bulk rewards and Celestial Quanta. At 10M energy, an automatic <strong>Epoch Collapse</strong> (Big Crunch cinematic) awards an Epoch Echo and unlocks <strong>quark flavours</strong> — six coloured energy types with passive bonuses. A second Collapse unlocks the <strong>subatomic phase</strong>: quarks form protons, neutrons, and electrons.</p>
 <p>The epoch ends when you reach the <strong>stable, Earth-like planet</strong> milestone.</p>
 <hr>
 <h2 id="resources">Resources</h2>
@@ -564,8 +564,8 @@ Two distinct prestige currencies serve two functions within the energy phase:
 
 ### Aeon Prestige (Auto-Triggered)
 
-- **When**: Triggered the moment `energy.currentValue &gt;= energy.cap`. The dialog appears instantly and blocks all input.
-- **First prestige requirement**: You must **also** have the **Quantum Capacitor maxed (level 10/10)** before the first prestige can fire. This ensures you've meaningfully expanded your energy storage before resetting. Energy attraction turns off as soon as the cap is full, so you'll know when you're ready.
+- **When**: Triggered the moment `energy.currentValue &gt;= energy.cap` AND `Quantum Capacitor` is maxed. The dialog appears instantly and blocks all input.
+- **Prestige requirement**: You must have the **Quantum Capacitor maxed (level 10/10)** before every prestige — not just the first. This ensures you've fully expanded your energy storage each run before resetting. Energy attraction turns off as soon as the cap is full, so you'll know when you're ready.
 - **How**: A full-screen **Prestige Panel** opens, pausing the game. You can spend Aeons on tiered upgrades, or close the menu to bank unspent points for a future run.
 - **Leave Confirmation**: If you close the panel while holding unspent Aeons, a confirmation dialog appears — unused points are banked and persist to the next prestige event.
 - **Prestige Transition**: Clicking "✦ Prestige" resets the run **immediately** but the panel stays open (purgatory state), so you can spend your newly earned Aeons before starting again. Closing the menu (×) begins the next run.
