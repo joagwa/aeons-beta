@@ -13,9 +13,9 @@ const STAGE_DURATIONS = {
 const STAGE_ORDER = ['main_sequence', 'red_giant', 'supernova', 'neutron_star'];
 
 export class StarManager {
-  /** @type {import('../core/EventBus.js?v=55d199b').EventBus} */
+  /** @type {import('../core/EventBus.js?v=0ba458a').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=55d199b').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=0ba458a').ResourceManager} */
   #resourceManager;
   /** @type {object[]} active star instances */
   #stars = [];
@@ -23,8 +23,8 @@ export class StarManager {
   #starCount = 0;
 
   /**
-   * @param {import('../core/EventBus.js?v=55d199b').EventBus} EventBus
-   * @param {import('./ResourceManager.js?v=55d199b').ResourceManager} resourceManager
+   * @param {import('../core/EventBus.js?v=0ba458a').EventBus} EventBus
+   * @param {import('./ResourceManager.js?v=0ba458a').ResourceManager} resourceManager
    */
   constructor(EventBus, resourceManager) {
     this.#eventBus = EventBus;

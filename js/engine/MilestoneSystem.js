@@ -4,9 +4,9 @@
  */
 
 export class MilestoneSystem {
-  /** @type {import('../core/EventBus.js?v=55d199b').EventBus} */
+  /** @type {import('../core/EventBus.js?v=0ba458a').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=55d199b').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=0ba458a').ResourceManager} */
   #resourceManager;
   /** @type {Map<string, object>} milestone definitions keyed by id */
   #definitions = new Map();
@@ -16,8 +16,8 @@ export class MilestoneSystem {
   #chronicleLog = [];
 
   /**
-   * @param {import('../core/EventBus.js?v=55d199b').EventBus} EventBus
-   * @param {import('./ResourceManager.js?v=55d199b').ResourceManager} resourceManager
+   * @param {import('../core/EventBus.js?v=0ba458a').EventBus} EventBus
+   * @param {import('./ResourceManager.js?v=0ba458a').ResourceManager} resourceManager
    */
   constructor(EventBus, resourceManager) {
     this.#eventBus = EventBus;
