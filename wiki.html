@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated: 2026-05-06 | Latest: All prestiges now require max Quantum Capacitor (10/10); energy attraction pauses when storage is full.</p>
+Last updated: 2026-05-06 | Latest: 100-level upgrades with bracket scaling; new prestige upgrades <code>prs_flexiblePrestige</code> and <code>prs_bulkBuy</code>.</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -601,6 +601,8 @@ Upgrades are grouped into three tiers. Higher tiers unlock as you **spend** cumu
 | prs_energeticEcho | Energetic Echo | level+1 Aeons | 10 | +25% energy rate per level (multiplicative stack) |
 | prs_vacuumExpansion | Vacuum Expansion | level+1 Aeons | 15 | ×2 energy cap per level; also increases Aeon reward |
 | prs_moteAcceleration | Mote Acceleration | 1 Aeon | 10 | +30% mote spawn rate per level |
+| prs_flexiblePrestige | Flexible Prestige | 2 Aeons | 1 | Remove the Quantum Capacitor gate for all future runs. Prestige fires as soon as energy fills the cap. |
+| prs_bulkBuy | Bulk Buy | 1 Aeon | 1 | Adds a ×10 button to all multi-level in-run upgrades, purchasing up to 10 levels at once. |
 
 &gt; Energetic Echo and Vacuum Expansion use **scaling costs**: level 1 costs 1, level 2 costs 2, level 3 costs 3, etc.
 
@@ -786,7 +788,14 @@ After the 2nd Epoch Collapse, the display switches to three dedicated rings for 
 For multi-level upgrades with exponential scaling:</code></pre>
 <p>cost(level) = baseCost × costScaling^(level - 1)</p>
 <pre><code>
-This pure exponential formula applies to all levels — costs grow steeply with each purchase.
+**Bracket scaling** (enabled on most 100-level upgrades via `bracketScaling: true`): the cost doubles each time you cross a bracket of 10 levels.</code></pre>
+<p>bracketMultiplier = 2^floor(level / 10) finalCost = baseFormula(level) × bracketMultiplier</p>
+<pre><code>- L0–9: ×1 (no extra cost)
+- L10–19: ×2
+- L20–29: ×4
+- L90–99: ×512
+
+This means the cost at L50 is 32× more expensive than the base formula alone, keeping progression meaningful through 100 levels.
 
 For single-level upgrades: cost is simply `baseCost`.
 
@@ -800,14 +809,13 @@ Some key upgrades have a `hardScalingStart` level, beyond which costs increase a
 </code></pre>
 <p>cost(level) = normalCost(hardScalingStart) × hardScaling^(level - hardScalingStart)</p>
 <pre><code>
-| Upgrade | hardScalingStart | hardScaling | L10 Cost |
-|---------|-----------------|-------------|----------|
-| EM Bond | 5 | 5.0 | ~759K |
-| Quantum Fluctuation | 5 | 3.0 | ~7.6M |
-| Vacuum Harvesting | 5 | 2.8 | ~8.4M |
-| Mote Genesis | 5 | 4.5 | ~295K |
+Bracket scaling is also applied on top of hard scaling for upgrades with `bracketScaling: true`.
 
-L6–L10 are intentionally unreachable pre-Collapse. Quark bonuses (especially Bottom: -% upgrade costs, strength 0.020) make them achievable post-Collapse. With 100% Bottom allocation + Flavour Resonance, costs drop ~21%.
+| Upgrade | hardScalingStart | hardScaling |
+|---------|-----------------|-------------|
+| Quantum Fluctuation | 5 | 3.0 |
+| Vacuum Harvesting | 5 | 2.8 |
+| Mote Genesis | 5 | 4.5 |
 
 ### Effect Scaling Rules
 
@@ -815,15 +823,19 @@ L6–L10 are intentionally unreachable pre-Collapse. Quark bonuses (especially B
 |-------------|---------|-------------------|
 | `rateAdditive` | Linear | `magnitude × N` |
 | `capIncrease` | Quadratic | `magnitude × N²` |
-| `capMultiplier` | Exponential | `magnitude^N` |
-| `rateMultiplier` | Exponential | `magnitude^N` |
+| `capMultiplier` | Exponential | `magnitude^N` (or high-level variant below) |
+| `rateMultiplier` | Exponential | `magnitude^N` (or high-level variant below) |
 | `clickMultiplier` | Exponential | `magnitude^N` |
 | `absorptionMultiplier` | Exponential | `magnitude^N` |
 | `unlock` | Binary | Unlocks at level 1 |
 
+**High-level magnitude** (`highLevelMagnitude` + `highLevelThreshold`): For upgrades that would overflow at 100 levels, a gentler exponent kicks in above the threshold:</code></pre>
+<p>scaledMag = effectMagnitude^threshold × highLevelMagnitude^(level - threshold)</p>
+<pre><code>Quantum Capacitor uses `effectMagnitude: 2.0, highLevelThreshold: 10, highLevelMagnitude: 1.15`.
+
 **Percentage-based caps** (`capMultiplier`): Storage upgrades apply proportional multipliers to the current cap. On prestige when the base cap increases, `capMultiplier` effects re-apply proportionally at the new scale.
 
-**All multi-level upgrades are 10 levels** with `costScaling: 3×` and pure exponential cost growth across all levels.
+**Most in-run upgrades are now 100 levels** with exponential + bracket scaling. A segmented progress bar (10 brackets of 10 levels each) replaces the old pip track for these upgrades.
 
 **Live upgrade specs**: Each upgrade card shows the current cumulative effect (`Now: ×6.25`) and what the next level will give (`→ ×12.5`). For cost-reduction upgrades (Energy Density), shown as percentage (`Now: 56% cost/H`).
 

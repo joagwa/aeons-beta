@@ -453,6 +453,29 @@ html, body {
   background: var(--accent);
 }
 
+/* Segmented progress bar for 100-level upgrades */
+.upgrade-level-bar {
+  display: flex;
+  gap: 2px;
+  margin: 4px 0 2px;
+}
+
+.bracket-seg {
+  flex: 1;
+  height: 5px;
+  border-radius: 2px;
+  background: var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+.bracket-seg-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.15s ease;
+}
+
 .upgrade-empty {
   color: var(--text-dim);
   font-size: 12px;
@@ -578,6 +601,17 @@ html, body {
   background: var(--btn-disabled);
   color: var(--text-dim);
   cursor: not-allowed;
+}
+
+.upgrade-btn-bulk {
+  margin-left: 4px;
+  background: var(--text-dim);
+  color: var(--bg);
+  min-width: 36px;
+}
+
+.upgrade-btn-bulk:hover:not(:disabled) {
+  background: var(--text-bright);
 }
 
 /* --- Chronicle Panel --- */

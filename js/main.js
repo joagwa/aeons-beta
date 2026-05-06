@@ -4,53 +4,53 @@
  */
 
 // === Core Imports ===
-import { ErrorReporter } from './core/ErrorReporter.js?v=b44c30f';
-import { LogBuffer } from './core/LogBuffer.js?v=b44c30f';
-import { EventBus } from './core/EventBus.js?v=b44c30f';
-import { GameLoop } from './core/GameLoop.js?v=b44c30f';
-import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=b44c30f';
-import { SaveSystem } from './core/SaveSystem.js?v=b44c30f';
-import { UpdateChecker } from './core/UpdateChecker.js?v=b44c30f';
-import { TiltController } from './core/TiltController.js?v=b44c30f';
+import { ErrorReporter } from './core/ErrorReporter.js?v=8711769';
+import { LogBuffer } from './core/LogBuffer.js?v=8711769';
+import { EventBus } from './core/EventBus.js?v=8711769';
+import { GameLoop } from './core/GameLoop.js?v=8711769';
+import { formatNumber, setNotationMode, getNotationMode } from './core/NumberFormatter.js?v=8711769';
+import { SaveSystem } from './core/SaveSystem.js?v=8711769';
+import { UpdateChecker } from './core/UpdateChecker.js?v=8711769';
+import { TiltController } from './core/TiltController.js?v=8711769';
 
 // === Engine Imports ===
-import { ResourceManager } from './engine/ResourceManager.js?v=b44c30f';
-import { UpgradeSystem } from './engine/UpgradeSystem.js?v=b44c30f';
-import { MilestoneSystem } from './engine/MilestoneSystem.js?v=b44c30f';
-import { StarManager } from './engine/StarManager.js?v=b44c30f';
-import { EpochSystem } from './engine/EpochSystem.js?v=b44c30f';
-import { MoteController } from './engine/MoteController.js?v=b44c30f';
-import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=b44c30f';
-import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=b44c30f';
-import { AutoBuySystem } from './engine/AutoBuySystem.js?v=b44c30f';
-import { FusionEngine } from './engine/FusionEngine.js?v=b44c30f';
-import { MoleculeEngine } from './engine/MoleculeEngine.js?v=b44c30f';
-import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=b44c30f';
+import { ResourceManager } from './engine/ResourceManager.js?v=8711769';
+import { UpgradeSystem } from './engine/UpgradeSystem.js?v=8711769';
+import { MilestoneSystem } from './engine/MilestoneSystem.js?v=8711769';
+import { StarManager } from './engine/StarManager.js?v=8711769';
+import { EpochSystem } from './engine/EpochSystem.js?v=8711769';
+import { MoteController } from './engine/MoteController.js?v=8711769';
+import { ProceduralMoteGenerator } from './engine/ProceduralMoteGenerator.js?v=8711769';
+import { DarkMatterSystem } from './engine/DarkMatterSystem.js?v=8711769';
+import { AutoBuySystem } from './engine/AutoBuySystem.js?v=8711769';
+import { FusionEngine } from './engine/FusionEngine.js?v=8711769';
+import { MoleculeEngine } from './engine/MoleculeEngine.js?v=8711769';
+import { ProtonSynthesisEngine } from './engine/ProtonSynthesisEngine.js?v=8711769';
 
 // === Renderer Imports ===
-import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=b44c30f';
+import { CanvasRenderer } from './renderer/CanvasRenderer.js?v=8711769';
 
 // === UI Imports ===
-import { ResourcePanel } from './ui/ResourcePanel.js?v=b44c30f';
-import { UpgradePanel } from './ui/UpgradePanel.js?v=b44c30f';
-import { MilestoneNotification } from './ui/MilestoneNotification.js?v=b44c30f';
-import { ChroniclePanel } from './ui/ChroniclePanel.js?v=b44c30f';
-import { SettingsPanel } from './ui/SettingsPanel.js?v=b44c30f';
-import { OfflineProgress } from './ui/OfflineProgress.js?v=b44c30f';
-import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=b44c30f';
-import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=b44c30f';
-import { StatsPanel } from './ui/StatsPanel.js?v=b44c30f';
-import { GoalWidget } from './ui/GoalWidget.js?v=b44c30f';
-import { MobileTabBar } from './ui/MobileTabBar.js?v=b44c30f';
-import { FeedbackPanel } from './ui/FeedbackPanel.js?v=b44c30f';
-import { FusionLabPanel } from './ui/FusionLabPanel.js?v=b44c30f';
-import { PrestigeSystem } from './engine/PrestigeSystem.js?v=b44c30f';
-import { PrestigePanel } from './ui/PrestigePanel.js?v=b44c30f';
-import { NarrativePanel } from './ui/NarrativePanel.js?v=b44c30f';
-import { QuarkEngine } from './engine/QuarkEngine.js?v=b44c30f';
-import { QuarkPanel } from './ui/QuarkPanel.js?v=b44c30f';
-import { SubatomicEngine } from './engine/SubatomicEngine.js?v=b44c30f';
-import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=b44c30f';
+import { ResourcePanel } from './ui/ResourcePanel.js?v=8711769';
+import { UpgradePanel } from './ui/UpgradePanel.js?v=8711769';
+import { MilestoneNotification } from './ui/MilestoneNotification.js?v=8711769';
+import { ChroniclePanel } from './ui/ChroniclePanel.js?v=8711769';
+import { SettingsPanel } from './ui/SettingsPanel.js?v=8711769';
+import { OfflineProgress } from './ui/OfflineProgress.js?v=8711769';
+import { EpochTransitionOverlay } from './ui/EpochTransitionOverlay.js?v=8711769';
+import { ResidualBonusPanel } from './ui/ResidualBonusPanel.js?v=8711769';
+import { StatsPanel } from './ui/StatsPanel.js?v=8711769';
+import { GoalWidget } from './ui/GoalWidget.js?v=8711769';
+import { MobileTabBar } from './ui/MobileTabBar.js?v=8711769';
+import { FeedbackPanel } from './ui/FeedbackPanel.js?v=8711769';
+import { FusionLabPanel } from './ui/FusionLabPanel.js?v=8711769';
+import { PrestigeSystem } from './engine/PrestigeSystem.js?v=8711769';
+import { PrestigePanel } from './ui/PrestigePanel.js?v=8711769';
+import { NarrativePanel } from './ui/NarrativePanel.js?v=8711769';
+import { QuarkEngine } from './engine/QuarkEngine.js?v=8711769';
+import { QuarkPanel } from './ui/QuarkPanel.js?v=8711769';
+import { SubatomicEngine } from './engine/SubatomicEngine.js?v=8711769';
+import { ParticleForgePanel } from './ui/ParticleForgePanel.js?v=8711769';
 
 // === Game State ===
 let gameState = {
@@ -107,7 +107,7 @@ const tiltController = new TiltController(EventBus);
 const canvasRenderer = new CanvasRenderer(EventBus);
 moteController.setTiltController(tiltController);
 const resourcePanel = new ResourcePanel(EventBus);
-const upgradePanel = new UpgradePanel(EventBus, upgradeSystem);
+const upgradePanel = new UpgradePanel(EventBus, upgradeSystem, prestigeSystem);
 const milestoneNotification = new MilestoneNotification(EventBus);
 const chroniclePanel = new ChroniclePanel(EventBus, milestoneSystem);
 const settingsPanel = new SettingsPanel(EventBus, saveSystem, gameState, autoBuySystem, tiltController);
@@ -717,13 +717,12 @@ async function bootstrap() {
       }
     }
 
-    // --- Epoch Collapse trigger: auto-fire when energy reaches absoluteCap ---
+    // --- Epoch Collapse trigger: auto-fire when energy reaches 10,000,000 ---
     // 1st collapse: collapseCount 0 → 1 (unlocks quarks)
     // 2nd collapse: collapseCount 1 → 2 (unlocks subatomic, requires quark + Deep Structure)
     if (!gameState.collapseInProgress && gameState.collapseCount < 2) {
       const energyRes = resourceManager.get('energy');
-      const energyDef = resourceManager.getDefinition('energy');
-      if (energyRes && energyRes.currentValue >= (energyDef?.absoluteCap ?? Infinity)) {
+      if (energyRes && energyRes.currentValue >= 10_000_000) {
         gameState.collapseInProgress = true;
         canvasRenderer.startEpochCollapse();
       }

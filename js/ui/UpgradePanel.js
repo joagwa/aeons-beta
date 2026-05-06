@@ -4,7 +4,7 @@
  * Only shows upgrades whose cost-resource has been unlocked.
  */
 
-import { formatNumber } from '../core/NumberFormatter.js?v=b44c30f';
+import { formatNumber } from '../core/NumberFormatter.js?v=8711769';
 
 const GROUP_ORDER = ['synthesis', 'fusionLab', 'energy', 'motes', 'movement', 'stellar', 'planetary', 'darkMatter'];
 const GROUP_LABELS = {
@@ -22,13 +22,14 @@ const GROUP_LABELS = {
 };
 
 export class UpgradePanel {
-  constructor(EventBus, upgradeSystem) {
+  constructor(EventBus, upgradeSystem, prestigeSystem = null) {
     this.eventBus = EventBus;
     this.upgradeSystem = upgradeSystem;
+    this.prestigeSystem = prestigeSystem;
     this.container = null;
     this.cards = {};
-    this._collapsedGroups = new Set(); // track which groups are collapsed
-    this._collapsed = false; // whole-panel collapse
+    this._collapsedGroups = new Set();
+    this._collapsed = false;
   }
 
   init() {
@@ -247,15 +248,39 @@ export class UpgradePanel {
       costDiv.textContent = `Cost: ${formatNumber(cost)} ${def.costResource || ''}`.trim();
     }
 
-    // Level pip track for multi-level upgrades
+    // Level progress track for multi-level upgrades
     let pipsEl = null;
     if (isMultiLevel) {
       pipsEl = document.createElement('div');
-      pipsEl.className = 'upgrade-level-pips';
-      for (let i = 0; i < maxLevel; i++) {
-        const pip = document.createElement('span');
-        pip.className = 'pip' + (i < state.level ? ' filled' : '');
-        pipsEl.appendChild(pip);
+      if (maxLevel > 10) {
+        // Segmented bar: 10 bracket-segments, each = maxLevel/10 levels
+        pipsEl.className = 'upgrade-level-bar';
+        const numSegments = 10;
+        const levelsPerSeg = maxLevel / numSegments;
+        for (let i = 0; i < numSegments; i++) {
+          const segStart = i * levelsPerSeg;
+          const segEnd = (i + 1) * levelsPerSeg;
+          const fill = state.level >= segEnd
+            ? 1
+            : state.level <= segStart
+            ? 0
+            : (state.level - segStart) / levelsPerSeg;
+          const seg = document.createElement('div');
+          seg.className = 'bracket-seg';
+          const fillEl = document.createElement('div');
+          fillEl.className = 'bracket-seg-fill';
+          fillEl.style.width = `${fill * 100}%`;
+          seg.appendChild(fillEl);
+          pipsEl.appendChild(seg);
+        }
+      } else {
+        // Original pip track for ≤10 level upgrades
+        pipsEl.className = 'upgrade-level-pips';
+        for (let i = 0; i < maxLevel; i++) {
+          const pip = document.createElement('span');
+          pip.className = 'pip' + (i < state.level ? ' filled' : '');
+          pipsEl.appendChild(pip);
+        }
       }
     }
 
@@ -268,6 +293,17 @@ export class UpgradePanel {
       ? (state.level > 0 ? '↑ Upgrade' : 'Unlock')
       : 'Buy';
     btn.addEventListener('click', () => this.upgradeSystem.purchase(def.id));
+
+    // Bulk buy button: shown for multi-level upgrades when prs_bulkBuy is active
+    const hasBulkBuy = isMultiLevel && this.prestigeSystem?.getLevel('prs_bulkBuy') > 0;
+    let bulkBtn = null;
+    if (hasBulkBuy) {
+      bulkBtn = document.createElement('button');
+      bulkBtn.className = 'upgrade-btn upgrade-btn-bulk';
+      bulkBtn.textContent = '×10';
+      bulkBtn.title = 'Buy 10 levels';
+      bulkBtn.addEventListener('click', () => this.upgradeSystem.purchaseMultiple(def.id, 10));
+    }
 
     el.appendChild(titleRow);
     el.appendChild(descDiv);
@@ -298,24 +334,27 @@ export class UpgradePanel {
     if (pipsEl) el.appendChild(pipsEl);
     el.appendChild(lockDiv);
     el.appendChild(btn);
+    if (bulkBtn) el.appendChild(bulkBtn);
 
-    const card = { el, nameDiv, costDiv, lockDiv, btn, pipsEl, maxLevel };
+    const card = { el, nameDiv, costDiv, lockDiv, btn, bulkBtn, pipsEl, maxLevel };
     this._applyState(card, false, canBuy, lockReason);
     return card;
   }
 
   _applyState(card, purchased, canBuy, lockReason) {
-    const { el, costDiv, lockDiv, btn } = card;
+    const { el, costDiv, lockDiv, btn, bulkBtn } = card;
 
     el.classList.remove('purchased', 'affordable', 'unaffordable', 'locked');
     costDiv.classList.remove('can-afford');
     lockDiv.textContent = '';
     btn.disabled = false;
+    if (bulkBtn) bulkBtn.disabled = false;
 
     if (purchased) {
       el.classList.add('purchased');
       btn.textContent = '✓ Maxed';
       btn.disabled = true;
+      if (bulkBtn) bulkBtn.disabled = true;
       return;
     }
 
@@ -323,6 +362,7 @@ export class UpgradePanel {
       el.classList.add('locked');
       lockDiv.textContent = `🔒 ${lockReason}`;
       btn.disabled = true;
+      if (bulkBtn) bulkBtn.disabled = true;
       return;
     }
 
@@ -332,6 +372,7 @@ export class UpgradePanel {
     } else {
       el.classList.add('unaffordable');
       btn.disabled = true;
+      if (bulkBtn) bulkBtn.disabled = true;
     }
   }
 

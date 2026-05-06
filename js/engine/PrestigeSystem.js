@@ -17,11 +17,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=b44c30f').EventBus} */
+  /** @type {import('../core/EventBus.js?v=8711769').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=b44c30f').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=8711769').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=b44c30f').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=8711769').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
@@ -35,9 +35,11 @@ export class PrestigeSystem {
   // ── Tier definitions ──────────────────────────────────────────────────
 
   static TIER1 = [
-    { id: 'prs_energeticEcho',   name: 'Energetic Echo',   tier: 1, baseCost: null, maxLevel: 10, description: '+25% energy rate per level (multiplicative).' },
-    { id: 'prs_vacuumExpansion', name: 'Vacuum Expansion', tier: 1, baseCost: null, maxLevel: 15, description: '×2 energy cap per level. Also increases Aeon reward.' },
-    { id: 'prs_moteAcceleration',name: 'Mote Acceleration',tier: 1, baseCost: 1,    maxLevel: 10, description: '+30% mote spawn rate per level.' },
+    { id: 'prs_energeticEcho',    name: 'Energetic Echo',    tier: 1, baseCost: null, maxLevel: 10, description: '+25% energy rate per level (multiplicative).' },
+    { id: 'prs_vacuumExpansion',  name: 'Vacuum Expansion',  tier: 1, baseCost: null, maxLevel: 15, description: '×2 energy cap per level. Also increases Aeon reward.' },
+    { id: 'prs_moteAcceleration', name: 'Mote Acceleration', tier: 1, baseCost: 1,   maxLevel: 10, description: '+30% mote spawn rate per level.' },
+    { id: 'prs_flexiblePrestige', name: 'Flexible Prestige', tier: 1, baseCost: 2,   maxLevel: 1,  description: 'Remove the Quantum Capacitor gate for all future runs. Prestige when energy fills cap.' },
+    { id: 'prs_bulkBuy',         name: 'Bulk Buy',          tier: 1, baseCost: 1,   maxLevel: 1,  description: 'Adds a ×10 buy button to all in-run upgrades.' },
   ];
 
   static TIER2 = [
@@ -100,20 +102,30 @@ export class PrestigeSystem {
   canPrestige() {
     const energy = this.#resourceManager?.get('energy');
     if (!energy) return false;
+    const energyAtCap = energy.currentValue >= energy.cap && energy.cap > 0;
+    if (!energyAtCap) return false;
+
+    // prs_flexiblePrestige removes the capacitor gate (but only after first prestige).
+    const flexiblePrestige = this.getLevel('prs_flexiblePrestige') > 0;
+    if (flexiblePrestige) return true;
+
     const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
-    if (capacitorLevel < 10) return false;
-    return energy.currentValue >= energy.cap && energy.cap > 0;
+    return capacitorLevel >= 10;
   }
 
   /** Returns a user-facing message explaining why prestige is currently blocked, or null if not blocked. */
   canPrestigeBlockedMessage() {
     if (this.canPrestige()) return null;
     const energy = this.#resourceManager?.get('energy');
+    const flexiblePrestige = this.getLevel('prs_flexiblePrestige') > 0;
+    const energyAtCap = energy && energy.currentValue >= energy.cap && energy.cap > 0;
     const capacitorLevel = this.#upgradeSystem?.getLevel('upg_quantumCapacitor') ?? 0;
     const capacitorMaxed = capacitorLevel >= 10;
-    const energyAtCap = energy && energy.currentValue >= energy.cap && energy.cap > 0;
-    if (!capacitorMaxed && !energyAtCap) return `Max Quantum Capacitor (${capacitorLevel}/10) & fill energy to cap`;
-    if (!capacitorMaxed) return `Max Quantum Capacitor (${capacitorLevel}/10) to prestige`;
+
+    if (!flexiblePrestige) {
+      if (!capacitorMaxed && !energyAtCap) return `Max Quantum Capacitor (${capacitorLevel}/10) & fill energy to cap`;
+      if (!capacitorMaxed) return `Max Quantum Capacitor (${capacitorLevel}/10) to prestige`;
+    }
     return 'Fill energy to cap to prestige';
   }
 
@@ -157,8 +169,7 @@ export class PrestigeSystem {
   /** Next energy cap after one more Vacuum Expansion purchase. */
   getNextEnergyCap() {
     const level = this.getLevel('prs_vacuumExpansion');
-    const absoluteCap = this.#resourceManager?.getDefinition('energy')?.absoluteCap ?? 10000000;
-    return Math.min(500 * Math.pow(2, level + 1), absoluteCap);
+    return 500 * Math.pow(2, level + 1);
   }
 
   // ── Track peak energy each tick ───────────────────────────────────────

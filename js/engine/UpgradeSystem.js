@@ -8,11 +8,11 @@
  */
 
 export class UpgradeSystem {
-  /** @type {import('../core/EventBus.js?v=b44c30f').EventBus} */
+  /** @type {import('../core/EventBus.js?v=8711769').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=b44c30f').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=8711769').ResourceManager} */
   #resourceManager;
-  /** @type {import('./MilestoneSystem.js?v=b44c30f').MilestoneSystem | null} */
+  /** @type {import('./MilestoneSystem.js?v=8711769').MilestoneSystem | null} */
   #milestoneSystem = null;
   /** @type {Map<string, object>} upgrade definitions keyed by id */
   #definitions = new Map();
@@ -64,6 +64,11 @@ export class UpgradeSystem {
    *   cost = costAtThreshold * (1 + log₂(level − threshold + 1) * (costScaling − 1))
    * Log scaling is disabled by default (threshold = Infinity); set logScalingThreshold
    * explicitly on an upgrade definition to opt in.
+   *
+   * Bracket scaling (bracketScaling: true):
+   *   cost *= 2^floor(level / bracketSize) where bracketSize defaults to 10.
+   *   Doubles the cost each time the player crosses a bracket of 10 levels.
+   *   Skipped for costType='resourceCap' (natural scaling via the cap itself).
    */
   getCost(upgradeId) {
     const def = this.#definitions.get(upgradeId);
@@ -88,21 +93,30 @@ export class UpgradeSystem {
     const threshold = def.logScalingThreshold ?? Infinity;
     const maxLevel = def.maxLevel || 1;
 
+    let cost;
+
     // Hard exponential scaling kicks in at hardScalingStart (opt-in).
     // cost = normalCost(hardScalingStart) * hardScaling ^ (level - hardScalingStart)
     const hardStart = def.hardScalingStart ?? Infinity;
     if (level >= hardStart && isFinite(hardStart)) {
       const costAtHardStart = this.#normalCost(def, hardStart, threshold);
-      return Math.round(costAtHardStart * Math.pow(def.hardScaling, level - hardStart));
-    }
-
-    if (scaling > 1 && maxLevel > threshold && level > threshold) {
+      cost = Math.round(costAtHardStart * Math.pow(def.hardScaling, level - hardStart));
+    } else if (scaling > 1 && maxLevel > threshold && level > threshold) {
       const costAtThreshold = def.baseCost * Math.pow(scaling, threshold);
       const logScalingFactor = scaling - 1;
-      return Math.round(costAtThreshold * (1 + Math.log2(level - threshold + 1) * logScalingFactor));
+      cost = Math.round(costAtThreshold * (1 + Math.log2(level - threshold + 1) * logScalingFactor));
+    } else {
+      cost = Math.round(def.baseCost * Math.pow(scaling, level));
     }
 
-    return Math.round(def.baseCost * Math.pow(scaling, level));
+    // Bracket scaling: cost doubles every bracketSize levels (default 10).
+    if (def.bracketScaling) {
+      const bracketSize = def.bracketSize ?? 10;
+      const bracket = Math.floor(level / bracketSize);
+      cost = Math.round(cost * Math.pow(2, bracket));
+    }
+
+    return cost;
   }
 
   /** Compute the "normal" cost at a given level (log scaling only, no hard scaling). */
@@ -285,6 +299,20 @@ export class UpgradeSystem {
     return true;
   }
 
+  /**
+   * Attempt to purchase `count` levels of an upgrade in sequence.
+   * Stops early if a purchase fails (can't afford or maxed).
+   * Returns the number of levels successfully purchased.
+   */
+  purchaseMultiple(upgradeId, count = 10) {
+    let purchased = 0;
+    for (let i = 0; i < count; i++) {
+      if (!this.purchase(upgradeId)) break;
+      purchased++;
+    }
+    return purchased;
+  }
+
   // ── Queries ───────────────────────────────────────────────────────────
 
   /**
@@ -315,12 +343,19 @@ export class UpgradeSystem {
             scaledMag = def.effectMagnitude * level * level;
             break;
           case 'capMultiplier':
-            scaledMag = Math.pow(def.effectMagnitude, level);
-            break;
           case 'rateMultiplier':
-          case 'clickMultiplier':
-            scaledMag = Math.pow(def.effectMagnitude, level);
+          case 'clickMultiplier': {
+            // highLevelMagnitude: use a gentler exponent above a threshold level.
+            // scaledMag = effectMagnitude^threshold * highLevelMagnitude^(level - threshold)
+            const hlThreshold = def.highLevelThreshold ?? Infinity;
+            if (isFinite(hlThreshold) && def.highLevelMagnitude != null && level > hlThreshold) {
+              scaledMag = Math.pow(def.effectMagnitude, hlThreshold)
+                * Math.pow(def.highLevelMagnitude, level - hlThreshold);
+            } else {
+              scaledMag = Math.pow(def.effectMagnitude, level);
+            }
             break;
+          }
         }
       }
 
