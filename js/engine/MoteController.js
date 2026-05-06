@@ -215,6 +215,10 @@ export class MoteController {
     this.worldX += this._vx * dt;
     this.worldY += this._vy * dt;
 
+    // Clamp to world bounds (important at high AEONS_SPEED_MULT where dt is large)
+    this.worldX = Math.max(0, Math.min(this._boundsW, this.worldX));
+    this.worldY = Math.max(0, Math.min(this._boundsH, this.worldY));
+
     // Update visual facing angle from current velocity direction
     if (Math.abs(this._vx) > 1 || Math.abs(this._vy) > 1) {
       this.angle = Math.atan2(this._vy, this._vx);

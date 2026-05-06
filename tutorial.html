@@ -491,7 +491,7 @@ while (accumulator &gt;= tickInterval) {
   const adjustedDt = tickInterval * (window.AEONS_SPEED_MULT ?? 1);
   for (const cb of tickCallbacks) cb(adjustedDt);
 }</code></pre>
-<p><code>AEONS_SPEED_MULT</code> is the dev speed multiplier (1×/10×/100×/1000×). Setting it affects only the <code>adjustedDt</code> passed to tick callbacks, so all game logic sees the multiplied time but real-world elapsed time is unchanged.</p>
+<p><code>AEONS_SPEED_MULT</code> is the dev speed multiplier (1×/10×/100×/1000×). Setting it scales the <code>adjustedDt</code> passed to tick callbacks <strong>and</strong> the delta-time passed to <code>MoteController.tick()</code>, so resource generation, passive rates, and character movement all accelerate together. Real-world elapsed time is unchanged.</p>
 <pre><code class="language-js">// To register callbacks (done once in main.js):
 GameLoop.onTick((dt) =&gt; resourceManager.tick(dt));
 GameLoop.onFrame((timestamp) =&gt; canvasRenderer.onFrame(timestamp));
@@ -1129,7 +1129,7 @@ plasmaPanel.init();</code></pre>
 <tr><td>100×</td><td>100</td><td>100× faster ticks</td></tr>
 <tr><td>1000×</td><td>1000</td><td>1000× faster ticks</td></tr>
 </tbody></table></div>
-<p>This is implemented in <code>GameLoop.js</code> — the speed multiplier scales <code>dt</code> passed to tick callbacks, so resource generation, fusion, milestone checks, and DM wave timing all accelerate proportionally.</p>
+<p>This is implemented in three places: <code>GameLoop.js</code> scales <code>dt</code> for tick callbacks (resource generation, fusion, milestones, DM waves); <code>main.js</code> applies the multiplier to the dt passed to <code>MoteController.tick()</code> (movement speed, capped at 0.5 s per frame for physics stability); and the <code>particle:absorbed</code> handler scales per-mote energy by <code>AEONS_SPEED_MULT</code> — so even energy accumulation from mote collection is accelerated proportionally. In production <code>AEONS_SPEED_MULT</code> is undefined (= 1), so no behaviour changes outside of testing.</p>
 <h3 id="console-devtools-tricks">Console / DevTools Tricks</h3>
 <pre><code class="language-js">// Inspect all resource states
 window.aeons.resourceManager.getAll()
