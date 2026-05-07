@@ -12,7 +12,7 @@
  * Leave confirmation shown inline when closing with unspent Aeons while in purgatory.
  */
 
-import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=afe6d74';
+import { PrestigeSystem } from '../engine/PrestigeSystem.js?v=c3f8e0c';
 
 const TIER_CONFIG = [
   { tier: 1, label: 'Tier I — Primal',      color: '#ffd700', unlockMsg: null },
@@ -35,6 +35,7 @@ export class PrestigePanel {
     this._visible = false;
     this._inPurgatory = false;
     this._leaveConfirmVisible = false;
+    this._activeTab = 'upgrades'; // 'upgrades' | 'milestones'
   }
 
   // ── Init ──────────────────────────────────────────────────────────────
@@ -238,6 +239,14 @@ export class PrestigePanel {
     if (!container) return;
     container.innerHTML = '';
 
+    // Tab bar
+    container.appendChild(this._buildTabBar());
+
+    if (this._activeTab === 'milestones') {
+      container.appendChild(this._buildMilestoneGrid());
+      return;
+    }
+
     // Render prestige tiers
     for (const cfg of TIER_CONFIG) {
       const upgrades = {
@@ -255,6 +264,84 @@ export class PrestigePanel {
       const echoUpgrades = PrestigeSystem.ECHO_TREE.collapse ?? [];
       container.appendChild(this._buildBranch(ECHO_BRANCH_CONFIG, echoUpgrades, 'echo'));
     }
+  }
+
+  _buildTabBar() {
+    const bar = document.createElement('div');
+    bar.className = 'prs-tab-bar';
+
+    const tabs = [
+      { id: 'upgrades',   label: '⬡ Upgrades' },
+      { id: 'milestones', label: '◎ Milestones' },
+    ];
+
+    for (const tab of tabs) {
+      const btn = document.createElement('button');
+      btn.className = `prs-tab-btn${this._activeTab === tab.id ? ' prs-tab-btn--active' : ''}`;
+      btn.textContent = tab.label;
+      btn.addEventListener('click', () => {
+        this._activeTab = tab.id;
+        this._renderTree();
+      });
+      bar.appendChild(btn);
+    }
+
+    // Show milestone unlock count in the tab label
+    const ps = this.prestigeSystem;
+    const count = ps.getCount();
+    const unlockedCount = PrestigeSystem.MILESTONES.filter(m => count >= m.requiredCount).length;
+    const total = PrestigeSystem.MILESTONES.length;
+    const badge = bar.querySelector('.prs-tab-btn:last-child');
+    if (badge) badge.textContent += ` (${unlockedCount}/${total})`;
+
+    return bar;
+  }
+
+  _buildMilestoneGrid() {
+    const ps = this.prestigeSystem;
+    const count = ps.getCount();
+
+    const section = document.createElement('div');
+    section.className = 'prs-milestone-section';
+
+    const subtitle = document.createElement('div');
+    subtitle.className = 'prs-milestone-subtitle';
+    subtitle.textContent = `Permanent passive bonuses — unlock by completing Aeon cycles. ${count} prestige${count !== 1 ? 's' : ''} completed.`;
+    section.appendChild(subtitle);
+
+    const grid = document.createElement('div');
+    grid.className = 'prs-milestone-grid';
+
+    for (const m of PrestigeSystem.MILESTONES) {
+      const unlocked = count >= m.requiredCount;
+      const card = document.createElement('div');
+      card.className = `prs-milestone-card${unlocked ? ' prs-milestone-card--unlocked' : ''}`;
+
+      const progress = unlocked
+        ? '✓ Unlocked'
+        : `${count} / ${m.requiredCount} prestiges`;
+
+      card.innerHTML = `
+        <div class="prs-milestone-req">${m.requiredCount} prestige${m.requiredCount !== 1 ? 's' : ''}</div>
+        <div class="prs-milestone-name">${m.name}</div>
+        <div class="prs-milestone-desc">${m.description}</div>
+        <div class="prs-milestone-flavour">${m.flavour}</div>
+        <div class="prs-milestone-progress">${progress}</div>
+      `;
+
+      if (!unlocked) {
+        const pct = Math.min(1, count / m.requiredCount);
+        const bar = document.createElement('div');
+        bar.className = 'prs-milestone-progress-bar';
+        bar.innerHTML = `<div class="prs-milestone-progress-fill" style="width:${(pct * 100).toFixed(1)}%"></div>`;
+        card.appendChild(bar);
+      }
+
+      grid.appendChild(card);
+    }
+
+    section.appendChild(grid);
+    return section;
   }
 
   _buildTierBlock(cfg, upgrades) {

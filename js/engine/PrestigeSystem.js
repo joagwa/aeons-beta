@@ -17,11 +17,11 @@
  *   - Spent on phase-unlocking upgrades (Quark Sight, Deep Structure, etc.)
  */
 export class PrestigeSystem {
-  /** @type {import('../core/EventBus.js?v=afe6d74').EventBus} */
+  /** @type {import('../core/EventBus.js?v=c3f8e0c').EventBus} */
   #eventBus;
-  /** @type {import('./ResourceManager.js?v=afe6d74').ResourceManager} */
+  /** @type {import('./ResourceManager.js?v=c3f8e0c').ResourceManager} */
   #resourceManager;
-  /** @type {import('./UpgradeSystem.js?v=afe6d74').UpgradeSystem} */
+  /** @type {import('./UpgradeSystem.js?v=c3f8e0c').UpgradeSystem} */
   #upgradeSystem;
 
   #count = 0;
@@ -70,6 +70,30 @@ export class PrestigeSystem {
     efficiency: ['upg_moteGeneration', 'upg_moteQuality', 'upg_moteFlood', 'upg_voidSaturation', 'upg_nebularSurge'],
   };
 
+  // ── Prestige Milestones ───────────────────────────────────────────────
+  // Auto-unlock when cumulative prestige count reaches requiredCount.
+  // No purchase needed — purely passive, permanent bonuses.
+  // effectType: 'energyRateMult' | 'moteSpawnMult' | 'startingQcLevel' | 'startingEnergy'
+  // energyRateMult / moteSpawnMult: stack multiplicatively
+  // startingQcLevel: only highest unlocked applies
+  // startingEnergy: additive
+
+  static MILESTONES = [
+    { id: 'pm_firstLight',         requiredCount:   1, name: 'First Light',          effectType: 'energyRateMult',  effectValue: 1.15, description: '+15% energy generation rate.',            flavour: 'The universe remembers its first spark.' },
+    { id: 'pm_orbitalReach',       requiredCount:   2, name: 'Orbital Reach',         effectType: 'startingGpLevel', effectValue: 2,    description: 'Gravitational Pull starts at L2 (up from L1).', flavour: 'Memory of gravity persists through the void.' },
+    { id: 'pm_echoSeed',           requiredCount:   3, name: 'Echo Seed',             effectType: 'moteSpawnMult',   effectValue: 1.20, description: '+20% mote spawn rate.',                  flavour: 'Resonance echoes leave traces in the fabric.' },
+    { id: 'pm_primalCore',         requiredCount:   5, name: 'Primal Core',           effectType: 'startingEnergy',  effectValue: 500,  description: 'Start each run with 500 energy.',          flavour: 'A seed of potential, carried across resets.' },
+    { id: 'pm_voidCurrent',        requiredCount:   8, name: 'Void Current',          effectType: 'energyRateMult',  effectValue: 1.30, description: '+30% energy generation rate.',            flavour: 'The void flows with accumulated will.' },
+    { id: 'pm_quantumResidue',     requiredCount:  10, name: 'Quantum Residue',       effectType: 'startingQcLevel', effectValue: 2,    description: 'Start each run with Quantum Capacitor at L2.', flavour: 'Quantum structure crystallises across iterations.' },
+    { id: 'pm_solarBloom',         requiredCount:  15, name: 'Solar Bloom',           effectType: 'moteSpawnMult',   effectValue: 1.50, description: '+50% mote spawn rate.',                  flavour: 'Stars multiply as the cosmos awakens.' },
+    { id: 'pm_cosmicDraft',        requiredCount:  20, name: 'Cosmic Draft',          effectType: 'energyRateMult',  effectValue: 2.00, description: 'Energy generation ×2.',                  flavour: 'Two decades of collapse — the draft runs deep.' },
+    { id: 'pm_nebularMemory',      requiredCount:  25, name: 'Nebular Memory',        effectType: 'startingQcLevel', effectValue: 5,    description: 'Start each run with Quantum Capacitor at L5.', flavour: 'Nebulae remember the shape of what came before.' },
+    { id: 'pm_darkTide',           requiredCount:  30, name: 'Dark Tide',             effectType: 'energyRateMult',  effectValue: 1.50, description: 'Energy generation ×1.5.',                 flavour: 'The dark tide turns in your favour.' },
+    { id: 'pm_stellarInheritance', requiredCount:  50, name: 'Stellar Inheritance',   effectType: 'startingQcLevel', effectValue: 10,   description: 'Start each run with Quantum Capacitor at L10.', flavour: 'Fifty collapses distilled into a single instant.' },
+    { id: 'pm_voidMastery',        requiredCount:  75, name: 'Void Mastery',          effectType: 'moteSpawnMult',   effectValue: 3.00, description: 'Mote spawn rate ×3.',                    flavour: 'Mastery of the void — motes answer your call.' },
+    { id: 'pm_epochResonance',     requiredCount: 100, name: 'Epoch Resonance',       effectType: 'startingEnergy',  effectValue: 5000, description: 'Start each run with 5,000 energy.',       flavour: 'A century of collapse echoes into every beginning.' },
+  ];
+
   static get ALL_PRESTIGE_UPGRADES() {
     return [...PrestigeSystem.TIER1, ...PrestigeSystem.TIER2, ...PrestigeSystem.TIER3];
   }
@@ -98,6 +122,37 @@ export class PrestigeSystem {
   getPeakEnergy()         { return this.#peakEnergy; }
   getLevel(id)            { return this.#levels.get(id) ?? 0; }
   getPointsSpentTotal()   { return this.#pointsSpentTotal; }
+
+  /**
+   * Compute combined passive bonuses from all unlocked prestige milestones.
+   * @returns {{ energyRateMult: number, moteSpawnMult: number, startingQcLevel: number, startingEnergy: number }}
+   */
+  getMilestoneBonuses() {
+    let energyRateMult = 1;
+    let moteSpawnMult  = 1;
+    let startingQcLevel = 0;
+    let startingGpLevel = 0;
+    let startingEnergy  = 0;
+    for (const m of PrestigeSystem.MILESTONES) {
+      if (this.#count < m.requiredCount) continue;
+      switch (m.effectType) {
+        case 'energyRateMult':  energyRateMult  *= m.effectValue; break;
+        case 'moteSpawnMult':   moteSpawnMult   *= m.effectValue; break;
+        case 'startingQcLevel': startingQcLevel  = Math.max(startingQcLevel, m.effectValue); break;
+        case 'startingGpLevel': startingGpLevel  = Math.max(startingGpLevel, m.effectValue); break;
+        case 'startingEnergy':  startingEnergy  += m.effectValue; break;
+      }
+    }
+    return { energyRateMult, moteSpawnMult, startingQcLevel, startingGpLevel, startingEnergy };
+  }
+
+  /** Returns all milestones, annotated with whether they are currently unlocked. */
+  getMilestonesWithStatus() {
+    return PrestigeSystem.MILESTONES.map(m => ({
+      ...m,
+      unlocked: this.#count >= m.requiredCount,
+    }));
+  }
 
   canPrestige() {
     const energy = this.#resourceManager?.get('energy');
@@ -277,7 +332,7 @@ export class PrestigeSystem {
    * @param {number} [peakEnergyOverride] — peak energy from the prestige event
    */
   applyRunBonuses(resourceManager, upgradeSystem, moteController, peakEnergyOverride) {
-    this.applyPersistentBonuses(resourceManager, upgradeSystem);
+    this.applyPersistentBonuses(resourceManager);
 
     // Primal Memory — start with 50% of last peak energy (one-shot, not on reload)
     const peak = peakEnergyOverride ?? 0;
@@ -285,16 +340,32 @@ export class PrestigeSystem {
       resourceManager.add('energy', Math.floor(peak * 0.5));
     }
 
-    // Grant EM Bond L1 on every post-prestige run as a QoL baseline
-    if (this.#count >= 1) {
-      const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
-      if (cur < 1) upgradeSystem.forceLevel('upg_gravitationalPull', 1);
+    // Prestige milestones — QC starting level and bonus starting energy
+    const mb = this.getMilestoneBonuses();
+
+    // Starting QC level: take highest of milestone bonus and post-prestige baseline (L1)
+    const qcTarget = Math.max(this.#count >= 1 ? 1 : 0, mb.startingQcLevel);
+    if (qcTarget > 0) {
+      const cur = upgradeSystem.getLevel('upg_quantumCapacitor') ?? 0;
+      if (cur < qcTarget) upgradeSystem.forceLevel('upg_quantumCapacitor', qcTarget);
+    }
+
+    // Starting energy from milestones (additive)
+    if (mb.startingEnergy > 0) {
+      resourceManager.add('energy', mb.startingEnergy);
     }
 
     // Auto-grant movement after first prestige
     if (this.#count >= 1) {
       const curDrift = upgradeSystem.getLevel('upg_cosmicDrift') ?? 0;
       if (curDrift < 1) upgradeSystem.forceLevel('upg_cosmicDrift', 1);
+    }
+
+    // Gravitational Pull baseline: pm_orbitalReach (P2) upgrades this to L2; otherwise L1
+    const gpTarget = Math.max(this.#count >= 1 ? 1 : 0, mb.startingGpLevel);
+    if (gpTarget > 0) {
+      const cur = upgradeSystem.getLevel('upg_gravitationalPull') ?? 0;
+      if (cur < gpTarget) upgradeSystem.forceLevel('upg_gravitationalPull', gpTarget);
     }
   }
 
@@ -309,10 +380,12 @@ export class PrestigeSystem {
       resourceManager.setCurrentCap('energy', 500 * Math.pow(2, vacLevel));
     }
 
-    // Energetic Echo — persistent energy rate multiplier (1.25 per level, multiplicative)
-    const echoLevel = this.getLevel('prs_energeticEcho');
-    if (echoLevel > 0) {
-      resourceManager.applyPersistentRateMultiplier('energy', Math.pow(1.25, echoLevel));
+    // Energetic Echo × milestone energy rate — stored as single combined multiplier
+    const echoMult      = Math.pow(1.25, this.getLevel('prs_energeticEcho'));
+    const milestoneMult = this.getMilestoneBonuses().energyRateMult;
+    const totalMult     = echoMult * milestoneMult;
+    if (totalMult !== 1) {
+      resourceManager.applyPersistentRateMultiplier('energy', totalMult);
     }
   }
 
@@ -321,9 +394,10 @@ export class PrestigeSystem {
    */
   getRuntimeBonuses() {
     const echoLevel = this.getLevel('prs_energeticEcho');
+    const mb = this.getMilestoneBonuses();
     return {
-      energyRateMult:         Math.pow(1.25, echoLevel),
-      moteSpawnMult:          Math.pow(1.3,  this.getLevel('prs_moteAcceleration')),
+      energyRateMult:         Math.pow(1.25, echoLevel) * mb.energyRateMult,
+      moteSpawnMult:          Math.pow(1.3,  this.getLevel('prs_moteAcceleration')) * mb.moteSpawnMult,
       autoProductionE:        this.getLevel('prs_autoProductionE')   >= 1,
       autoProductionEff:      this.getLevel('prs_autoProductionEff') >= 1,
       instantPrestige:        this.getLevel('prs_instantPrestige')   >= 1,

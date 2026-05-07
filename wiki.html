@@ -181,7 +181,7 @@
     <h1 id="aeons-the-grand-unfolding-game-mechanics-wiki">Aeons: The Grand Unfolding — Game Mechanics Wiki</h1>
 <blockquote>
 <p><strong>Source of Truth</strong> — This document describes all Epoch 1 mechanics and values.
-Last updated: 2026-05-06 | Latest: 100-level upgrades with bracket scaling; new prestige upgrades <code>prs_flexiblePrestige</code> and <code>prs_bulkBuy</code>.</p>
+Last updated: 2026-05-07 | Latest: Prestige Milestones — 13 permanent passive bonuses unlocking as cumulative prestige count grows.</p>
 </blockquote>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
@@ -628,6 +628,32 @@ Upgrades are grouped into three tiers. Higher tiers unlock as you **spend** cumu
 | prs_celestialQuanta | Celestial Quanta | 3 Aeons | 1 | Unlock Celestial Quanta: orbiting motes coloured by quark flavour |
 
 &gt; Bulk Prestige uses **escalating costs**: L1 costs 5, L2 costs 10, L3 costs 15, L4 costs 20, L5 costs 25.
+
+### Prestige Milestones (Passive Unlocks)
+
+Milestones are **permanent passive bonuses** that unlock automatically as your cumulative Aeon prestige count grows. No purchase is required — they are applied from the moment their threshold is met and never reset. View your milestone progress in the **Milestones tab** of the Prestige Panel.
+
+| ID | Required Prestiges | Name | Effect |
+|----|---|---|---|
+| pm_firstLight | 1 | First Light | +15% energy generation rate |
+| pm_orbitalReach | 2 | Orbital Reach | Gravitational Pull starts at L2 (up from L1) |
+| pm_echoSeed | 3 | Echo Seed | +20% mote spawn rate |
+| pm_primalCore | 5 | Primal Core | Start each run with 500 energy |
+| pm_voidCurrent | 8 | Void Current | +30% energy generation rate |
+| pm_quantumResidue | 10 | Quantum Residue | Start with Quantum Capacitor at L2 |
+| pm_solarBloom | 15 | Solar Bloom | +50% mote spawn rate |
+| pm_cosmicDraft | 20 | Cosmic Draft | Energy generation ×2 |
+| pm_nebularMemory | 25 | Nebular Memory | Start with Quantum Capacitor at L5 |
+| pm_darkTide | 30 | Dark Tide | Energy generation ×1.5 |
+| pm_stellarInheritance | 50 | Stellar Inheritance | Start with Quantum Capacitor at L10 |
+| pm_voidMastery | 75 | Void Mastery | Mote spawn rate ×3 |
+| pm_epochResonance | 100 | Epoch Resonance | Start each run with 5,000 energy |
+
+**Stacking rules:**
+- Energy rate bonuses (pm_firstLight, pm_voidCurrent, pm_cosmicDraft, pm_darkTide) stack **multiplicatively** with each other and with Energetic Echo.
+- Mote spawn bonuses (pm_echoSeed, pm_solarBloom, pm_voidMastery) stack **multiplicatively** with each other and with Mote Acceleration.
+- Quantum Capacitor starting level: only the **highest** unlocked milestone applies (max of L2, L5, L10).
+- Starting energy bonuses are **additive** (500 + 5,000 = 5,500 at P100).
 
 ### Epoch Echo (Story, Auto-Triggered)
 
